@@ -1,10 +1,10 @@
 import React from 'react';
-import HeroSection from '@/components/portfolio/HeroSection';
-import AboutSection from '@/components/portfolio/AboutSection';
-import TechStackSection from '@/components/portfolio/TechStackSection';
-import ProjectsSection from '@/components/portfolio/ProjectsSection';
-import GallerySection from '@/components/portfolio/GallerySection';
-import ContactSection from '@/components/portfolio/ContactSection';
+import HeroSection from '@/components/portofolio/HeroSection';
+import AboutSection from '@/components/portofolio/AboutSection';
+import TechStackSection from '@/components/portofolio/TechStackSection';
+import ProjectSection from '@/components/portofolio/ProjectSection';
+import GallerySection from '@/components/portofolio/GallerySection';
+import ContactSection from '@/components/portofolio/ContactSection';
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <TechStackSection />
-      <ProjectsSection />
+      <ProjectSection />
       <GallerySection />
       <ContactSection />
     </div>

@@ -22,7 +22,6 @@ export default function Layout({ children }) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
       
-      // Update active section based on scroll position
       const sections = navLinks.map(link => link.href.replace('#', ''));
       for (const section of sections.reverse()) {
         const element = document.getElementById(section);
@@ -73,13 +72,10 @@ export default function Layout({ children }) {
             <motion.a
               href="#hero"
               onClick={(e) => { e.preventDefault(); scrollToSection('#hero'); }}
-              className="flex items-center gap-2 text-xl font-bold"
+              className="flex items-center"
               whileHover={{ scale: 1.05 }}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
-                <Code2 className="w-5 h-5 text-white" />
-              </div>
-              <span className="hidden sm:block">Qoid<span className="text-blue-400">.</span></span>
+              <img src="/logo.png" alt="Qoid Rif'at Logo" className="h-10 w-auto" />
             </motion.a>
 
             {/* Desktop Navigation */}
@@ -171,28 +167,27 @@ export default function Layout({ children }) {
       {/* Footer */}
       <footer className="relative border-t border-white/5 bg-zinc-950/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
-                <Code2 className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-lg font-bold">Qoid Rif'at</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div className="flex flex-col items-center md:items-start">
+                <img src="/logo.png" alt="Qoid Rif'at Logo" className="h-8 w-auto mb-2" />
+                <p className="text-zinc-400 text-xs font-medium">AI & Web Developer</p>
             </div>
             
-            <p className="text-zinc-500 text-sm text-center">
+            <p className="text-zinc-500 text-sm self-center">
               © 2024 Qoid Rif'at. Crafted with passion & code.
             </p>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 justify-center md:justify-end">
               {[
-                { icon: Github, href: 'https://github.com' },
-                { icon: Linkedin, href: 'https://linkedin.com' },
-                { icon: Instagram, href: 'https://instagram.com' },
-                { icon: Mail, href: 'mailto:qoid@email.com' },
+                { icon: Github, href: '#', 'aria-label': 'GitHub' },
+                { icon: Linkedin, href: '#', 'aria-label': 'LinkedIn' },
+                { icon: Instagram, href: '#', 'aria-label': 'Instagram' },
+                { icon: Mail, href: '#', 'aria-label': 'Email' },
               ].map((social, index) => (
                 <motion.a
                   key={index}
                   href={social.href}
+                  aria-label={social['aria-label']}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all"

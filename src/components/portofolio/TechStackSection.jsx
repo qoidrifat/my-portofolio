@@ -1,66 +1,66 @@
 import React from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import {
+  FaPhp, FaLaravel, FaPython, FaGitAlt, FaJsSquare, FaHtml5, FaCss3Alt, FaBrain
+} from 'react-icons/fa';
+import { SiTensorflow, SiTailwindcss } from 'react-icons/si';
+import { DiMysql } from 'react-icons/di';
 
 const technologies = [
   { 
     name: 'PHP', 
-    color: 'from-indigo-500 to-indigo-600',
-    icon: '🐘',
+    icon: <FaPhp />,
     category: 'Backend'
   },
   { 
     name: 'Laravel', 
-    color: 'from-red-500 to-red-600',
-    icon: '🔺',
+    icon: <FaLaravel />,
     category: 'Framework'
   },
   { 
     name: 'Python', 
-    color: 'from-yellow-500 to-blue-500',
-    icon: '🐍',
+    icon: <FaPython />,
     category: 'AI/ML'
   },
   { 
     name: 'TensorFlow', 
-    color: 'from-orange-500 to-orange-600',
-    icon: '🧠',
+    icon: <SiTensorflow />,
     category: 'Deep Learning'
   },
   { 
     name: 'MySQL', 
-    color: 'from-blue-500 to-cyan-500',
-    icon: '🗄️',
+    icon: <DiMysql />,
     category: 'Database'
   },
   { 
     name: 'Git', 
-    color: 'from-orange-600 to-red-600',
-    icon: '📦',
+    icon: <FaGitAlt />,
     category: 'Version Control'
   },
   { 
     name: 'Tailwind', 
-    color: 'from-cyan-400 to-blue-500',
-    icon: '🎨',
+    icon: <SiTailwindcss />,
     category: 'Styling'
   },
   { 
     name: 'JavaScript', 
-    color: 'from-yellow-400 to-yellow-500',
-    icon: '⚡',
+    icon: <FaJsSquare />,
     category: 'Frontend'
   },
   { 
-    name: 'HTML/CSS', 
-    color: 'from-orange-500 to-pink-500',
-    icon: '🌐',
+    name: 'HTML5', 
+    icon: <FaHtml5 />,
+    category: 'Frontend'
+  },
+    { 
+    name: 'CSS3', 
+    icon: <FaCss3Alt />,
     category: 'Frontend'
   },
   { 
     name: 'DeepFace', 
-    color: 'from-purple-500 to-pink-500',
-    icon: '👤',
+    icon: <FaBrain />,
     category: 'AI Library'
   },
 ];
@@ -89,7 +89,7 @@ const MarqueeRow = ({ items, direction = 'left', speed = 30 }) => {
             className="flex-shrink-0 group"
           >
             <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer flex items-center gap-3">
-              <span className="text-2xl">{tech.icon}</span>
+              <span className="text-2xl text-white">{tech.icon}</span>
               <div>
                 <div className="text-white font-semibold text-sm">{tech.name}</div>
                 <div className="text-zinc-500 text-xs">{tech.category}</div>
@@ -106,8 +106,8 @@ export default function TechStackSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const row1 = technologies.slice(0, 5);
-  const row2 = technologies.slice(5);
+  const row1 = technologies.slice(0, 6);
+  const row2 = technologies.slice(6);
 
   return (
     <section id="skills" className="py-20 md:py-32 relative overflow-hidden" ref={ref}>
@@ -156,7 +156,7 @@ export default function TechStackSection() {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4"
         >
           {[
-            { label: 'Frontend', items: ['HTML/CSS', 'JavaScript', 'Tailwind'], color: 'blue' },
+            { label: 'Frontend', items: ['HTML5', 'CSS3', 'JavaScript', 'Tailwind'], color: 'blue' },
             { label: 'Backend', items: ['PHP', 'Laravel', 'Python'], color: 'emerald' },
             { label: 'Database', items: ['MySQL', 'SQLite'], color: 'purple' },
             { label: 'AI/ML', items: ['TensorFlow', 'DeepFace', 'CNN'], color: 'orange' },

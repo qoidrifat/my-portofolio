@@ -113,8 +113,8 @@ export default function HeroSection() {
             className="mt-16 grid grid-cols-3 gap-8 max-w-md mx-auto"
           >
             {[
-              { value: '10+', label: 'Projects' },
-              { value: '2+', label: 'Years Exp' },
+              { value: '5+', label: 'Projects' },
+              { value: '-1', label: 'Years Exp' },
               { value: '∞', label: 'Curiosity' },
             ].map((stat, index) => (
               <div key={index} className="text-center">

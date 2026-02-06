@@ -64,10 +64,12 @@ export default function AboutSection() {
               
               {/* Main card */}
               <div className="relative bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 h-full flex flex-col justify-center">
-                {/* Profile placeholder */}
-                <div className="w-32 h-32 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center">
-                  <span className="text-5xl font-bold text-white">QR</span>
-                </div>
+                {/* Profile picture */}
+                <img 
+                  src="/profile.png" 
+                  alt="Qoid Rif'at"
+                  className="w-32 h-32 mx-auto mb-6 rounded-2xl object-cover border-2 border-white/10 shadow-lg"
+                />
                 
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-white mb-2">Qoid Rif'at</h3>
