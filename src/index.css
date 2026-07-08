@@ -37,6 +37,19 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --text-body: 0 0% 88%;
+    --text-muted: 0 0% 72%;
+    --text-decor: 0 0% 35%;
+    --surface-card: 240 6% 10%;
+    --border-soft: 0 0% 14%;
+    --border-soft-strong: 0 0% 24%;
+    --accent-web: 217 87% 55%;
+    --accent-web-foreground: 0 0% 100%;
+    --accent-web-btn: 217 85% 36%;
+    --accent-ai: 160 84% 39%;
+    --accent-ai-foreground: 0 0% 100%;
+    --glow-web: 59 130 246;
+    --glow-ai: 16 185 129;
   }
 
   .dark {
@@ -72,9 +85,20 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --text-body: 0 0% 88%;
+    --text-muted: 0 0% 72%;
+    --text-decor: 0 0% 35%;
+    --surface-card: 240 6% 10%;
+    --border-soft: 0 0% 14%;
+    --border-soft-strong: 0 0% 24%;
+    --accent-web: 217 87% 55%;
+    --accent-web-foreground: 0 0% 100%;
+    --accent-ai: 160 84% 39%;
+    --accent-ai-foreground: 0 0% 100%;
+    --glow-web: 59 130 246;
+    --glow-ai: 16 185 129;
   }
 }
-
 
 
 @layer base {
@@ -83,6 +107,143 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-zinc-950 text-white antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar        { width: 8px; height: 8px; }
+::-webkit-scrollbar-track  { background: #18181b; }
+::-webkit-scrollbar-thumb  { background: #3f3f46; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* Selection */
+::selection {
+  background: rgb(var(--glow-web) / 0.3);
+  color: #fff;
+}
+
+/* Glassmorphism utility classes */
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-hover {
+    @apply hover:bg-white/10 hover:border-white/20 transition-all;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--accent-web))] via-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))] bg-clip-text text-transparent;
+  }
+
+  .shadow-glow-web {
+    box-shadow: 0 0 40px -10px rgb(var(--glow-web) / 0.3);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 40px -10px rgb(var(--glow-web) / 0.3);
+  }
+
+  .shadow-glow-ai {
+    box-shadow: 0 0 40px -10px rgb(var(--glow-ai) / 0.3);
+  }
+
+  .shadow-glow-emerald {
+    box-shadow: 0 0 40px -10px rgb(var(--glow-ai) / 0.3);
+  }
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+button:focus {
+  @apply outline-none ring-2 ring-[hsl(var(--accent-web))]/50 ring-offset-2 ring-offset-zinc-950;
+}
+
+/* Smooth image loading */
+img {
+  @apply transition-opacity duration-300;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Portfolio Intro Keyframes ── */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.8; transform: scale(1.08); }
+}
+
+@keyframes logoIntro {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(-18deg);
+    filter: blur(10px);
+  }
+  25% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  45% {
+    transform: scale(1.07) rotate(8deg);
+  }
+  65% {
+    transform: scale(0.97) rotate(-2.5deg);
+  }
+  82% {
+    transform: scale(1.01) rotate(0.3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0px);
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-105vh) translateX(var(--drift, 10px));
+    opacity: 0;
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }

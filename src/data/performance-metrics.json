@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-07-08T10:41:20.725Z",
+  "buildTime": "< 10s",
+  "bundles": [
+    {
+      "name": "vendor-f3cpJOJF.js",
+      "size": 354562,
+      "sizeLabel": "346.3 KB",
+      "type": "js"
+    },
+    {
+      "name": "vendor-framer-DB0_VIWx.js",
+      "size": 117688,
+      "sizeLabel": "114.9 KB",
+      "type": "js"
+    },
+    {
+      "name": "index-BPSiukhD.css",
+      "size": 107336,
+      "sizeLabel": "104.8 KB",
+      "type": "css"
+    },
+    {
+      "name": "index-C_XR89_M.js",
+      "size": 76966,
+      "sizeLabel": "75.2 KB",
+      "type": "js"
+    },
+    {
+      "name": "vendor-icons-DS5dierA.js",
+      "size": 54023,
+      "sizeLabel": "52.8 KB",
+      "type": "js"
+    },
+    {
+      "name": "vendor-query-DcO6RkAc.js",
+      "size": 38632,
+      "sizeLabel": "37.7 KB",
+      "type": "js"
+    },
+    {
+      "name": "ProjectSection-C-SR09hS.js",
+      "size": 19977,
+      "sizeLabel": "19.5 KB",
+      "type": "js"
+    },
+    {
+      "name": "PerformanceSection-CbSsu-5Q.js",
+      "size": 9697,
+      "sizeLabel": "9.5 KB",
+      "type": "js"
+    },
+    {
+      "name": "GitHubSection-W46XdRlG.js",
+      "size": 8502,
+      "sizeLabel": "8.3 KB",
+      "type": "js"
+    },
+    {
+      "name": "TechStackSection-BoUTbwpe.js",
+      "size": 8069,
+      "sizeLabel": "7.9 KB",
+      "type": "js"
+    },
+    {
+      "name": "CareerTimelineSection-Bcd2a0Bv.js",
+      "size": 8065,
+      "sizeLabel": "7.9 KB",
+      "type": "js"
+    },
+    {
+      "name": "AboutSection-D7TRbFlK.js",
+      "size": 6936,
+      "sizeLabel": "6.8 KB",
+      "type": "js"
+    },
+    {
+      "name": "ContactSection-11Z5C-HR.js",
+      "size": 6100,
+      "sizeLabel": "6.0 KB",
+      "type": "js"
+    },
+    {
+      "name": "GallerySection-B9RS8IRm.js",
+      "size": 5736,
+      "sizeLabel": "5.6 KB",
+      "type": "js"
+    }
+  ],
+  "summary": {
+    "totalJsSize": 714953,
+    "totalJsSizeLabel": "698.2 KB",
+    "totalCssSize": 107336,
+    "totalCssSizeLabel": "104.8 KB",
+    "totalPageSize": 829210,
+    "totalPageSizeLabel": "809.8 KB",
+    "totalBundles": 14,
+    "totalSourceFiles": 83,
+    "totalLinesOfCode": 9688,
+    "jsxComponents": 76
+  },
+  "scores": {
+    "performance": 78,
+    "accessibility": 96,
+    "bestPractices": 92,
+    "seo": 100
+  }
+}

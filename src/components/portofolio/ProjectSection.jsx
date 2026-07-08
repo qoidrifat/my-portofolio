@@ -1,191 +1,343 @@
-import React, { useState, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Github, Brain, Globe, Cpu, ArrowUpRight, Star } from 'lucide-react';
-import ProjectModal from './ProjectModal'; // Import the modal component
+import React, { useState, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import {
+  ExternalLink, Github, ArrowUpRight, Star, Code2, BookOpen,
+  Search, X as XIcon, Eye,
+} from 'lucide-react';
+import { projects } from '@/lib/data';
+import ProjectModal from './ProjectModal';
+import ProjectVisual from './ProjectVisual';
 
-// --- PORTOFOLIO DATA ---
-const projects = [
-  {
-    id: 1,
-    title: "Facial Expression Recognition System with VGG16 & SE-Block Attention",
-    category: "AI / Machine Learning",
-    imageUrl: "/project1.png",
-    technologies: ["Python", "TensorFlow", "Keras", "OpenCV", "Gradio", "Hugging Face", "Pandas", "NumPy", "Matplotlib", "Seaborn"],
-    longDescription: 
-`This project is a final-year thesis research focused on developing a robust facial expression classification system using the 'in-the-wild' FER-2013 dataset, which presents significant challenges due to extreme variations in lighting and pose. The system is built upon a Convolutional Neural Network (CNN) architecture utilizing a VGG16 backbone with a Transfer Learning approach.
-
-A key innovation of this project is the integration of the Squeeze-and-Excitation (SE-Block) attention mechanism immediately following the VGG16 backbone. This mechanism enables the model to adaptively recalibrate feature weights, effectively prioritizing crucial facial regions (such as the eyes and mouth) while suppressing background noise.
-
-To achieve optimal performance, an 'Aggressive Fine-Tuning' strategy was implemented by unfreezing high-level convolutional layers (blocks 4 & 5). Furthermore, advanced regularization techniques, including Label Smoothing and Class Weights, were applied to mitigate overfitting and address data imbalance. Experimental results demonstrate that this method (Optimized Scenario) achieved a validation accuracy of 66.9%, a significant 15.2% improvement over the baseline model. The final system has been deployed using Gradio on Hugging Face Spaces for real-time inference.`,
-    challenges: 
-`1. Class Imbalance: The FER-2013 dataset exhibits extreme disparity in class distribution (e.g., 'Happy' is far more prevalent than 'Disgust'). 
-   Solution: Implemented Class Weights within the Loss Function to penalize misclassifications of minority classes more heavily.
-2. Inter-class Similarity: Expressions such as 'Fear' and 'Surprise' share highly similar visual features. 
-   Solution: The application of the SE-Block attention mechanism assisted the model in distinguishing micro-features in the eye and lip regions.
-3. Noisy Labels: The dataset contains labels that are not 100% accurate. 
-   Solution: Utilized Label Smoothing (0.1) to prevent the model from becoming 'overconfident' in its predictions.
-4. Pose Variations (In-the-wild): Test images often feature non-frontal poses. 
-   Solution: Applied Test Time Augmentation (TTA) during the inference phase to average predictions across multiple augmented variations of the input image.`,
-    githubUrl: "https://github.com/qoidrifat/facial-expression-recognition-system",
-    demoUrl: "https://huggingface.co/spaces/qoidrifat/demo-sidang",
-    featured: true,
-    icon: Brain,
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    id: 2,
-    title: "Web Development Portfolio",
-    category: "Web Dev",
-    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-    technologies: ["Laravel", "PHP", "MySQL", "Tailwind CSS", "REST API"],
-    longDescription: "A collection of web applications built with Laravel and PHP. Includes e-commerce platforms, content management systems, and custom business solutions. This project demonstrates my ability to build full-stack applications from scratch.",
-    challenges: "The main challenge was to design a multi-tenant architecture for the e-commerce platform, allowing different vendors to manage their own products and orders. This required careful database design and implementation of access control policies.",
-    githubUrl: "#",
-    demoUrl: "#",
-    featured: false,
-    icon: Globe,
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    id: 3,
-    title: "IoT & Hardware Modifications",
-    category: "Hardware",
-    imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop",
-    technologies: ["IoT", "Hardware", "Embedded Systems", "Modifications"],
-    longDescription: "Experience in modifying and customizing hardware devices, including mobile devices and IoT components. This involves flashing custom firmware, soldering components, and integrating devices with software to create new functionalities.",
-    challenges: "Working with hardware always presents unique challenges, such as dealing with proprietary software, reverse-engineering protocols, and the risk of bricking devices. Patience and meticulous research are key to success in this area.",
-    githubUrl: "#",
-    demoUrl: "#",
-    featured: false,
-    icon: Cpu,
-    color: "from-emerald-500 to-teal-500",
-  }
-];
-
-const ProjectCard = ({ project, index, isInView, onProjectSelect }) => {
-  const [isHovered, setIsHovered] = useState(false);
+// ── Project Card ────────────────────────────────────────────────────────────
+const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
+  const hasDemo = Boolean(project.demoUrl && project.demoUrl !== '#');
+  const hasValidSourceCode = Boolean(project.githubUrl && project.githubUrl !== '#');
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.15 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`group relative ${project.featured ? 'md:col-span-2' : ''}`}
+      ref={ref}
+      layout
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -30, scale: 0.95 }}
+      transition={{
+        duration: 0.45,
+        delay: index * 0.06,
+        ease: [0.16, 1, 0.3, 1],
+      }}
     >
-      <div className="relative h-full bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden hover:border-white/20 transition-all duration-500 flex flex-col">
+      <div className="relative bg-zinc-900/60 border border-zinc-800 rounded-3xl overflow-hidden hover:border-zinc-700/80 hover:shadow-xl hover:shadow-black/20 transition-all duration-500 flex flex-col group/card h-full">
         {project.featured && (
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/20 border border-yellow-500/30 rounded-full">
-            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            <span className="text-yellow-400 text-xs font-semibold">Featured Project</span>
+          <div className="absolute top-5 left-5 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/15 border border-blue-500/25 rounded-full backdrop-blur-sm">
+            <Star className="w-3 h-3 text-blue-400 fill-blue-400" aria-hidden="true" />
+            <span className="text-blue-400 text-[9px] font-semibold uppercase tracking-wider">Featured</span>
           </div>
         )}
 
-        <div className="relative h-48 md:h-64 overflow-hidden">
-          <motion.img
-            src={project.imageUrl}
-            alt={project.title}
-            className="w-full h-full object-cover"
-            animate={{ scale: isHovered ? 1.1 : 1 }}
-            transition={{ duration: 0.6 }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/50 to-transparent" />
-          <div className={`absolute top-4 right-4 w-12 h-12 rounded-2xl bg-gradient-to-br ${project.color} flex items-center justify-center shadow-lg`}>
-            <project.icon className="w-6 h-6 text-white" />
+        {/* Image */}
+        <div className="relative h-56 md:h-72 overflow-hidden bg-zinc-950 shrink-0">
+          <motion.div className="w-full h-full transition-transform duration-700 group-hover/card:scale-105">
+            <ProjectVisual project={project} className="w-full h-full object-cover" />
+          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-60" />
+
+          {/* Floating tech badges */}
+          <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-1.5">
+            {project.technologies.slice(0, 3).map(tech => (
+              <span key={tech} className="px-2.5 py-1 bg-zinc-900/80 border border-zinc-700/50 rounded-lg text-[9px] font-medium text-zinc-400 backdrop-blur-sm">
+                {tech}
+              </span>
+            ))}
+            {project.technologies.length > 3 && (
+              <span className="px-2.5 py-1 bg-zinc-900/80 border border-zinc-700/50 rounded-lg text-[9px] font-medium text-zinc-500 backdrop-blur-sm">
+                +{project.technologies.length - 3}
+              </span>
+            )}
           </div>
+
+          {/* Quick view overlay on hover */}
+          <button
+            onClick={() => onQuickView(project)}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-400 backdrop-blur-[2px]"
+            aria-label="Quick view"
+          >
+            <motion.div
+              initial={false}
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white font-bold text-sm shadow-xl"
+            >
+              <Eye className="w-4 h-4" aria-hidden="true" />
+              <span>Quick View</span>
+            </motion.div>
+          </button>
         </div>
 
-        <div className="p-6 md:p-8 flex flex-col flex-grow">
-            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-              {project.category}
-            </span>
-            <h3 className="text-xl md:text-2xl font-bold text-white mt-1 group-hover:text-blue-400 transition-colors">
-              {project.title}
-            </h3>
-          <p className="text-zinc-400 text-sm leading-relaxed my-4 flex-grow">
-            {project.longDescription.substring(0, 100)}...
+        {/* Content */}
+        <div className="p-5 md:p-6 flex flex-col flex-1">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/50">
+              <project.icon className="w-3.5 h-3.5 text-zinc-300" />
+            </div>
+            <span className="text-[8px] font-medium text-zinc-500 uppercase tracking-[0.15em]">{project.category}</span>
+          </div>
+
+          <h3 className="text-base md:text-lg font-bold text-white mb-2 leading-snug tracking-tight line-clamp-2">
+            {project.title}
+          </h3>
+
+          <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 mb-5 flex-1">
+            {project.longDescription.length > 150
+              ? project.longDescription.slice(0, 150) + '...'
+              : project.longDescription}
           </p>
-          
-          <div className="mt-auto flex items-center gap-3">
-            <motion.button
-              onClick={() => onProjectSelect(project)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+
+          {/* Actions row */}
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-zinc-800/50">
+            <Link
+              to={`/projects/${project.slug}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-[11px] font-semibold text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600 transition-all duration-300 group/btn"
             >
-              View Details
-              <ArrowUpRight className="w-4 h-4" />
-            </motion.button>
-            <motion.a
-              href={project.githubUrl}
-              target="_blank" rel="noopener noreferrer"
-              className="p-3 bg-white/5 border border-white/10 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Github className="w-5 h-5" />
-            </motion.a>
+              <BookOpen className="w-3 h-3 shrink-0" aria-hidden="true" />
+              <span>Study</span>
+              <ArrowUpRight className="w-3 h-3 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" aria-hidden="true" />
+            </Link>
+
+            {hasDemo && (
+              <motion.a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-[11px] font-semibold text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600 transition-all duration-300"
+                whileTap={{ scale: 0.97 }}
+                aria-label={`${project.title} live demo`}
+              >
+                <ExternalLink className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span>Demo</span>
+              </motion.a>
+            )}
+
+            {hasValidSourceCode && (
+              <motion.a
+                href={project.githubUrl}
+                target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-[11px] font-semibold text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600 transition-all duration-300"
+                whileTap={{ scale: 0.97 }}
+                aria-label={`${project.title} source code`}
+              >
+                <Github className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span>Code</span>
+              </motion.a>
+            )}
+
+            {!hasValidSourceCode && project.githubUrl && (
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-zinc-800/50 border border-zinc-800 rounded-xl text-[11px] font-semibold text-zinc-600 opacity-60 cursor-not-allowed">
+                <Github className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span>Code</span>
+              </span>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
   );
-};
+});
 
-export default function ProjectsSection() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+// ── Section ─────────────────────────────────────────────────────────────────
+export default function ProjectSection() {
+  const [filter, setFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const categories = useMemo(() => {
+    return ['All', ...new Set(projects.map(p => p.filterCategory || p.category))];
+  }, []);
+
+  const filteredProjects = useMemo(() => {
+    let result = filter === 'All'
+      ? projects
+      : projects.filter(p => (p.filterCategory || p.category) === filter);
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.technologies.some(t => t.toLowerCase().includes(q)) ||
+        p.category.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [filter, searchQuery]);
 
   return (
-    <section id="projects" className="py-20 md:py-32 relative" ref={ref}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="text-blue-400 text-sm font-semibold tracking-wider uppercase">
-            Portfolio
-          </span>
-          <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-            Featured Projects
-          </h2>
-          <p className="mt-4 text-zinc-400 max-w-2xl mx-auto">
-            A showcase of my work spanning web development, AI integration, and hardware modifications
-          </p>
-        </motion.div>
+    <section id="projects" className="py-32 md:py-48 relative overflow-hidden scroll-mt-20" ref={ref}>
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[150px] pointer-events-none" />
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={index}
-              isInView={isInView}
-              onProjectSelect={setSelectedProject}
-            />
-          ))}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+          <div className="max-w-3xl">
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5 }}
+              className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6 inline-block"
+            >
+              Our Portfolio
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight"
+            >
+              Selected <span className="text-zinc-700">Works</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-zinc-400 text-lg leading-relaxed max-w-2xl"
+            >
+              A curated collection of projects where I blend innovative design
+              with cutting-edge technology to create high-impact digital solutions.
+            </motion.p>
+          </div>
         </div>
 
+        {/* ── Filter bar ── */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-12"
         >
-          <p className="text-zinc-500 text-sm">
-            More projects available on{' '}
-            <a href="https://github.com/qory-rosyada" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
-              GitHub →
-            </a>
-          </p>
+          {/* Filter pills */}
+          <div className="flex flex-wrap items-center gap-2 bg-white/[0.03] p-1.5 rounded-2xl border border-white/[0.06]">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`relative px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-300 ${
+                  filter === cat
+                    ? 'text-white'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {filter === cat && (
+                  <motion.div
+                    layoutId="projectFilter"
+                    className="absolute inset-0 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/25"
+                    transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
+                  />
+                )}
+                <span className="relative z-10">{cat}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Search input */}
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" aria-hidden="true" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, tech..."
+              className="w-full pl-10 pr-9 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-blue-500/30 focus:bg-blue-500/5 transition-all duration-300"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                <XIcon className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Result count */}
+          {searchQuery && (
+            <span className="text-[11px] font-medium text-zinc-500 whitespace-nowrap">
+              {filteredProjects.length} result{filteredProjects.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </motion.div>
+
+        {/* ── Projects Grid ── */}
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={index}
+                onQuickView={setSelectedProject}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Empty state */}
+        {filteredProjects.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+              <Search className="w-6 h-6 text-zinc-500" />
+            </div>
+            <p className="text-zinc-400 font-medium mb-1">No projects match your search</p>
+            <p className="text-zinc-600 text-sm">Try a different filter or search term.</p>
+            <button
+              onClick={() => { setSearchQuery(''); setFilter('All'); }}
+              className="mt-4 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
+            >
+              Clear all filters
+            </button>
+          </motion.div>
+        )}
+
+        {/* ── GitHub CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-20 text-center"
+        >
+          <a
+            href="https://github.com/qoidrifat"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-4 px-10 py-5 bg-white/5 border border-white/10 rounded-[2rem] hover:bg-white/10 hover:border-blue-500/30 transition-all duration-500 shadow-xl shadow-black/20"
+          >
+            <Code2 className="w-6 h-6 text-zinc-400 group-hover:text-blue-400 transition-colors" aria-hidden="true" />
+            <div className="text-left">
+              <p className="text-white font-bold text-lg group-hover:text-blue-400 transition-colors">
+                Dive Into the Code
+              </p>
+              <p className="text-zinc-500 text-sm group-hover:text-zinc-400 transition-colors">
+                Explore all projects on GitHub →
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 group-hover:border-blue-500/40 group-hover:translate-x-1 transition-all duration-500">
+              <ArrowUpRight className="w-5 h-5 text-blue-400" aria-hidden="true" />
+            </div>
+          </a>
         </motion.div>
       </div>
 
-      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+      {/* Project Modal — Quick View */}
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </section>
   );
 }

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Content \"C:\\\\Users\\\\USER\\\\CascadeProjects\\\\porto\\\\my-portofolio\\\\tailwind.config.js\" -Raw)",
+      "Bash(Format-Hex)",
+      "Bash(Select-Object -First 5)",
+      "Bash(Remove-Item *)",
+      "PowerShell(New-Item *)",
+      "PowerShell(Get-Content *)",
+      "Bash(Test-Path *)",
+      "Bash(npm run *)",
+      "PowerShell(Test-Path *)",
+      "Bash(node *)",
+      "Bash(git add *)",
+      "Bash(git commit -m '@ *)",
+      "PowerShell(npm install *)"
+    ]
+  }
+}

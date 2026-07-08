@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+>
+  <url>
+    <loc>https://qoidrifat.vercel.app/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+
+    <!-- Profile & brand images -->
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/profile.webp</image:loc>
+      <image:title>Qoid Rif'at — Web Developer &amp; AI Enthusiast</image:title>
+      <image:caption>Profile photo of Qoid Rif'at from Surabaya, Indonesia</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/logo.webp</image:loc>
+      <image:title>Qoid Rif'at Logo</image:title>
+    </image:image>
+
+    <!-- Project images -->
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/project1.webp</image:loc>
+      <image:title>Facial Expression Recognition with VGG16 &amp; SE-Block</image:title>
+      <image:caption>AI-powered facial expression classification system using deep learning</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/project-payrollpro.webp</image:loc>
+      <image:title>PayrollPro — Payroll &amp; Attendance Management</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/project-explore-bali.webp</image:loc>
+      <image:title>Explore Bali — Travel Booking Website</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/project-qoid-ra-psd.webp</image:loc>
+      <image:title>Data Mining Jupyter Book</image:title>
+    </image:image>
+
+    <!-- Gallery images -->
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/gedung-perkantoran.webp</image:loc>
+      <image:title>Modern Office Building</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/menara-kembar-my3.webp</image:loc>
+      <image:title>Petronas Twin Towers, Kuala Lumpur</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/cafe.webp</image:loc>
+      <image:title>Cafe Interior</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/changi-airport.webp</image:loc>
+      <image:title>Changi Airport, Singapore</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/masjid-my.webp</image:loc>
+      <image:title>Mosque, Malaysia</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://qoidrifat.vercel.app/gallery/original/gedung-pencakar-langit-sg.webp</image:loc>
+      <image:title>Skyscraper, Singapore</image:title>
+    </image:image>
+  </url>
+</urlset>
