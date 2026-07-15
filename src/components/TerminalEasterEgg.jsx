@@ -123,7 +123,9 @@ export default function TerminalEasterEgg() {
   // ── Keyboard shortcut: Ctrl+` / Cmd+` ──
   useEffect(() => {
     const down = (e) => {
-      if (e.key === '`' && (e.metaKey || e.ctrlKey)) {
+      // Support both '`' (US) and 'Backquote' (international layouts) via e.code
+      const isBackquote = e.key === '`' || e.code === 'Backquote';
+      if (isBackquote && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
