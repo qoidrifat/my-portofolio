@@ -1,78 +1,167 @@
 import { memo, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { profile, projects } from '@/lib/data';
 
-// ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// ENGINEERING INTRODUCTION
+//
+// Architecture overview:
+//
+//   PortfolioIntro
+//     ├─ ReducedMotionIntro   (prefers-reduced-motion: ~1s, opacity only)
+//     └─ CinematicIntro       (full 5–6s cinematic sequence)
+//           ├─ BackgroundEffects (ambient gradients + particles + noise)
+//           ├─ LogoAnimation     (Stage 1: mask-reveal in)
+//           ├─ LogoMorph         (Stage 2: dissolve upward)
+//           ├─ IdentityReveal    (Stage 3–4: name + subtitle, reposition)
+//           └─ TerminalSequence  (Stage 5–7: glass terminal with typing engine)
+//
+// Orchestration: single `phase` state machine driven by computed OFFSET constants.
+// All timing is derived from the TERMINAL_SCRIPT length — no hardcoded ms values.
+// The watchdog is a SAFETY NET only, never a scheduler.
+//
+// Key principles:
+//   • Every timing constant flows from a single source of truth
+//   • No self-referencing objects (avoids TDZ)
+//   • No interval-driven state (uses chained setTimeout)
+//   • GPU-only animation properties (transform, opacity, filter)
+//   • Production logging is silent except genuine recovery events
+//   • Skip is idempotent — safe to call at any phase
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Timing Constants (milliseconds)
-// ─────────────────────────────────────────────────────────────
+//
+// All values are tuned for a 5–6 second total timeline:
+//   Logo (800) → Morph (400) → Identity (250) → Reposition (450)
+//   → Terminal in (350) → Typing (~1600) → Welcome (300) → Exit (600)
+//   ≈ 4750ms total → ~5.3s with overlaps and animation tails.
+// ─────────────────────────────────────────────────────────────────────────────
 const T = {
-  LOGO_INTRO     : 1500,  // Stage 1 — premium logo appearance
-  MORPH_START    : 1350,  // Stage 2 — logo begins transitioning into identity (overlap)
-  MORPH_DURATION : 700,   // Stage 2 duration
-  IDENTITY_HOLD  : 600,   // Stage 3 — identity holds centered before repositioning
-  REPOSITION     : 800,   // Stage 4 — identity translates upward, terminal appears underneath
-  TERMINAL_IN    : 600,   // Stage 5 — terminal fade/scale/blur in
-  BOOT_LINE1     : 3000,  // Stage 6 — "booting portfolio..." typing duration
-  BOOT_LINE2     : 1200,  // Stage 7a — "Initializing Projects" with loading + SUCCESS
-  BOOT_LINE3     : 1200,  // Stage 7b — "Loading Experience"
-  BOOT_LINE4     : 1200,  // Stage 7c — "Preparing Skills Showcase"
-  WELCOME_HOLD   : 800,   // Stage 8 — "Welcome." + pause before exit
-  EXIT           : 1000,  // Stage 9 — identity → hero shared transition, terminal dissolves
-  FINISH_BUFFER  : 50,    // tiny buffer before onFinish
+  LOGO_HOLD      : 800,
+  MORPH_DURATION : 400,
+  IDENTITY_HOLD  : 250,
+  REPOSITION     : 450,
+  TERMINAL_LEAD  : 150,
+  TERMINAL_IN    : 350,
+  TYPE_SPEED     : 35,
+  TYPE_START     : 50,
+  OUTPUT_DELAY   : 80,
+  LINE_GAP       : 120,
+  WELCOME_HOLD   : 300,
+  EXIT           : 600,
+  SKIP_EXIT      : 350,
+  FINISH_BUFFER  : 50,
 };
 
-// Calculated cumulative offsets (no self-references to avoid TDZ)
-const _ = {
-  IDENTITY     : T.MORPH_START + T.MORPH_DURATION,                                                                          // 2050
-  REPOSITION   : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD,                                                        // 2650
-  TERMINAL     : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION - 300,                                    // 3150 (overlap)
-  BOOT1_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN,                          // 4050
-  BOOT2_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1,           // 7050
-  BOOT3_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2, // 8250
-  BOOT4_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3, // 9450
-  WELCOME      : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4, // 10650
-  EXITING      : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4 + T.WELCOME_HOLD, // 11450
-  DONE         : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4 + T.WELCOME_HOLD + T.EXIT, // 12450
-};
-
-// ─────────────────────────────────────────────────────────────
-// Watchdog Safety Constants
-// ─────────────────────────────────────────────────────────────
-const WATCHDOG = {
-  TOTAL_MS      : 13000, // Hard max: force homepage after 13s (accommodates ~12.5s sequence)
-  STAGE_TIMEOUT : 4500,  // Per-stage timeout
-  ASSET_TIMEOUT : 5000,
-};
-
-// ─────────────────────────────────────────────────────────────
-// Premium Easing Curves
-// ─────────────────────────────────────────────────────────────
-const EASE = {
-  PREMIUM    : 'cubic-bezier(0.22, 1, 0.36, 1)',
-  SNAP       : 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-  SMOOTH     : 'cubic-bezier(0.16, 1, 0.3, 1)',
-  ANTICIPATE : 'cubic-bezier(0.68, -0.15, 0.27, 1.15)',
-};
-
-// ─────────────────────────────────────────────────────────────
-// Content Constants
-// ─────────────────────────────────────────────────────────────
-const NAME     = "Qoid Rif'at";
-const SUBTITLE = 'Full Stack Developer  •  AI Enthusiast';
-
-const BOOT_LINES = [
-  { text: 'booting portfolio...',  prefix: true  },
-  { text: 'Initializing Projects',  prefix: false },
-  { text: 'Loading Experience',     prefix: false },
-  { text: 'Preparing Skills Showcase',  prefix: false },
+// ─────────────────────────────────────────────────────────────────────────────
+// Terminal Script — real data, no fake loading.
+// Each command's typing duration is computed from its actual text length,
+// so the OFFSET constants are always in sync with the typing engine.
+// ─────────────────────────────────────────────────────────────────────────────
+const TERMINAL_SCRIPT = [
+  { cmd: 'whoami',   output: `${profile.name} — Full Stack Developer · AI Enthusiast` },
+  { cmd: 'stack',    output: 'React · Laravel · Python · TensorFlow · Node.js' },
+  { cmd: 'projects', output: `${projects.length} case studies loaded` },
+  { cmd: 'status',   output: 'READY', badge: true },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// Reduced Motion Detection
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Derived Timeline Offsets — every value is COMPUTED, never hardcoded.
+// The bootMs is calculated from the actual script text, scaling automatically
+// if commands are added, removed, or changed.
+// ─────────────────────────────────────────────────────────────────────────────
+const OFFSET = (() => {
+  const morph      = T.LOGO_HOLD;                                   // 800
+  const identity   = morph + T.MORPH_DURATION;                      // 1200
+  const reposition = identity + T.IDENTITY_HOLD;                    // 1450
+  const terminal   = reposition + T.REPOSITION - T.TERMINAL_LEAD;   // 1750
+  const boot       = terminal + T.TERMINAL_IN;                      // 2100
+  const bootMs     = TERMINAL_SCRIPT.reduce(
+    (sum, line) => sum + T.TYPE_START + line.cmd.length * T.TYPE_SPEED + T.OUTPUT_DELAY + T.LINE_GAP,
+    0
+  );                                                                 // ~1580
+  return {
+    morph, identity, reposition, terminal, boot, bootMs,
+    expectedWelcome : boot + bootMs,                                // ~3680
+    expectedDone    : boot + bootMs + T.WELCOME_HOLD + T.EXIT,      // ~4580
+  };
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Watchdog Safety Constants
+//
+// The watchdog is a SAFETY NET, not a scheduler. It only activates when the
+// intro is genuinely stuck (dropped timer, background-tab throttling, crash).
+//
+// Strategy:
+//   • One global timeout at expectedDone + generous margin.
+//     If the intro hasn't completed by this point, force-exit.
+//   • No per-stage watchdog — the phase-transition effects are simpler and
+//     more reliable without stage-level supervision. The total timeout
+//     covers all failure modes without risking false-positive interruptions.
+//
+// The STALL_MARGIN accounts for Chrome background-tab throttling (1s min) plus
+// general runtime variability. At 3s it's generous enough for any reasonable
+// delay but tight enough that a truly stuck intro recovers quickly.
+// ─────────────────────────────────────────────────────────────────────────────
+const STALL_MARGIN   = 3000;
+const ASSET_TIMEOUT  = 5000;
+const WATCHDOG_TOTAL = OFFSET.expectedDone + STALL_MARGIN;
+
+/** Exported so App.jsx can derive its nuclear fail-safe from the real timeline. */
+export const INTRO_MAX_MS = WATCHDOG_TOTAL;
+export const INTRO_SESSION_KEY = 'qr-intro-played';
+
+export function hasIntroPlayed() {
+  if (import.meta.env.DEV && import.meta.env.VITE_INTRO_REPLAY === 'true') return false;
+  try { return sessionStorage.getItem(INTRO_SESSION_KEY) === '1'; } catch { return false; }
+}
+
+function markIntroPlayed() {
+  try { sessionStorage.setItem(INTRO_SESSION_KEY, '1'); } catch { /* private browsing */ }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Premium Easing Curves
+// ─────────────────────────────────────────────────────────────────────────────
+const EASE = {
+  PREMIUM : 'cubic-bezier(0.22, 1, 0.36, 1)',
+  SNAP    : 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  SMOOTH  : 'cubic-bezier(0.16, 1, 0.3, 1)',
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Content Constants
+// ─────────────────────────────────────────────────────────────────────────────
+const NAME     = profile.name;
+const SUBTITLE = 'Full Stack Developer  •  AI Enthusiast';
+
+const PHASE_ORDER = ['logo', 'morph', 'identity', 'reposition', 'terminal', 'boot', 'welcome', 'exiting', 'done'];
+const phaseIndex = (p) => PHASE_ORDER.indexOf(p);
+
+/** How far the identity rises (px) when it repositions above the terminal. */
+const REPOSITION_RISE = 120;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reduced Motion Detection — evaluated once
+// ─────────────────────────────────────────────────────────────────────────────
 const isReduced =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── Asset Preloading ──
+// ── Production-safe logging ─────────────────────────────────────────────────
+// DEV: verbose, styled console output for debugging.
+// PROD: COMPLETELY SILENT — no console.log/warn/error unless a genuine
+// error recovery event occurs (logo load failure, watchdog force-exit).
+function logIntro(event, details, { prodError = false } = {}) {
+  if (import.meta.env.DEV) {
+    console.info(`%c[Intro] ${event}`, 'color: #3b82f6; font-weight: 600;', details ?? '');
+  } else if (prodError) {
+    console.error(`[Intro] ${event}`, JSON.stringify(details ?? {}));
+  }
+}
+
+// ── Asset Preloading ─────────────────────────────────────────────────────────
 function preloadLogo() {
   return new Promise((resolve) => {
     const img = new Image();
@@ -83,41 +172,80 @@ function preloadLogo() {
     img.onload  = () => onDone(true);
     img.onerror = () => onDone(false);
     img.onabort = () => onDone(false);
-    setTimeout(() => onDone(false), WATCHDOG.ASSET_TIMEOUT);
+    setTimeout(() => onDone(false), ASSET_TIMEOUT);
     img.src = '/logo.webp';
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// BackgroundEffects — continuous ambient gradient + particles + vignette
-// ═══════════════════════════════════════════════════════════════
+// ── FLIP measurement ────────────────────────────────────────────────────────
+// Reads the hero name's viewport position so the intro identity can animate
+// to exactly where the hero H1 is on the page.
+function measureHeroTarget() {
+  const el = typeof document !== 'undefined' && document.getElementById('hero-name');
+  if (!el) return null;
+  let top = 0;
+  let node = el;
+  while (node instanceof HTMLElement) {
+    top += node.offsetTop;
+    node = node.offsetParent;
+  }
+  top -= window.scrollY;
+  const fontSize = parseFloat(window.getComputedStyle(el).fontSize);
+  if (!fontSize || !el.offsetHeight) return null;
+  return { top, height: el.offsetHeight, fontSize };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BackgroundEffects — ambient gradient + particles + noise vignette
+//
+// Performance characteristics:
+//   • 3 gradient orbs with moderate blur (60–120px) — composited via GPU
+//   • ≤12 particles on mobile / ≤18 on desktop — CSS-only animations
+//   • SVG noise overlay at 0.015 opacity — single composite layer
+//   • All animations use transform/opacity only
+// ═══════════════════════════════════════════════════════════════════════════════
 const BackgroundEffects = memo(function BackgroundEffects() {
   return (
-    <div className="fixed inset-0 pointer-events-none will-change-transform">
+    <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
       <div className="absolute inset-0 bg-zinc-950" />
-      <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] rounded-full blur-[300px] opacity-20"
+      {/* Ambient blue glow — center */}
+      <div
+        className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full opacity-20"
         style={{
           background: 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)',
+          filter: 'blur(120px)',
           animation: isReduced ? 'none' : 'bgBreathe 8s ease-in-out infinite',
+          willChange: 'opacity, transform',
         }}
       />
-      <div className="absolute top-[20%] right-[15%] w-[400px] h-[400px] rounded-full blur-[180px] opacity-15"
+      {/* Ambient indigo glow — top-right */}
+      <div
+        className="absolute top-[20%] right-[15%] w-[400px] h-[400px] rounded-full opacity-15"
         style={{
           background: 'radial-gradient(circle, rgba(99,102,241,0.04) 0%, transparent 70%)',
+          filter: 'blur(100px)',
           animation: isReduced ? 'none' : 'bgBreathe2 10s ease-in-out infinite',
+          willChange: 'opacity, transform',
         }}
       />
-      <div className="absolute bottom-[25%] left-[10%] w-[350px] h-[350px] rounded-full blur-[150px] opacity-10"
+      {/* Ambient cyan glow — bottom-left */}
+      <div
+        className="absolute bottom-[25%] left-[10%] w-[350px] h-[350px] rounded-full opacity-10"
         style={{
           background: 'radial-gradient(circle, rgba(6,182,212,0.03) 0%, transparent 70%)',
+          filter: 'blur(80px)',
           animation: isReduced ? 'none' : 'bgBreathe3 12s ease-in-out infinite',
+          willChange: 'opacity, transform',
         }}
       />
       {!isReduced && <FloatingParticles />}
+      {/* Vignette overlay */}
       <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.5) 100%)' }} />
-      <div className="absolute inset-0 opacity-[0.015] mix-blend-overlay"
+      {/* Subtle noise texture */}
+      <div
+        className="absolute inset-0 opacity-[0.015] mix-blend-overlay"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           backgroundSize: '256px 256px',
         }}
       />
@@ -125,7 +253,10 @@ const BackgroundEffects = memo(function BackgroundEffects() {
   );
 });
 
-const PARTICLE_COUNT = 28;
+// ── Adaptive particle count: ≤12 on mobile, ≤18 on desktop ────────────────
+const PARTICLE_COUNT =
+  typeof window !== 'undefined' && window.innerWidth < 768 ? 10 : 18;
+
 const FloatingParticles = memo(function FloatingParticles() {
   const particles = useMemo(() =>
     Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
@@ -141,10 +272,16 @@ const FloatingParticles = memo(function FloatingParticles() {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {particles.map((p) => (
-        <div key={p.id} className="absolute rounded-full will-change-transform"
+        <div
+          key={p.id}
+          className="absolute rounded-full will-change-transform"
           style={{
-            left: `${p.left}%`, bottom: '-6px', width: `${p.size}px`, height: `${p.size}px`,
-            background: 'rgba(147,197,253,0.4)', boxShadow: '0 0 4px rgba(147,197,253,0.15)',
+            left: `${p.left}%`,
+            bottom: '-6px',
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            background: 'rgba(147,197,253,0.4)',
+            boxShadow: '0 0 4px rgba(147,197,253,0.15)',
             opacity: p.opacity,
             animation: `particleFloat ${p.duration}s ${p.delay}s cubic-bezier(0.25,0.46,0.45,0.94) infinite`,
             '--drift': `${p.drift}px`,
@@ -155,29 +292,39 @@ const FloatingParticles = memo(function FloatingParticles() {
   );
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 // LogoAnimation — Stage 1
-// ═══════════════════════════════════════════════════════════════
+//
+// Premium mask reveal: opacity + blur + scale + gentle rise.
+// No rotation — gimmicky spinning undermines engineering credibility.
+// Reference quality: Apple keynote, Vercel, Linear.
+// ═══════════════════════════════════════════════════════════════════════════════
 const LogoAnimation = memo(function LogoAnimation({ active }) {
   if (!active) return null;
   return (
     <div className="flex flex-col items-center absolute" style={{ pointerEvents: 'none' }}>
       <div className="relative flex items-center justify-center">
-        <div className="absolute -inset-14 rounded-full"
+        {/* Soft glow halo */}
+        <div
+          className="absolute -inset-14 rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)',
-            animation: isReduced ? 'none' : 'glowPulse 4s ease-in-out infinite',
           }}
         />
-        <div className="will-change-transform will-change-opacity will-change-filter"
+        {/* Premium reveal — elegant draw/scale-in effect */}
+        <div
           style={isReduced ? {} : {
-            animation: 'logoPremiumIntro 1.5s cubic-bezier(0.34,1.56,0.64,1) forwards',
-            opacity: 0, transform: 'scale(0.78) rotate(-22deg)', filter: 'blur(12px)',
+            animation: `logoRevealIn 550ms ${EASE.PREMIUM} forwards`,
+            opacity: 0,
+            transform: 'scale(0.92) translateY(14px)',
+            filter: 'blur(14px)',
+            willChange: 'transform, opacity, filter',
           }}
         >
-          <img src="/logo.webp" alt={NAME}
+          <img
+            src="/logo.webp"
+            alt=""
             className="relative w-[76px] h-auto md:w-[92px]"
-            style={{ animation: isReduced ? 'none' : 'logoFloat 4s ease-in-out infinite' }}
           />
         </div>
       </div>
@@ -185,77 +332,116 @@ const LogoAnimation = memo(function LogoAnimation({ active }) {
   );
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ── Two-frame mount flip ───────────────────────────────────────────────────
+// First paint renders the "from" pose; next frame flips to the "to" pose
+// so the CSS transition genuinely plays. Uses rAF + timer fallback.
+function useMountFlip() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setMounted(true));
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+  }, []);
+  return mounted || isReduced;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // LogoMorph — Stage 2: Logo → Identity transition
-// ═══════════════════════════════════════════════════════════════
-const LogoMorph = memo(function LogoMorph({ active }) {
+// Logo dissolves upward (scale + blur) while identity crossfades in beneath.
+// ═══════════════════════════════════════════════════════════════════════════════
+const LogoMorph = memo(function LogoMorph() {
+  const active = useMountFlip();
   return (
-    <div className="flex flex-col items-center absolute will-change-transform will-change-opacity will-change-filter"
+    <div
+      className="flex flex-col items-center absolute"
       style={{
-        opacity: active ? 1 : 0,
-        filter: active ? 'blur(0px)' : 'blur(12px)',
+        opacity: active ? 0 : 1,
+        filter: active ? 'blur(6px)' : 'blur(0px)',
         transform: active ? 'scale(0.7) translateY(-28px)' : 'scale(1) translateY(0)',
-        transition: isReduced ? 'none' : `opacity ${T.MORPH_DURATION}ms ${EASE.PREMIUM}, filter ${T.MORPH_DURATION}ms ${EASE.PREMIUM}, transform ${T.MORPH_DURATION}ms ${EASE.PREMIUM}`,
+        transition: isReduced
+          ? 'none'
+          : `opacity ${T.MORPH_DURATION}ms ${EASE.PREMIUM}, filter ${T.MORPH_DURATION}ms ${EASE.PREMIUM}, transform ${T.MORPH_DURATION}ms ${EASE.PREMIUM}`,
         pointerEvents: 'none',
+        willChange: 'transform, opacity, filter',
       }}
     >
       <div className="relative flex items-center justify-center">
-        <div className="absolute -inset-10 rounded-full opacity-20" />
-        <img src="/logo.webp" alt="" className="w-[48px] h-auto md:w-[56px]" style={{ opacity: 0.6 }} />
+        <div
+          className="absolute -inset-14 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)' }}
+        />
+        <img src="/logo.webp" alt="" className="relative w-[76px] h-auto md:w-[92px]" />
       </div>
     </div>
   );
 });
 
-// ═══════════════════════════════════════════════════════════════
-// IdentityReveal — Stage 3-4: Name + Subtitle, reposition, hero exit
-// ═══════════════════════════════════════════════════════════════
-const IdentityReveal = memo(function IdentityReveal({ visible, repositioned, exiting }) {
-  // visible: boolean — initially appears centered
-  // repositioned: boolean — identity moves up 70px to make room for terminal
-  // exiting: boolean — identity stays visible, moves to hero title position
-
-  const yOffset = repositioned ? '-70px' : exiting ? '0' : '0';
-  const nameScale = exiting ? 'clamp(3rem, 9vw, 5.5rem)' : 'clamp(2rem, 6vw, 3.5rem)';
-  const subtitleOpacity = exiting ? 0 : 1;
-  const subtitleScale = exiting ? 0.8 : 1;
+// ═══════════════════════════════════════════════════════════════════════════════
+// IdentityReveal — Stage 3–4 + Exit
+//
+// Manages the name + subtitle through three visual states:
+//   1. Entrance: fades in beneath the dissolving logo
+//   2. Reposition: translates upward to make room for terminal
+//   3. Exit: FLIP-transforms toward the hero H1 position
+//
+// All animations use transform/opacity (GPU) — never animates font-size.
+// ═══════════════════════════════════════════════════════════════════════════════
+const IdentityReveal = memo(function IdentityReveal({ visible, repositioned, exiting, exitMs, exitScale, h1Ref }) {
+  const mounted = useMountFlip();
+  const shown = visible && mounted;
+  const yOffset = repositioned ? `-${REPOSITION_RISE}px` : '0';
 
   return (
-    <div className="flex flex-col items-center select-none will-change-transform will-change-opacity"
+    <div
+      className="flex flex-col items-center select-none"
       style={{
-        opacity: visible ? 1 : 0,
-        filter: visible ? 'blur(0px)' : 'blur(8px)',
-        transform: visible
+        opacity: shown ? 1 : 0,
+        filter: shown ? 'blur(0px)' : 'blur(8px)',
+        transform: shown
           ? `translateY(${yOffset}) scale(1)`
           : 'translateY(20px) scale(0.95)',
-        transition: isReduced ? 'none' : (
-          exiting
-            ? `opacity ${T.EXIT}ms ${EASE.SMOOTH}, filter ${T.EXIT}ms ${EASE.SMOOTH}, transform ${T.EXIT}ms ${EASE.PREMIUM}`
+        transition: isReduced
+          ? 'none'
+          : exiting
+            ? `transform ${exitMs}ms ${EASE.PREMIUM}`
             : repositioned
               ? `transform ${T.REPOSITION}ms ${EASE.PREMIUM}`
-              : `opacity 700ms ${EASE.PREMIUM}, filter 700ms ${EASE.PREMIUM}, transform 700ms ${EASE.SNAP}`
-        ),
+              : `opacity 600ms ${EASE.PREMIUM}, filter 600ms ${EASE.PREMIUM}, transform 600ms ${EASE.SNAP}`,
         pointerEvents: 'none',
-        textShadow: exiting ? '0 0 60px rgba(59,130,246,0.12)' : 'none',
+        willChange: 'transform, opacity, filter',
       }}
     >
-      <h1 className="text-center leading-none tracking-tight"
+      <h1
+        ref={h1Ref}
+        className="text-center leading-none tracking-tight"
         style={{
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontWeight: 250,
-          fontSize: nameScale,
+          fontWeight: 300,
+          fontSize: 'clamp(2rem, 6vw, 3.5rem)',
           color: '#ffffff',
           letterSpacing: '-0.02em',
-          transition: isReduced ? 'none' : `font-size ${T.EXIT}ms ${EASE.PREMIUM}`,
+          // FLIP exit: scale toward the hero name's real size, crossfade out
+          transform: exiting ? `scale(${exitScale})` : 'scale(1)',
+          opacity: exiting ? 0 : 1,
+          transition: isReduced
+            ? 'none'
+            : exiting
+              ? `transform ${exitMs}ms ${EASE.PREMIUM}, opacity ${Math.round(exitMs * 0.6)}ms ${EASE.SMOOTH} ${Math.round(exitMs * 0.4)}ms`
+              : 'none',
+          textShadow: exiting ? '0 0 60px rgba(59,130,246,0.12)' : 'none',
+          willChange: exiting ? 'transform, opacity' : 'auto',
         }}
       >
         {NAME}
       </h1>
-      <p className="text-center mt-4 md:mt-5 will-change-transform will-change-opacity"
+      <p
+        className="text-center mt-4 md:mt-5"
         style={{
-          opacity: subtitleOpacity,
-          transform: `scale(${subtitleScale})`,
-          transition: isReduced ? 'none' : `opacity ${T.REPOSITION}ms ${EASE.PREMIUM}, transform ${T.REPOSITION}ms ${EASE.PREMIUM}`,
+          opacity: exiting ? 0 : 1,
+          transform: `scale(${exiting ? 0.8 : 1})`,
+          transition: isReduced
+            ? 'none'
+            : `opacity ${T.REPOSITION}ms ${EASE.PREMIUM}, transform ${T.REPOSITION}ms ${EASE.PREMIUM}`,
           fontFamily: "'Inter', system-ui, sans-serif",
           fontWeight: 400,
           fontSize: 'clamp(0.8rem, 1.8vw, 1.05rem)',
@@ -269,16 +455,18 @@ const IdentityReveal = memo(function IdentityReveal({ visible, repositioned, exi
   );
 });
 
-// ═══════════════════════════════════════════════════════════════
-// SuccessBadge — green SUCCESS pill that appears after each boot line
-// ═══════════════════════════════════════════════════════════════
-const SuccessBadge = memo(function SuccessBadge() {
+// ═══════════════════════════════════════════════════════════════════════════════
+// StatusBadge — green READY pill (final terminal output)
+// Premium pop entrance with spring-like easing.
+// ═══════════════════════════════════════════════════════════════════════════════
+const StatusBadge = memo(function StatusBadge({ children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full"
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full"
       style={{
         background: 'rgba(52,211,153,0.12)',
         border: '1px solid rgba(52,211,153,0.2)',
-        fontSize: '9px',
+        fontSize: '11px',
         fontWeight: 700,
         letterSpacing: '0.08em',
         color: 'rgba(52,211,153,0.9)',
@@ -288,45 +476,46 @@ const SuccessBadge = memo(function SuccessBadge() {
         transform: 'scale(0.85)',
       }}
     >
-      SUCCESS
+      {children}
     </span>
   );
 });
 
-// ── Loading dots ──
-const LoadingDots = memo(function LoadingDots() {
+// ── Cursor — CSS-driven blink (zero React re-renders) ─────────────────────
+const Cursor = memo(function Cursor() {
   return (
-    <span className="inline-flex items-center gap-[3px] ml-1"
-      style={{ animation: isReduced ? 'none' : 'loadingPulse 1.4s ease-in-out infinite' }}
-    >
-      <span className="w-[3px] h-[3px] rounded-full bg-blue-400/60" />
-      <span className="w-[3px] h-[3px] rounded-full bg-blue-400/60" />
-      <span className="w-[3px] h-[3px] rounded-full bg-blue-400/60" />
-    </span>
+    <span
+      className="inline-block align-middle ml-[1px]"
+      style={{
+        width: '2px',
+        height: '1.1em',
+        background: 'rgba(96,165,250,0.55)',
+        boxShadow: '0 0 6px rgba(59,130,246,0.25)',
+        animation: isReduced ? 'none' : 'cursorBlink 1s linear infinite',
+      }}
+    />
   );
 });
 
-// ═══════════════════════════════════════════════════════════════
-// TerminalSequence — Stage 5-8: Glass terminal + boot sequence + SUCCESS
-// ═══════════════════════════════════════════════════════════════
-const TerminalSequence = memo(function TerminalSequence({
-  visible, exiting, bootLine, typedProgress, cursorVisible, welcomeVisible, line2Done, line3Done, line4Done,
-}) {
-  const lineStatus = (idx) => {
-    if (idx === 0) {
-      if (bootLine > 0) return 'done';      // line 1 done → show checkmark
-      if (bootLine === 0) return 'typing';   // currently typing
-      return 'pending';
-    }
-    const doneMap = { 1: line2Done, 2: line3Done, 3: line4Done };
-    if (doneMap[idx]) return 'done';
-    if (bootLine > idx) return 'loading';
-    if (bootLine === idx) return 'loading';
-    return 'pending';
-  };
-
+// ═══════════════════════════════════════════════════════════════════════════════
+// TerminalSequence — Stage 5–7
+//
+// Glassmorphic terminal card with authentic typing animation.
+// All four terminal commands are displayed simultaneously as they are typed.
+//
+// Typography:
+//   • Font: JetBrains Mono (self-hosted) at 11–13px (clamp 0.6875rem – 0.8125rem)
+//   • Line height: 1.9 for comfortable reading
+//   • Prompt prefix: `>` in muted blue
+//   • Command text: bright white
+//   • Output text: muted zinc
+//   • Badge output: green READY pill
+// ═══════════════════════════════════════════════════════════════════════════════
+const TerminalSequence = memo(function TerminalSequence({ visible, exiting, exitMs, term }) {
   return (
-    <div className="flex items-center justify-center select-none absolute will-change-transform will-change-opacity will-change-filter"
+    <div
+      className="flex items-center justify-center select-none absolute"
+      aria-hidden="true"
       style={{
         opacity: exiting ? 0 : visible ? 1 : 0,
         filter: exiting ? 'blur(12px)' : visible ? 'blur(0px)' : 'blur(14px)',
@@ -335,360 +524,383 @@ const TerminalSequence = memo(function TerminalSequence({
           : visible
             ? 'translateY(0) scale(1)'
             : 'translateY(28px) scale(0.94)',
-        transition: isReduced ? 'none' : (exiting
-          ? `opacity 800ms ${EASE.PREMIUM}, filter 800ms ${EASE.PREMIUM}, transform 800ms ${EASE.PREMIUM}`
-          : `opacity 600ms ${EASE.PREMIUM}, filter 600ms ${EASE.PREMIUM}, transform 600ms ${EASE.SNAP}`
-        ),
+        transition: isReduced
+          ? 'none'
+          : exiting
+            ? `opacity ${exitMs}ms ${EASE.PREMIUM}, filter ${exitMs}ms ${EASE.PREMIUM}, transform ${exitMs}ms ${EASE.PREMIUM}`
+            : `opacity ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, filter ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, transform ${T.TERMINAL_IN}ms ${EASE.SNAP}`,
         pointerEvents: 'none',
         marginTop: 'clamp(110px, 13vh, 150px)',
+        willChange: 'transform, opacity, filter',
       }}
     >
-      <div className="relative overflow-hidden"
+      <div
+        className="relative overflow-hidden"
         style={{
-          width: 'min(440px, 84vw)',
+          width: 'min(460px, 86vw)',
           borderRadius: '22px',
           border: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(9, 9, 11, 0.5)',
-          backdropFilter: 'blur(28px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+          background: 'rgba(9, 9, 11, 0.55)',
+          backdropFilter: 'blur(20px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(160%)',
           boxShadow: '0 8px 48px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03)',
         }}
       >
-        {/* Terminal header dots */}
+        {/* Terminal window controls */}
         <div className="flex items-center gap-[7px] px-5 pt-3.5 pb-2.5">
           <div className="w-[9px] h-[9px] rounded-full bg-red-500/35" />
           <div className="w-[9px] h-[9px] rounded-full bg-yellow-500/35" />
           <div className="w-[9px] h-[9px] rounded-full bg-green-500/35" />
         </div>
 
-        {/* Terminal content */}
-        <div className="px-5 pb-5 pt-1.5"
+        {/* Terminal output */}
+        <div
+          className="px-5 pb-5 pt-1.5"
           style={{
             fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
-            fontSize: 'clamp(0.6rem, 1.15vw, 0.8rem)',
-            lineHeight: '2',
+            fontSize: 'clamp(0.6875rem, 1.2vw, 0.8125rem)',
+            lineHeight: 1.9,
             color: 'rgba(212, 212, 216, 0.82)',
+            minHeight: `${TERMINAL_SCRIPT.length * 2 * 1.9}em`,
           }}
         >
-          {BOOT_LINES.map((line, idx) => {
-            const status = lineStatus(idx);
+          {TERMINAL_SCRIPT.map((line, idx) => {
+            if (idx > term.line) return null;
+            const typedText = idx < term.line ? line.cmd : line.cmd.slice(0, term.typed);
+            const outputVisible = idx < term.outputs;
+            const isActiveLine = idx === term.line && !outputVisible;
 
             return (
-              <div key={idx} className="flex items-start gap-2.5" style={{ minHeight: '1.9em' }}>
-                {/* Prefix / checkmark area */}
-                <span className="shrink-0 flex items-center justify-center" style={{ width: '1.4em', textAlign: 'center' }}>
-                  {line.prefix ? (
-                    <span style={{ color: 'rgba(96,165,250,0.55)' }}>&gt;</span>
-                  ) : status === 'done' ? (
-                    <CheckMark />
-                  ) : null}
-                </span>
-
-                {/* Text content */}
-                <span className="flex items-center gap-2 will-change-transform will-change-opacity">
-                  {idx === 0 && status === 'typing' ? (
-                    // Line 1: typing animation
-                    <>
-                      <span style={{ color: 'rgba(212,212,216,0.82)' }}>
-                        {line.text.slice(0, typedProgress)}
-                      </span>
-                      {cursorVisible && (
-                        <span className="inline-block align-middle"
-                          style={{
-                            width: '2px', height: '1.1em',
-                            background: 'rgba(96,165,250,0.55)',
-                            boxShadow: '0 0 6px rgba(59,130,246,0.25)',
-                            opacity: cursorVisible ? 1 : 0,
-                            transition: 'opacity 60ms linear',
-                          }}
-                        />
-                      )}
-                    </>
-                  ) : idx === 0 && status === 'done' ? (
-                    <span style={{ color: 'rgba(161,161,170,0.75)' }}>{line.text}</span>
-                  ) : status === 'loading' ? (
-                    // Lines 2-4: text + loading dots
-                    <span style={{ color: 'rgba(161,161,170,0.75)' }}>
-                      {line.text}
-                      <LoadingDots />
-                    </span>
-                  ) : status === 'done' ? (
-                    // Lines 2-4: completed
-                    <>
-                      <span style={{ color: 'rgba(161,161,170,0.75)' }}>{line.text}</span>
-                      <SuccessBadge />
-                    </>
-                  ) : null}
-                </span>
+              <div key={idx}>
+                {/* Command line */}
+                <div className="flex items-start gap-2.5">
+                  <span
+                    className="shrink-0"
+                    style={{ width: '1.4em', textAlign: 'center', color: 'rgba(96,165,250,0.55)' }}
+                  >
+                    &gt;
+                  </span>
+                  <span style={{ color: 'rgba(212,212,216,0.85)' }}>
+                    {typedText}
+                    {isActiveLine && <Cursor />}
+                  </span>
+                </div>
+                {/* Output line */}
+                {outputVisible && (
+                  <div
+                    style={{
+                      paddingLeft: 'calc(1.4em + 0.625rem)',
+                      color: line.badge ? undefined : 'rgba(161,161,170,0.75)',
+                      animation: isReduced ? 'none' : 'fadeInUp 350ms cubic-bezier(0.22,1,0.36,1) forwards',
+                      opacity: 0,
+                    }}
+                  >
+                    {line.badge ? <StatusBadge>{line.output}</StatusBadge> : line.output}
+                  </div>
+                )}
               </div>
             );
           })}
-
-          {/* "Welcome." line */}
-          {welcomeVisible && (
-            <div className="flex items-center gap-2 mt-2">
-              <span className="shrink-0" style={{ width: '1.4em', textAlign: 'center', color: 'rgba(96,165,250,0.55)' }}>&gt;</span>
-              <span style={{
-                color: 'rgba(59,130,246,0.65)',
-                fontWeight: 500,
-                animation: isReduced ? 'none' : 'fadeInUp 700ms cubic-bezier(0.22,1,0.36,1) forwards',
-                opacity: 0,
-                transform: 'translateY(6px)',
-              }}>
-                Welcome.
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 });
 
-// ── Animated CheckMark ──
-const CheckMark = memo(function CheckMark() {
-  return (
-    <span className="inline-flex items-center justify-center"
-      style={{
-        animation: isReduced ? 'none' : 'checkPremium 400ms cubic-bezier(0.34,1.56,0.64,1) forwards',
-        opacity: 0, transform: 'scale(0)',
-        color: 'rgba(52,211,153,0.8)',
-        textShadow: '0 0 8px rgba(52,211,153,0.2)',
-        fontWeight: 700,
-        fontSize: '0.85em',
-      }}
-    >
-      &#10003;
-    </span>
-  );
-});
-
-// ── Recovery Logger ──
-const LOG_PREFIX = '[IntroWatchdog]';
-function logRecovery(eventType, details = {}) {
-  const payload = { event: eventType, timestamp: Date.now(), ...details };
-  if (import.meta.env.DEV) {
-    console.warn(`%c${LOG_PREFIX} ⚠️ ${eventType}`, 'color: #f59e0b; font-weight: bold;', details);
-  } else {
-    console.warn(LOG_PREFIX, payload);
-  }
+// ── Scroll lock hook ────────────────────────────────────────────────────────
+// Prevents background scrolling while the intro overlay is active.
+// Triple-redundant release:
+//   1. Effect cleanup on unmount (normal path)
+//   2. App.jsx restores overflow after introDone (second layer)
+//   3. Hard deadline in this hook (WATCHDOG_TOTAL + 2s) as final safety net
+function useIntroScrollLock() {
+  useEffect(() => {
+    const unlock = () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+    window.scrollTo(0, 0);
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    const deadline = setTimeout(unlock, WATCHDOG_TOTAL + 2000);
+    return () => { clearTimeout(deadline); unlock(); };
+  }, []);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PortfolioIntro — Main Orchestrator
-// ═══════════════════════════════════════════════════════════════
-export default function PortfolioIntro({ onFinish, onExitStart }) {
+// ═══════════════════════════════════════════════════════════════════════════════
+// ReducedMotionIntro — Accessibility fast path
+//
+// When the user has `prefers-reduced-motion: reduce`:
+//   • Shows name + subtitle immediately
+//   • Fades out within ~1 second
+//   • No animations, no particles, no cinematic sequence
+// ═══════════════════════════════════════════════════════════════════════════════
+function ReducedMotionIntro({ onFinish, onExitStart }) {
+  const [fading, setFading] = useState(false);
+  useIntroScrollLock();
+
+  useEffect(() => {
+    const tExit = setTimeout(() => {
+      markIntroPlayed();
+      try { onExitStart?.(); } catch { /* ignore */ }
+      setFading(true);
+    }, 600);
+    const tDone = setTimeout(() => {
+      try { onFinish?.(); } catch { /* ignore */ }
+    }, 950);
+    return () => { clearTimeout(tExit); clearTimeout(tDone); };
+  }, [onFinish, onExitStart]);
+
+  return (
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center bg-zinc-950"
+      style={{ zIndex: 9999, opacity: fading ? 0 : 1, transition: 'opacity 350ms ease' }}
+    >
+      <span className="sr-only" role="status" aria-live="polite">Loading portfolio…</span>
+      <h1
+        aria-hidden="true"
+        className="text-center leading-none tracking-tight"
+        style={{
+          fontFamily: "'Inter', system-ui, sans-serif",
+          fontWeight: 300,
+          fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+          color: '#fff',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        {NAME}
+      </h1>
+      <p
+        aria-hidden="true"
+        className="text-center mt-4"
+        style={{
+          fontFamily: "'Inter', system-ui, sans-serif",
+          fontWeight: 400,
+          fontSize: 'clamp(0.8rem, 1.8vw, 1.05rem)',
+          color: 'rgba(161,161,170,0.75)',
+        }}
+      >
+        {SUBTITLE}
+      </p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CinematicIntro — Main Orchestrator
+//
+// Architecture: a single `phase` state machine with event-driven transitions.
+//
+//   Phase flow:
+//     logo ──[timeline]──→ morph ──→ identity ──→ reposition ──→ terminal ──→ boot
+//     boot ──[typing done]──→ welcome
+//     welcome ──[WELCOME_HOLD]──→ exiting
+//     exiting ──[EXIT]──→ done ──[FINISH_BUFFER]──→ onFinish()
+//
+//   Skip path (any phase):
+//     Any phase ──[click/ESC/button]──→ exiting (skip mode) ──[SKIP_EXIT]──→ done
+//
+//   Watchdog recovery path:
+//     Any phase (stalled) ──[global timeout]──→ forceRecovery() ──→ done
+//
+// Key engineering decisions:
+//   • No per-stage watchdog — only one global safety timeout.
+//     Eliminates false-positive interruptions and console spam.
+//   • All timing constants are derived from TERMINAL_SCRIPT length.
+//   • beginExit() is idempotent — safe to call multiple times.
+//   • Identity container renders independently from the overlay,
+//     enabling a true shared-element FLIP transition.
+//   • Scroll lock releases the moment exit begins, not when it finishes.
+// ═══════════════════════════════════════════════════════════════════════════════
+function CinematicIntro({ onFinish, onExitStart }) {
   const [phase, setPhase] = useState('logo');
-  // logo | morph | identity | reposition | terminal | boot | welcome | exiting | done
+  useIntroScrollLock();
 
-  const [typedProgress, setTypedProgress] = useState(0);
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const [welcomeVisible, setWelcomeVisible] = useState(false);
+  // Terminal state
+  const [term, setTerm] = useState({ line: 0, typed: 0, outputs: 0 });
   const [overlayOpacity, setOverlayOpacity] = useState(1);
+  const [exitFast, setExitFast] = useState(false);
 
-  // Track which boot lines are done
-  const [bootLine, setBootLine] = useState(0);    // 0=typing line1, 1=line2 loading, 2=line3, 3=line4, 4=done
-  const [line2Done, setLine2Done] = useState(false);
-  const [line3Done, setLine3Done] = useState(false);
-  const [line4Done, setLine4Done] = useState(false);
-
-  // ── Refs for watchdog ──
+  // ── Refs ──
   const phaseRef        = useRef(phase);
   const watchdogId      = useRef(null);
-  const stageWatchdog   = useRef(null);
   const mountedRef      = useRef(true);
   const finishedRef     = useRef(false);
+  const exitStartedRef  = useRef(false);
   const onFinishRef     = useRef(onFinish);
   const onExitStartRef  = useRef(onExitStart);
+  const identityH1Ref   = useRef(null);
+  const flipRef         = useRef(null);
+  const preExitPhaseRef = useRef(null);
 
   useEffect(() => { phaseRef.current = phase; }, [phase]);
   useEffect(() => { onFinishRef.current = onFinish; }, [onFinish]);
   useEffect(() => { onExitStartRef.current = onExitStart; }, [onExitStart]);
 
-  // ── Force recovery ──
+  // ── Force recovery (emergency only) ──
   const forceRecovery = useCallback((reason) => {
     if (finishedRef.current || !mountedRef.current) return;
     finishedRef.current = true;
-    logRecovery('FORCE_RECOVERY', { reason, phase: phaseRef.current });
-    try { onExitStartRef.current?.(); } catch (e) { /* ignore */ }
+    exitStartedRef.current = true;
+    preExitPhaseRef.current = phaseRef.current;
+    markIntroPlayed();
+    logIntro('FORCE_RECOVERY', { reason, phase: phaseRef.current }, { prodError: true });
+    try { onExitStartRef.current?.(); } catch { /* ignore */ }
     setOverlayOpacity(0);
     setPhase('done');
     Promise.resolve().then(() => {
-      try { onFinishRef.current?.(); } catch (e) { /* ignore */ }
+      try { onFinishRef.current?.(); } catch { /* ignore */ }
     });
   }, []);
 
+  // ── Safe phase transition ──
   const safeSetPhase = useCallback((nextPhase, source) => {
-    if (finishedRef.current) return;
-    logRecovery('PHASE_TRANSITION', { from: phaseRef.current, to: nextPhase, source });
+    if (finishedRef.current || exitStartedRef.current) return;
+    logIntro('→', { from: phaseRef.current, to: nextPhase, source });
     setPhase(nextPhase);
   }, []);
 
-  // ── Phase timeline ──
-  useEffect(() => {
-    const t1  = setTimeout(() => safeSetPhase('morph',       'timeline'), T.MORPH_START);
-    const t2  = setTimeout(() => safeSetPhase('identity',    'timeline'), _.IDENTITY);
-    const t3  = setTimeout(() => safeSetPhase('reposition',  'timeline'), _.REPOSITION);
-    const t4  = setTimeout(() => safeSetPhase('terminal',    'timeline'), _.TERMINAL);
-    const t5  = setTimeout(() => safeSetPhase('boot',        'timeline'), _.BOOT1_START);
-    const t6  = setTimeout(() => safeSetPhase('welcome',     'timeline'), _.WELCOME);
-    const t7  = setTimeout(() => safeSetPhase('exiting',     'timeline'), _.EXITING);
+  // ── beginExit — idempotent, the ONLY path into 'exiting'. ──
+  // Measures the hero name position (FLIP) right before leaving so the
+  // intro identity travels to exactly where the hero H1 occupies.
+  const beginExit = useCallback((source, fast = false) => {
+    if (exitStartedRef.current || finishedRef.current) return;
+    exitStartedRef.current = true;
+    preExitPhaseRef.current = phaseRef.current;
+    markIntroPlayed();
+    logIntro('EXIT', { source, fast });
 
-    return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
-      clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); clearTimeout(t7);
-    };
+    const target = measureHeroTarget();
+    const h1 = identityH1Ref.current;
+    if (target && h1) {
+      const rect = h1.getBoundingClientRect();
+      const currentCenter = rect.top + rect.height / 2;
+      const targetCenter  = target.top + target.height / 2;
+      const innerReturn = ['reposition', 'terminal', 'boot', 'welcome'].includes(phaseRef.current) ? REPOSITION_RISE : 0;
+      const currentFont = parseFloat(window.getComputedStyle(h1).fontSize) || 48;
+      flipRef.current = {
+        y: targetCenter - currentCenter - innerReturn,
+        scale: Math.min(2.5, Math.max(0.5, target.fontSize / currentFont)),
+      };
+    } else {
+      flipRef.current = null;
+    }
+
+    setExitFast(fast);
+    try { onExitStartRef.current?.(); } catch { /* ignore */ }
+    setOverlayOpacity(0);
+    setPhase('exiting');
+  }, []);
+
+  const skipIntro = useCallback(() => beginExit('skip', true), [beginExit]);
+
+  // ── Skip via Escape key ──
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') skipIntro(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [skipIntro]);
+
+  // ── Phase timeline (logo → boot) ──
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => safeSetPhase('morph',      'tl'), OFFSET.morph),
+      setTimeout(() => safeSetPhase('identity',   'tl'), OFFSET.identity),
+      setTimeout(() => safeSetPhase('reposition', 'tl'), OFFSET.reposition),
+      setTimeout(() => safeSetPhase('terminal',   'tl'), OFFSET.terminal),
+      setTimeout(() => safeSetPhase('boot',       'tl'), OFFSET.boot),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [safeSetPhase]);
 
-  // ── Overlay fade on exit ──
+  // ── Typing engine — drives boot → welcome on ACTUAL completion ──
+  useEffect(() => {
+    if (phase !== 'boot') return;
+    let cancelled = false;
+    let timer;
+
+    const typeLine = (i) => {
+      let c = 0;
+      const step = () => {
+        if (cancelled) return;
+        c++;
+        setTerm({ line: i, typed: c, outputs: i });
+        if (c < TERMINAL_SCRIPT[i].cmd.length) {
+          timer = setTimeout(step, T.TYPE_SPEED + (Math.random() * 16 - 8));
+        } else {
+          timer = setTimeout(() => {
+            if (cancelled) return;
+            setTerm({ line: i, typed: c, outputs: i + 1 });
+            if (i + 1 < TERMINAL_SCRIPT.length) {
+              timer = setTimeout(() => { if (!cancelled) typeLine(i + 1); }, T.LINE_GAP);
+            } else {
+              timer = setTimeout(() => { if (!cancelled) safeSetPhase('welcome', 'boot'); }, T.LINE_GAP);
+            }
+          }, T.OUTPUT_DELAY);
+        }
+      };
+      timer = setTimeout(step, T.TYPE_START);
+    };
+
+    typeLine(0);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [phase, safeSetPhase]);
+
+  // ── welcome → exiting after hold ──
+  useEffect(() => {
+    if (phase !== 'welcome') return;
+    const t = setTimeout(() => beginExit('timeline'), T.WELCOME_HOLD);
+    return () => clearTimeout(t);
+  }, [phase, beginExit]);
+
+  // ── exiting → done (releases scroll immediately) ──
   useEffect(() => {
     if (phase !== 'exiting') return;
-    try { onExitStart?.(); } catch (e) { /* ignore */ }
-    // Fade the overlay (background + terminal), but identity stays visible
-    // via its own independent container outside this opacity
-    setOverlayOpacity(0);
-    const t = setTimeout(() => {
-      setPhase('done');
-    }, T.EXIT);
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    const t = setTimeout(() => setPhase('done'), exitFast ? T.SKIP_EXIT : T.EXIT);
     return () => clearTimeout(t);
-  }, [phase, onExitStart]);
+  }, [phase, exitFast]);
 
   // ── onFinish when done ──
   useEffect(() => {
     if (phase !== 'done') return;
+    if (finishedRef.current) return;
     finishedRef.current = true;
     const t = setTimeout(() => {
-      try { onFinish?.(); } catch (e) { /* ignore */ }
+      try { onFinishRef.current?.(); } catch { /* ignore */ }
     }, T.FINISH_BUFFER);
     return () => clearTimeout(t);
-  }, [phase, onFinish]);
+  }, [phase]);
 
-  // ── ASSET VALIDATION ──
+  // ── Asset validation ──
   useEffect(() => {
     let cancelled = false;
     preloadLogo().then((loaded) => {
       if (cancelled) return;
       if (!loaded) {
-        logRecovery('ASSET_FAIL', { asset: '/logo.webp' });
+        logIntro('ASSET_FAIL', { asset: '/logo.webp' }, { prodError: true });
         forceRecovery('logo.webp failed to load');
       }
     });
     return () => { cancelled = true; };
   }, [forceRecovery]);
 
-  // ── WATCHDOG 1: Total timeout ──
+  // ── WATCHDOG: single total timeout ──
+  // The ONLY watchdog. Checks that the entire intro completes within the
+  // computed expected time + generous margin for background-tab throttling.
+  // No per-stage watchdog — phase transitions are reliable enough that
+  // stage-level supervision adds complexity without benefit, and was a
+  // source of false-positive interruptions in earlier versions.
   useEffect(() => {
     watchdogId.current = setTimeout(() => {
       if (!finishedRef.current) {
-        logRecovery('TOTAL_TIMEOUT', { phase: phaseRef.current, limit: `${WATCHDOG.TOTAL_MS}ms` });
-        forceRecovery('total watchdog timeout');
+        logIntro('WATCHDOG', { phase: phaseRef.current }, { prodError: true });
+        forceRecovery('watchdog timeout');
       }
-    }, WATCHDOG.TOTAL_MS);
+    }, WATCHDOG_TOTAL);
     return () => { if (watchdogId.current) clearTimeout(watchdogId.current); };
   }, [forceRecovery]);
-
-  // ── WATCHDOG 2: Per-stage ──
-  useEffect(() => {
-    if (finishedRef.current) return;
-    const expected = (() => {
-      switch (phase) {
-        case 'logo':       return T.LOGO_INTRO + 1000;
-        case 'morph':      return T.MORPH_DURATION + 1000;
-        case 'identity':   return T.IDENTITY_HOLD + 1000;
-        case 'reposition': return T.REPOSITION + 1000;
-        case 'terminal':   return T.TERMINAL_IN + 1000;
-        case 'boot':       return T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4 + 2000;
-        case 'welcome':    return T.WELCOME_HOLD + 1000;
-        case 'exiting':    return T.EXIT + 1000;
-        default:           return WATCHDOG.STAGE_TIMEOUT;
-      }
-    })();
-    stageWatchdog.current = setTimeout(() => {
-      if (finishedRef.current) return;
-      logRecovery('STAGE_TIMEOUT', { phase: phaseRef.current, waited: `${expected}ms` });
-      const nextPhase = {
-        logo: 'morph', morph: 'identity', identity: 'reposition',
-        reposition: 'terminal', terminal: 'boot', boot: 'welcome',
-        welcome: 'exiting', exiting: 'done',
-      }[phaseRef.current];
-      if (nextPhase === 'exiting') {
-        try { onExitStartRef.current?.(); } catch (e) { /* ignore */ }
-        setOverlayOpacity(0); setPhase('exiting');
-        setTimeout(() => {
-          finishedRef.current = true; setPhase('done');
-          Promise.resolve().then(() => { try { onFinishRef.current?.(); } catch (e) { /* ignore */ } });
-        }, 700);
-      } else if (nextPhase === 'done') {
-        forceRecovery(`stage timeout at ${phaseRef.current}`);
-      } else if (nextPhase) {
-        safeSetPhase(nextPhase, 'stage-watchdog');
-      }
-    }, Math.min(expected, WATCHDOG.STAGE_TIMEOUT));
-    return () => { if (stageWatchdog.current) clearTimeout(stageWatchdog.current); };
-  }, [phase, forceRecovery, safeSetPhase]);
-
-  // ── Boot line typing engine ──
-  useEffect(() => {
-    if (phase !== 'boot') return;
-
-    // Phase 1: Type line 1 ("booting portfolio...") at slower, premium pace
-    let charIdx = 0;
-    const line1 = BOOT_LINES[0].text; // "booting portfolio..." — 18 chars
-    let timer;
-
-    const typeNext = () => {
-      if (charIdx <= line1.length) {
-        setBootLine(0);
-        setTypedProgress(charIdx);
-        charIdx++;
-        // Slower typing for premium feel (~120-180ms per char)
-        const nearEnd = line1.length - charIdx < 3 ? 160 : 120;
-        const jitter = Math.random() * 40;
-        timer = setTimeout(typeNext, nearEnd + jitter);
-      } else {
-        // Line 1 done — pause 200ms, then start line 2
-        setBootLine(1);
-        setTypedProgress(line1.length);
-
-        timer = setTimeout(() => {
-          // Line 2: Loading for 1.2s, then SUCCESS
-          setLine2Done(true);
-          setBootLine(2);
-
-          timer = setTimeout(() => {
-            // Line 3: Loading for 1.2s, then SUCCESS
-            setLine3Done(true);
-            setBootLine(3);
-
-            timer = setTimeout(() => {
-              // Line 4: Loading for 1.2s, then SUCCESS
-              setLine4Done(true);
-              setBootLine(4);
-              setWelcomeVisible(true);
-            }, T.BOOT_LINE4);
-          }, T.BOOT_LINE3);
-        }, 200); // 200ms pause after line 1 (per spec)
-      }
-    };
-
-    // Initial delay before typing starts
-    timer = setTimeout(typeNext, 200);
-
-    // Cursor blink
-    const blinkId = setInterval(() => setCursorVisible((p) => !p), 480);
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(blinkId);
-    };
-  }, [phase]);
-
-  // ── Cursor stops during exit ──
-  useEffect(() => {
-    if (phase === 'exiting' || phase === 'done') {
-      setCursorVisible(false);
-    }
-  }, [phase]);
 
   // ── Mount ref cleanup ──
   useEffect(() => {
@@ -701,71 +913,111 @@ export default function PortfolioIntro({ onFinish, onExitStart }) {
 
   // ── Derived state flags ──
   const isMorphing     = phase === 'morph';
-  const isIdentityVis  = phase === 'identity' || phase === 'reposition' || phase === 'terminal' || phase === 'boot' || phase === 'welcome';
-  const isRepositioned = phase === 'reposition' || phase === 'terminal' || phase === 'boot' || phase === 'welcome';
-  const isTerminalVis  = phase === 'reposition' || phase === 'terminal' || phase === 'boot' || phase === 'welcome';
-  const isTerminalFullyIn = phase === 'terminal' || phase === 'boot' || phase === 'welcome';
+  const isIdentityVis  = ['identity', 'reposition', 'terminal', 'boot', 'welcome'].includes(phase);
+  const isRepositioned = ['reposition', 'terminal', 'boot', 'welcome'].includes(phase);
+  const isTerminalFullyIn = ['terminal', 'boot', 'welcome'].includes(phase);
   const isExiting      = phase === 'exiting' || phase === 'done';
 
-  const logoActive   = phase === 'logo' || isMorphing;
-  const morphActive  = isMorphing;
+  const logoActive   = phase === 'logo';
+  const exitMs       = exitFast ? T.SKIP_EXIT : T.EXIT;
+
+  const exitTransform = flipRef.current
+    ? `translate(-50%, calc(-50% + ${Math.round(flipRef.current.y)}px))`
+    : 'translate(-50%, calc(-50% - 33vh))';
+  const exitScale = flipRef.current ? flipRef.current.scale : 1.4;
+
+  const identityWasRevealed = phaseIndex(preExitPhaseRef.current ?? phase) >= phaseIndex('identity');
 
   return (
     <>
-      {/* ── Background + Terminal layer (fades via overlayOpacity during exit) ── */}
-      <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-zinc-950 will-change-transform will-change-opacity"
+      {/* ── Background + Terminal overlay ── */}
+      <div
+        className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-zinc-950"
+        onClick={isExiting ? undefined : skipIntro}
         style={{
           zIndex: 9999,
           opacity: overlayOpacity,
-          transition: `opacity ${T.EXIT}ms ${EASE.PREMIUM}`,
-          pointerEvents: 'none',
+          transition: `opacity ${exitMs}ms ${EASE.PREMIUM}`,
+          pointerEvents: isExiting ? 'none' : 'auto',
+          cursor: isExiting ? 'default' : 'pointer',
+          willChange: 'opacity',
         }}
       >
-        <BackgroundEffects />
+        <span className="sr-only" role="status" aria-live="polite">
+          Loading {NAME}&apos;s portfolio. Press Escape or click to skip.
+        </span>
 
-        {/* Stage 1: Logo Intro */}
-        {logoActive && !morphActive && <LogoAnimation active={true} />}
+        <div aria-hidden="true" className="contents">
+          <BackgroundEffects />
 
-        {/* Stage 2: Logo → Identity */}
-        {morphActive && <LogoMorph active={true} />}
+          {logoActive && <LogoAnimation active={true} />}
+          {isMorphing && <LogoMorph />}
 
-        {/* Stage 5-8: Terminal */}
-        {(isTerminalVis || isExiting) && (
-          <TerminalSequence
-            visible={isTerminalFullyIn}
-            exiting={isExiting}
-            bootLine={bootLine}
-            typedProgress={typedProgress}
-            cursorVisible={cursorVisible}
-            welcomeVisible={welcomeVisible}
-            line2Done={line2Done}
-            line3Done={line3Done}
-            line4Done={line4Done}
-          />
+          {(isRepositioned || isExiting) && (
+            <TerminalSequence
+              visible={isTerminalFullyIn}
+              exiting={isExiting}
+              exitMs={exitMs}
+              term={term}
+            />
+          )}
+        </div>
+
+        {/* Skip button */}
+        {!isExiting && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); skipIntro(); }}
+            aria-label="Skip intro animation"
+            className="absolute bottom-8 right-8 px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] text-zinc-500 hover:text-zinc-200 hover:border-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500/60 transition-colors"
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.06em',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              pointerEvents: 'auto',
+              animation: isReduced ? 'none' : 'fadeInUp 500ms cubic-bezier(0.22,1,0.36,1) 700ms forwards',
+              opacity: isReduced ? 1 : 0,
+            }}
+          >
+            Skip <span className="opacity-60 ml-1">Esc</span>
+          </button>
         )}
       </div>
 
-      {/* ── Identity layer (independent — stays visible during exit for shared element transition) ── */}
-      {(isMorphing || isIdentityVis || isExiting) && (
-        <div className="fixed will-change-transform"
+      {/* ── Identity layer (independent — shared-element exit to hero H1) ── */}
+      {(isMorphing || isIdentityVis || (isExiting && identityWasRevealed)) && (
+        <div
+          className="fixed"
+          aria-hidden="true"
           style={{
             top: '50%',
             left: '50%',
             zIndex: 10000,
             pointerEvents: 'none',
-            transform: isExiting
-              ? 'translate(-50%, calc(-50% - 33vh))'
-              : 'translate(-50%, -50%)',
-            transition: isReduced ? 'none' : `transform ${T.EXIT}ms ${EASE.PREMIUM}`,
+            transform: isExiting ? exitTransform : 'translate(-50%, -50%)',
+            transition: isReduced ? 'none' : `transform ${exitMs}ms ${EASE.PREMIUM}`,
+            willChange: 'transform',
           }}
         >
           <IdentityReveal
             visible={true}
             repositioned={isRepositioned && !isExiting}
             exiting={isExiting}
+            exitMs={exitMs}
+            exitScale={exitScale}
+            h1Ref={identityH1Ref}
           />
         </div>
       )}
     </>
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PortfolioIntro — entry point
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function PortfolioIntro(props) {
+  return isReduced
+    ? <ReducedMotionIntro {...props} />
+    : <CinematicIntro {...props} />;
 }

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUp } from 'lucide-react';
+import { Menu, X, ArrowUp, Search as SearchIcon } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
+import TerminalEasterEgg from '@/components/TerminalEasterEgg';
 
 export default function Layout({ children }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,12 +12,18 @@ export default function Layout({ children }) {
   const [activeSection, setActiveSection] = useState('hero');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [contentReady, setContentReady] = useState(false);
+  // After the entrance transition ends, transform/filter must be REMOVED:
+  // a non-none transform/filter makes <main> the containing block for
+  // position:fixed descendants (project modal, gallery lightbox), pinning
+  // them to the page instead of the viewport.
+  const [entranceSettled, setEntranceSettled] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   // Entrance animation — hanya opacity + blur + translateY pada <main>
   useEffect(() => {
     const t = setTimeout(() => setContentReady(true), 50);
-    return () => clearTimeout(t);
+    const settle = setTimeout(() => setEntranceSettled(true), 900); // 50ms + 800ms transition + margin
+    return () => { clearTimeout(t); clearTimeout(settle); };
   }, []);
 
   const { scrollYProgress } = useScroll();
@@ -138,8 +145,20 @@ export default function Layout({ children }) {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="hidden md:block">
+            {/* Search + CTA */}
+            <div className="hidden md:flex items-center gap-3">
+              <motion.button
+                onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-border-soft text-text-muted text-sm font-medium hover:bg-white/10 hover:text-white transition-colors"
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                aria-label="Open command palette"
+              >
+                <SearchIcon className="w-4 h-4" aria-hidden="true" />
+                <span>Search</span>
+                <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white/10 text-[10px] font-mono text-text-muted">⌘K</kbd>
+              </motion.button>
+
               <motion.a
                 href="#contact"
                 onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}
@@ -202,9 +221,11 @@ export default function Layout({ children }) {
           )}
         </AnimatePresence>        </nav>
 
-      {/* Main Content — entrance animasi tanpa memengaruhi navbar */}
+      {/* Main Content — entrance animasi tanpa memengaruhi navbar.
+          Setelah settle, transform/filter dilepas agar fixed-position
+          descendants (modal, lightbox) menempel ke viewport. */}
       <main
-        style={{
+        style={entranceSettled ? undefined : {
           opacity: contentReady ? 1 : 0,
           filter: contentReady ? 'blur(0px)' : 'blur(6px)',
           transform: contentReady ? 'translateY(0)' : 'translateY(18px)',
@@ -236,6 +257,9 @@ export default function Layout({ children }) {
       {/* Footer */}
       {/* Command Palette */}
       <CommandPalette />
+
+      {/* Terminal Easter Egg — Ctrl+` / Cmd+` */}
+      <TerminalEasterEgg />
 
       <footer className="relative border-t border-border-soft bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
