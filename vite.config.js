@@ -74,19 +74,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          // Only split truly independent, large libraries to avoid
-          // TDZ errors from interdependent vendor modules.
-          // React Router v7, React, Radix, etc. are best left to
-          // Vite/Rollup's natural chunking to ensure correct ordering.
-          if (id.includes('node_modules')) {
-            // Icon libraries are standalone (no internal deps on other node_modules)
-            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
-            // framer-motion is standalone
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            // Let everything else chunk naturally via Vite/Rollup defaults
-          }
-        },
+        // No manualChunks — Vite/Rollup's natural chunking handles
+        // module ordering correctly, avoiding TDZ errors.
       },
     },
   },

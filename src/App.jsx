@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-clients'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ProjectCaseStudy from './pages/ProjectCaseStudy';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -47,52 +47,8 @@ function RouteGuard({ children }) {
   return <>{children}</>;
 }
 
-// ── Root layout — wraps all routes, renders NavigationTracker inside router tree ──
-function RootLayout() {
-  return (
-    <>
-      <NavigationTracker />
-      <Outlet />
-    </>
-  );
-}
-
 // ── App ──
 function App() {
-  // ── Router definition (useMemo avoids module-level TDZ issues by deferring creation) ──
-  const router = useMemo(() => createBrowserRouter([
-    {
-      element: <RootLayout />,
-      children: [
-        {
-          path: "/",
-          element: (
-            <RouteGuard>
-              <LayoutWrapper currentPageName={mainPageKey}>
-                <MainPage />
-              </LayoutWrapper>
-            </RouteGuard>
-          ),
-        },
-        {
-          path: "/projects/:slug",
-          element: (
-            <RouteGuard>
-              <ProjectCaseStudy />
-            </RouteGuard>
-          ),
-        },
-        {
-          path: "*",
-          element: (
-            <RouteGuard>
-              <PageNotFound />
-            </RouteGuard>
-          ),
-        },
-      ],
-    },
-  ]), []);
 
   const [introDone, setIntroDone] = useState(false);
   const [appRevealing, setAppRevealing] = useState(false);
@@ -237,7 +193,28 @@ function App() {
               : 'none',
           }}
         >
-          <RouterProvider router={router} />
+          <BrowserRouter>
+            <NavigationTracker />
+            <Routes>
+              <Route path="/" element={
+                <RouteGuard>
+                  <LayoutWrapper currentPageName={mainPageKey}>
+                    <MainPage />
+                  </LayoutWrapper>
+                </RouteGuard>
+              } />
+              <Route path="/projects/:slug" element={
+                <RouteGuard>
+                  <ProjectCaseStudy />
+                </RouteGuard>
+              } />
+              <Route path="*" element={
+                <RouteGuard>
+                  <PageNotFound />
+                </RouteGuard>
+              } />
+            </Routes>
+          </BrowserRouter>
         </div>
 
         <Toaster />
