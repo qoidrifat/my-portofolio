@@ -16,11 +16,9 @@
     <meta name="twitter:description" content="Qoid Rif'at — AI &amp; Web Developer from Surabaya, Indonesia. Building intelligent web experiences with VGG16/SE-Block FER, Laravel, and React." />
     <meta name="twitter:image"       content="/og-image.png" />
     <!-- ── Resource Hints ── -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="canonical" href="https://qoidrifat.vercel.app" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- ── Preload Critical Assets ── -->
@@ -33,9 +31,8 @@
     <!-- Preload Inter weight 300 for the lightweight intro name display -->
     <link rel="preload" href="/fonts/inter/Inter-normal-300.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high" />
 
-    <!-- ── Non-blocking JetBrains Mono (Google Fonts) ── -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" /></noscript>
+    <!-- ── Self-hosted JetBrains Mono — terminal typography in the intro ── -->
+    <link rel="preload" href="/fonts/jetbrains-mono/JetBrainsMono-latin.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high" />
 
     <!-- ── Critical Inline CSS for First Paint ── -->
     <style>
@@ -49,6 +46,9 @@
 @font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url('/fonts/inter/Inter-normal-700.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Inter';font-style:normal;font-weight:800;font-display:swap;src:url('/fonts/inter/Inter-normal-800.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Inter';font-style:normal;font-weight:900;font-display:swap;src:url('/fonts/inter/Inter-normal-900.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+/* JetBrains Mono — Self-hosted variable Latin subset (covers 400 & 500) */
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('/fonts/jetbrains-mono/JetBrainsMono-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 /* Intro first-frame paint — instant dark overlay before any JS/CSS loads */
 #root{background:#09090b;min-height:100vh}
