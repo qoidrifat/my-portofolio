@@ -99,6 +99,75 @@ function App() {
   const [appVisible, setAppVisible] = useState(false);
   const safetyTimerRef = useRef(null);
 
+  // ── Service Worker Cache Cleanup ─────────────────────────────────
+  // Users who visited during the broken build have stale, error-causing
+  // JS bundles cached by the old Service Worker. On mount, this effect:
+  //  1. Deletes all old Workbox precache caches
+  //  2. Unregisters any stale service workers
+  //  3. Forces a page reload to ensure fresh JS bundles are served
+  // Uses sessionStorage flag to prevent infinite reload loops.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Prevent infinite reload: only reload once per session
+    const SW_RELOAD_KEY = '__sw_cache_cleaned';
+    if (sessionStorage.getItem(SW_RELOAD_KEY)) return;
+
+    let needsReload = false;
+
+    // ── Step 1: Clear all stale Workbox caches ──
+    const clearCaches = 'caches' in window
+      ? caches.keys().then((names) => {
+          const deletePromises = [];
+          const WORKBOX_PREFIX = 'workbox-';
+          names.forEach((name) => {
+            if (name.startsWith(WORKBOX_PREFIX) || name === 'unsplash-images') {
+              deletePromises.push(
+                caches.delete(name).then(() => {
+                  if (import.meta.env.DEV) {
+                    console.log('%c[SW Cleanup] Deleted cache:', 'color: #10b981; font-weight: bold;', name);
+                  }
+                })
+              );
+            }
+          });
+          return Promise.all(deletePromises);
+        })
+      : Promise.resolve();
+
+    // ── Step 2: Unregister stale SWs & force fresh activation ──
+    const handleServiceWorkers = 'serviceWorker' in navigator
+      ? navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            if (reg.waiting) {
+              // New SW is waiting to activate — tell it to take over
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              needsReload = true;
+              // Don't unregister — the newly activated SW is the fixed build
+            } else if (reg.active) {
+              // Old stale SW with no update — unregister and reload
+              reg.unregister();
+              needsReload = true;
+            }
+          }
+        })
+      : Promise.resolve();
+
+    // ── Step 3: Wait for both, then reload once ──
+    Promise.all([clearCaches, handleServiceWorkers]).then(() => {
+      if (needsReload) {
+        sessionStorage.setItem(SW_RELOAD_KEY, '1');
+        if (import.meta.env.DEV) {
+          console.warn(
+            '%c[SW Cleanup] Reloading page to serve fresh JS bundles...',
+            'color: #f59e0b; font-weight: bold;'
+          );
+        }
+        window.location.reload();
+      }
+    });
+  }, []);
+
   const handleIntroExitStart = useCallback(() => {
     setAppRevealing(true);
   }, []);
