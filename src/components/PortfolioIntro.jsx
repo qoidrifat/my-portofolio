@@ -963,24 +963,47 @@ function CinematicIntro({ onFinish, onExitStart }) {
           )}
         </div>
 
-        {/* Skip button */}
+        {/* Skip button — appears IMMEDIATELY, no delay.
+            Center-bottom position, semi-transparent, glass-styled.
+            Visible at all times so users never feel trapped. */}
         {!isExiting && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); skipIntro(); }}
-            aria-label="Skip intro animation"
-            className="absolute bottom-8 right-8 px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] text-zinc-500 hover:text-zinc-200 hover:border-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500/60 transition-colors"
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
             style={{
-              fontSize: '11px',
-              letterSpacing: '0.06em',
-              fontFamily: "'Inter', system-ui, sans-serif",
               pointerEvents: 'auto',
-              animation: isReduced ? 'none' : 'fadeInUp 500ms cubic-bezier(0.22,1,0.36,1) 700ms forwards',
+              animation: isReduced ? 'none' : 'fadeInUp 400ms cubic-bezier(0.22,1,0.36,1) 200ms forwards',
               opacity: isReduced ? 1 : 0,
             }}
           >
-            Skip <span className="opacity-60 ml-1">Esc</span>
-          </button>
+            {/* Click hint — subtle arrow + text */}
+            <span
+              className="text-zinc-600 text-[10px] font-medium uppercase tracking-[0.15em]"
+              style={{
+                fontFamily: "'Inter', system-ui, sans-serif",
+                animation: isReduced ? 'none' : 'fadeInUp 400ms cubic-bezier(0.22,1,0.36,1) 400ms forwards',
+                opacity: 0,
+              }}
+            >
+              Click anywhere to skip
+            </span>
+
+            {/* Skip pill */}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); skipIntro(); }}
+              aria-label="Skip intro animation"
+              className="group px-5 py-2.5 rounded-full border border-white/8 bg-white/[0.04] text-zinc-500 hover:text-white hover:bg-white/[0.08] hover:border-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500/60 transition-all duration-300 backdrop-blur-sm"
+              style={{
+                fontSize: '12px',
+                letterSpacing: '0.06em',
+                fontFamily: "'Inter', system-ui, sans-serif",
+              }}
+            >
+              Skip intro{' '}
+              <kbd className="ml-1.5 px-1.5 py-0.5 rounded-md bg-white/[0.06] text-[10px] font-mono text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                Esc
+              </kbd>
+            </button>
+          </div>
         )}
       </div>
 
