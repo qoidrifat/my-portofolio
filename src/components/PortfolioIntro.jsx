@@ -19,18 +19,18 @@ const T = {
   FINISH_BUFFER  : 50,    // tiny buffer before onFinish
 };
 
-// Calculated cumulative offsets
+// Calculated cumulative offsets (no self-references to avoid TDZ)
 const _ = {
   IDENTITY     : T.MORPH_START + T.MORPH_DURATION,                                                                          // 2050
   REPOSITION   : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD,                                                        // 2650
   TERMINAL     : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION - 300,                                    // 3150 (overlap)
   BOOT1_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN,                          // 4050
-  BOOT2_START  : _.BOOT1_START + T.BOOT_LINE1,                                                                               // 7050
-  BOOT3_START  : _.BOOT2_START + T.BOOT_LINE2,                                                                               // 8250
-  BOOT4_START  : _.BOOT3_START + T.BOOT_LINE3,                                                                               // 9450
-  WELCOME      : _.BOOT4_START + T.BOOT_LINE4,                                                                               // 10650
-  EXITING      : _.WELCOME + T.WELCOME_HOLD,                                                                                 // 11450
-  DONE         : _.EXITING + T.EXIT,                                                                                         // 12450
+  BOOT2_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1,           // 7050
+  BOOT3_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2, // 8250
+  BOOT4_START  : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3, // 9450
+  WELCOME      : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4, // 10650
+  EXITING      : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4 + T.WELCOME_HOLD, // 11450
+  DONE         : T.MORPH_START + T.MORPH_DURATION + T.IDENTITY_HOLD + T.REPOSITION + T.TERMINAL_IN + T.BOOT_LINE1 + T.BOOT_LINE2 + T.BOOT_LINE3 + T.BOOT_LINE4 + T.WELCOME_HOLD + T.EXIT, // 12450
 };
 
 // ─────────────────────────────────────────────────────────────

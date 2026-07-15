@@ -72,9 +72,6 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable source maps in production to debug TDZ error
-    // "Cannot access 'An' before initialization"
-    sourcemap: true,
     rollupOptions: {
       output: {
         // No manualChunks — Vite/Rollup's natural chunking handles
