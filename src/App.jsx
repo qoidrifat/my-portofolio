@@ -9,7 +9,7 @@ import PageNotFound from './lib/PageNotFound';
 import ProjectCaseStudy from './pages/ProjectCaseStudy';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegistered.jsx';
-import PortfolioIntro from './components/PortfolioIntro';
+import PortfolioIntro, { hasIntroPlayed, INTRO_MAX_MS } from './components/PortfolioIntro';
 import IntroErrorBoundary from './components/IntroErrorBoundary';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -50,9 +50,15 @@ function RouteGuard({ children }) {
 // ── App ──
 function App() {
 
-  const [introDone, setIntroDone] = useState(false);
-  const [appRevealing, setAppRevealing] = useState(false);
-  const [appVisible, setAppVisible] = useState(false);
+  // Auto-skip: intro plays once per tab session. On revisit the app
+  // renders immediately with no overlay at all.
+  const [introDone, setIntroDone] = useState(() => hasIntroPlayed());
+  const [appRevealing, setAppRevealing] = useState(() => hasIntroPlayed());
+  // NOTE: The wrapper div that fades in the app uses ONLY `opacity` — never
+  // `transform` or `filter`. A non-none transform/filter on an ancestor makes
+  // it the containing block for every position:fixed descendant (the navbar,
+  // command palette, scroll-to-top button, etc.), pinning them to the page
+  // instead of the viewport. Using opacity alone avoids this CSS spec trap.
   const safetyTimerRef = useRef(null);
 
   // ── Service Worker Cache Cleanup ─────────────────────────────────
@@ -136,9 +142,10 @@ function App() {
   }, [introDone]);
 
   // ── SAFETY TIMEOUT: Nuclear fail-safe ──
-  // If PortfolioIntro never calls onFinish within 7.5s (due to crash,
-  // deadlock, or any unexpected failure), force introDone = true.
-  // This is the last line of defense — it always works.
+  // If PortfolioIntro never calls onFinish (crash, deadlock, any
+  // unexpected failure), force introDone = true. The deadline is
+  // derived from the intro's own computed timeline (INTRO_MAX_MS)
+  // plus margin — never a hardcoded guess.
   useEffect(() => {
     if (introDone) return;
 
@@ -148,11 +155,11 @@ function App() {
       setIntroDone(true);
       if (import.meta.env.DEV) {
         console.warn(
-          '%c[App] ⛑️ Safety timeout: intro did not complete within 7.5s — forcing homepage',
+          `%c[App] ⛑️ Safety timeout: intro did not complete within ${INTRO_MAX_MS + 1000}ms — forcing homepage`,
           'color: #10b981; font-weight: bold;'
         );
       }
-    }, 13500);
+    }, INTRO_MAX_MS + 1000);
 
     return () => {
       if (safetyTimerRef.current) {
@@ -162,7 +169,7 @@ function App() {
     };
   }, [introDone]);
 
-  // ── Restore body scrolling after intro completes ──
+  // ── Restore body scrolling + move focus to content after intro ──
   useEffect(() => {
     if (!introDone) return;
 
@@ -174,17 +181,18 @@ function App() {
     document.documentElement.style.position = '';
     document.documentElement.style.height = '';
 
+    // Focus management: land keyboard users at the top of the content
+    const main = document.querySelector('main');
+    if (main) {
+      main.setAttribute('tabindex', '-1');
+      main.focus({ preventScroll: true });
+    }
+
     if (import.meta.env.DEV) {
       console.log('%c[App] ✅ Body scrolling restored after intro', 'color: #10b981; font-weight: bold;');
     }
   }, [introDone]);
 
-  useEffect(() => {
-    if (introDone && !appVisible) {
-      const t = setTimeout(() => setAppVisible(true), 60);
-      return () => clearTimeout(t);
-    }
-  }, [introDone, appVisible]);
 
   return (
     <AuthProvider>
@@ -199,14 +207,17 @@ function App() {
           </IntroErrorBoundary>
         )}
 
-        {/* Router content — fades up after intro */}
+        {/* Router content — fades up after intro.
+            IMPORTANT: Only `opacity` is animated here. Never add `transform`
+            or `filter` — a non-none value on any ancestor makes it the
+            containing block for every position:fixed descendant (navbar,
+            command palette, scroll-to-top, modals, lightbox), causing them
+            to scroll away with the page instead of sticking to the viewport. */}
         <div
           style={{
             opacity: appRevealing ? 1 : 0,
-            filter: appRevealing ? 'blur(0px)' : 'blur(8px)',
-            transform: appRevealing ? 'translateY(0)' : 'translateY(12px)',
             transition: appRevealing
-              ? 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1), filter 800ms cubic-bezier(0.22, 1, 0.36, 1), transform 800ms cubic-bezier(0.22, 1, 0.36, 1)'
+              ? 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)'
               : 'none',
           }}
         >
