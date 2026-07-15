@@ -169,8 +169,10 @@ function App() {
     // Explicitly restore scrolling on body and html
     document.body.style.overflow = '';
     document.body.style.position = '';
+    document.body.style.height = '';
     document.documentElement.style.overflow = '';
     document.documentElement.style.position = '';
+    document.documentElement.style.height = '';
 
     if (import.meta.env.DEV) {
       console.log('%c[App] ✅ Body scrolling restored after intro', 'color: #10b981; font-weight: bold;');
