@@ -74,8 +74,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // No manualChunks — Vite/Rollup's natural chunking handles
-        // module ordering correctly, avoiding TDZ errors.
+        manualChunks(id) {
+          // Standalone libraries — safe to split without TDZ risk
+          if (id.includes('node_modules')) {
+            // @tanstack/react-query is standalone (no internal circular deps)
+            if (id.includes('@tanstack')) return 'vendor-query';
+          }
+        },
       },
     },
   },
