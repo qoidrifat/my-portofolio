@@ -79,6 +79,8 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             // @tanstack/react-query is standalone (no internal circular deps)
             if (id.includes('@tanstack')) return 'vendor-query';
+            // framer-motion is standalone
+            if (id.includes('framer-motion')) return 'vendor-framer';
           }
         },
       },
