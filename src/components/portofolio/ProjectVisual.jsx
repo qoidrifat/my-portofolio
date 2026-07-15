@@ -10,6 +10,12 @@ import {
   ReceiptText,
   Users,
   Wallet,
+  Activity,
+  Sparkles,
+  Globe,
+  Gauge,
+  Zap,
+  LineChart,
 } from 'lucide-react';
 
 const payrollWidgets = [
@@ -30,10 +36,36 @@ const cashflowWidgets = [
   { label: 'Transactions', value: 'Auto', icon: ArrowRightLeft },
 ];
 
+const agentStatusWidgets = [
+  { label: 'Providers', value: '6 Online', icon: Activity },
+  { label: 'Latency', value: '124ms', icon: Gauge },
+  { label: 'Tokens', value: '24.5K', icon: Zap },
+];
+
+const aurexWidgets = [
+  { label: 'Style Score', value: '92/100', icon: Sparkles },
+  { label: 'Selfies', value: 'Analyzed', icon: BarChart3 },
+  { label: 'AI Model', value: 'FastAPI', icon: Zap },
+];
+
+const superfoodWidgets = [
+  { label: 'Platforms', value: '3 Active', icon: Globe },
+  { label: 'Restaurants', value: '1,247', icon: LineChart },
+  { label: 'Menus', value: '8.3K', icon: BarChart3 },
+];
+
 function GeneratedThumbnail({ project }) {
   const isTravel = project.visual === 'travel-booking';
   const isCashflow = project.visual === 'cashflow';
-  const widgets = isTravel ? travelWidgets : isCashflow ? cashflowWidgets : payrollWidgets;
+  const isAgentStatus = project.visual === 'agent-status';
+  const isAurex = project.visual === 'aurex';
+  const isSuperfood = project.visual === 'superfood';
+  const widgets = isTravel ? travelWidgets
+    : isCashflow ? cashflowWidgets
+    : isAgentStatus ? agentStatusWidgets
+    : isAurex ? aurexWidgets
+    : isSuperfood ? superfoodWidgets
+    : payrollWidgets;
   const Icon = project.icon;
 
   return (
