@@ -170,16 +170,35 @@ function App() {
   }, [introDone]);
 
   // ── Restore body scrolling + move focus to content after intro ──
+  //
+  // There is a subtle race condition between three mechanisms that restore
+  // body scrolling (useIntroScrollLock cleanup, exiting-phase effect, and
+  // this effect). If the cleanup in useIntroScrollLock runs AFTER this
+  // effect, it re-sets overflow: hidden and scrolling stays locked.
+  //
+  // Fix: immediate restoration + TWO defensive retries at 100ms and 500ms
+  // to catch any late-overriding cleanup. This is a belt-and-suspenders
+  // approach — each retry is idempotent (setting '' repeatedly is harmless).
   useEffect(() => {
     if (!introDone) return;
 
-    // Explicitly restore scrolling on body and html
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.height = '';
-    document.documentElement.style.overflow = '';
-    document.documentElement.style.position = '';
-    document.documentElement.style.height = '';
+    const restoreScrolling = () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.height = '';
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.position = '';
+      document.documentElement.style.height = '';
+    };
+
+    // Try 1: Immediate restore
+    restoreScrolling();
+
+    // Try 2: After React finishes batching effects (catches useIntroScrollLock cleanup)
+    const t1 = setTimeout(restoreScrolling, 100);
+
+    // Try 3: After all pending timeouts and animations (catches deadline timer)
+    const t2 = setTimeout(restoreScrolling, 500);
 
     // Focus management: land keyboard users at the top of the content
     const main = document.querySelector('main');
@@ -191,6 +210,8 @@ function App() {
     if (import.meta.env.DEV) {
       console.log('%c[App] ✅ Body scrolling restored after intro', 'color: #10b981; font-weight: bold;');
     }
+
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [introDone]);
 
 
