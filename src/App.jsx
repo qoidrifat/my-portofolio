@@ -197,8 +197,13 @@ function App() {
     // Try 2: After React finishes batching effects (catches useIntroScrollLock cleanup)
     const t1 = setTimeout(restoreScrolling, 100);
 
-    // Try 3: After all pending timeouts and animations (catches deadline timer)
-    const t2 = setTimeout(restoreScrolling, 500);
+    // Try 3: After all pending timeouts (catches setTimeout deadline in useIntroScrollLock)
+    const t2 = setTimeout(restoreScrolling, 600);
+
+    // Try 4: Safety net — catches late-running effect cleanups within the same page
+    // load (e.g., SW cache cleanup triggering a forced reload mid-intro).
+    const t3 = setTimeout(restoreScrolling, 1500);
+    const t4 = setTimeout(restoreScrolling, 3000);
 
     // Focus management: land keyboard users at the top of the content
     const main = document.querySelector('main');
@@ -211,7 +216,7 @@ function App() {
       console.log('%c[App] ✅ Body scrolling restored after intro', 'color: #10b981; font-weight: bold;');
     }
 
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [introDone]);
 
 
