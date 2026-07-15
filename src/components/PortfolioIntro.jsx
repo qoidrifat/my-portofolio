@@ -983,7 +983,7 @@ function CinematicIntro({ onFinish, onExitStart }) {
                 opacity: 0,
               }}
             >
-              Click anywhere to skip
+              Tap anywhere to skip
             </span>
 
             {/* Skip pill */}
