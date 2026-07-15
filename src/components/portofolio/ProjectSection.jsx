@@ -56,11 +56,11 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
             )}
           </div>
 
-          {/* Quick view overlay on hover */}
+          {/* Quick view overlay — hover (mouse) + focus-visible (keyboard) */}
           <button
             onClick={() => onQuickView(project)}
-            className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-400 backdrop-blur-[2px]"
-            aria-label="Quick view"
+            className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/40 opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100 transition-opacity duration-400 backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:outline-none"
+            aria-label={`Quick view ${project.title}`}
           >
             <motion.div
               initial={false}
