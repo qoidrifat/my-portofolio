@@ -2,6 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 
 const GITHUB_USERNAME = 'qoidrifat';
 
+// ── GitHub API auth ──────────────────────────────────────────────────────
+// Uses VITE_GITHUB_TOKEN env var to authenticate and avoid rate limiting (60 req/hr unauthenticated vs 5000 req/hr authenticated).
+// Create a classic Personal Access Token at https://github.com/settings/tokens with no scopes needed (public data only).
+function getAuthHeaders() {
+  const token = import.meta.env.VITE_GITHUB_TOKEN;
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
 // ── Language color map ──────────────────────────────────────────────────────
 const LANGUAGE_COLORS = {
   JavaScript:  '#f1e05a',
@@ -34,7 +45,9 @@ export function getLanguageColor(lang) {
 
 // ── Fetch profile ───────────────────────────────────────────────────────────
 async function fetchProfile() {
-  const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
+  const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error('Failed to fetch GitHub profile');
   const data = await res.json();
   return {
@@ -53,7 +66,8 @@ async function fetchProfile() {
 // ── Fetch repos ─────────────────────────────────────────────────────────────
 async function fetchRepos() {
   const res = await fetch(
-    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20&type=public`
+    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20&type=public`,
+    { headers: getAuthHeaders() }
   );
   if (!res.ok) throw new Error('Failed to fetch GitHub repos');
   const data = await res.json();
