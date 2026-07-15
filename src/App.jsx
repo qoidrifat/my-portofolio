@@ -162,6 +162,21 @@ function App() {
     };
   }, [introDone]);
 
+  // ── Restore body scrolling after intro completes ──
+  useEffect(() => {
+    if (!introDone) return;
+
+    // Explicitly restore scrolling on body and html
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.position = '';
+
+    if (import.meta.env.DEV) {
+      console.log('%c[App] ✅ Body scrolling restored after intro', 'color: #10b981; font-weight: bold;');
+    }
+  }, [introDone]);
+
   useEffect(() => {
     if (introDone && !appVisible) {
       const t = setTimeout(() => setAppVisible(true), 60);
