@@ -4,7 +4,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|fonts/|sw\\.js|workbox-.*\\.js|favicon\\.ico|robots\\.txt|sitemap\\.xml|logo\\.webp|profile\\.webp|icon-.*\\.png|manifest\\.webmanifest).*)",
       "destination": "/index.html"
     }
   ],
