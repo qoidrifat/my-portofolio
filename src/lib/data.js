@@ -8,7 +8,7 @@
 // patterns in TechStackSection.jsx and ProjectSection.jsx.
 
 import { Github, Linkedin, Instagram, Mail, MessageCircle, Copy, MapPin, Phone } from 'lucide-react';
-import { Brain, Building2, Globe, MapPinned } from 'lucide-react';
+import { Brain, Building2, Globe, MapPinned, Wallet } from 'lucide-react';
 import {
   FaPhp, FaLaravel, FaPython, FaGitAlt, FaJsSquare, FaHtml5, FaCss3Alt,
   FaBrain, FaNodeJs, FaMobileAlt, FaRobot,
@@ -331,6 +331,47 @@ To achieve optimal performance, an 'Aggressive Fine-Tuning' strategy was impleme
     icon: MapPinned,
     color: 'from-cyan-500 to-blue-500',
   },
+  {
+    id: 7,
+    slug: 'cashflow',
+    title: 'Project CashFlow — AI-Powered Finance',
+    category: 'Personal Finance Management',
+    filterCategory: 'Finance',
+    accent: 'web',
+    year: '2026',
+    role: 'Full-stack Developer',
+    impact: [
+      'Vertex AI receipt scanning eliminates manual expense entry',
+      'Gmail API integration auto-detects bank & e-wallet transactions',
+      'Real-time budget insights with monthly spending reports',
+    ],
+    imageUrl: null,
+    visual: 'cashflow',
+    technologies: [
+      'React', 'Node.js', 'Vertex AI', 'Gmail API', 'Google Cloud',
+      'PostgreSQL', 'Tailwind CSS', 'TypeScript',
+    ],
+    features: [
+      'AI receipt scanner using Vertex AI Vision',
+      'Automated email parsing for bank & e-wallet transactions',
+      'Real-time budget tracking and insights',
+      'Monthly spending reports with category breakdown',
+      'Custom spending categories and budgets',
+      'Multi-account support',
+      'Secure OAuth2 Gmail integration',
+      'Responsive finance dashboard',
+    ],
+    longDescription:
+      'CashFlow is a comprehensive personal finance management application that eliminates manual expense tracking. By leveraging Vertex AI for receipt scanning and the Gmail API for automated transaction extraction, CashFlow provides a truly hands-off financial tracking experience.\n\nThe application connects to your Gmail inbox via OAuth2 and intelligently parses transaction emails from Indonesian banks and e-wallet services (BCA, Mandiri, GoPay, OVO, etc.), automatically categorizing each transaction. For physical receipts, simply snap a photo — Vertex AI Vision extracts merchant, amount, date, and item details.\n\nAll transactions are consolidated into a unified dashboard with real-time budget tracking, spending insights, and customizable monthly reports. CashFlow makes it effortless to understand where your money goes without manual data entry.',
+    challenges:
+      '1. Email Parsing Variability: Transaction emails from different banks and e-wallets have wildly different formats. \n   Solution: Built a flexible template-based parser with regex patterns for each known provider, with a fallback ML classifier for unknown formats.\n\n2. Vertex AI Integration: Setting up Vision API for receipt scanning required careful prompt engineering to get accurate and consistent extraction results. \n   Solution: Used structured prompts with few-shot examples and implemented confidence thresholds with manual review for low-confidence scans.\n\n3. OAuth2 Security: Handling Gmail API access required secure token storage and refresh token management. \n   Solution: Implemented token encryption at rest, automatic refresh handling, and clear user consent screens explaining exactly what data is accessed.',
+    githubUrl: '#',
+    demoUrl: null,
+    featured: false,
+    icon: Wallet,
+    color: 'from-emerald-500 to-teal-500',
+  },
+
   {
     id: 6,
     slug: 'qoid-ra-psd',

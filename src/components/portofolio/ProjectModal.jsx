@@ -54,6 +54,9 @@ function getGalleryImages(project) {
     } else if (project.slug === 'explore-bali') {
       images.push({ src: null, label: 'Destinations', visual: 'travel-booking' });
       images.push({ src: null, label: 'Booking Flow', visual: 'travel-booking' });
+    } else if (project.slug === 'cashflow') {
+      images.push({ src: null, label: 'Finance Dashboard', visual: 'cashflow' });
+      images.push({ src: null, label: 'Receipt Scan', visual: 'cashflow' });
     }
   }
   return images;

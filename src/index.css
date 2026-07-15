@@ -180,52 +180,76 @@ img {
 }
 
 /* ── Portfolio Intro Keyframes ── */
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50%      { opacity: 0.8; transform: scale(1.08); }
-}
 
-@keyframes logoIntro {
+/* Stage 1: Premium logo appearance with anticipation, overshoot & 360° rotation */
+@keyframes logoPremiumIntro {
   0% {
     opacity: 0;
-    transform: scale(0.82) rotate(-18deg);
-    filter: blur(10px);
+    transform: scale(0.78) rotate(-22deg);
+    filter: blur(12px);
   }
-  25% {
+  18% {
     opacity: 1;
-    filter: blur(0);
+    filter: blur(0px);
   }
-  45% {
-    transform: scale(1.07) rotate(8deg);
+  40% {
+    transform: scale(1.08) rotate(340deg);
   }
-  65% {
-    transform: scale(0.97) rotate(-2.5deg);
+  58% {
+    transform: scale(0.96) rotate(358deg);
   }
-  82% {
-    transform: scale(1.01) rotate(0.3deg);
+  74% {
+    transform: scale(1.02) rotate(360.5deg);
+  }
+  88% {
+    transform: scale(0.99) rotate(359.9deg);
   }
   100% {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: scale(1) rotate(360deg);
     filter: blur(0px);
   }
 }
 
+/* Subtle floating for logo after intro */
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
+  50%      { transform: translateY(-5px); }
 }
 
+/* Ambient background breathing */
+@keyframes bgBreathe {
+  0%, 100% { opacity: 0.15; transform: scale(1) translate(-50%, -50%); }
+  50%      { opacity: 0.22; transform: scale(1.08) translate(-50%, -50%); }
+}
+
+@keyframes bgBreathe2 {
+  0%, 100% { opacity: 0.10; transform: scale(1); }
+  50%      { opacity: 0.18; transform: scale(1.12); }
+}
+
+@keyframes bgBreathe3 {
+  0%, 100% { opacity: 0.08; transform: scale(1); }
+  50%      { opacity: 0.14; transform: scale(1.15); }
+}
+
+/* Glow pulse behind logo */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Slow floating particles */
 @keyframes particleFloat {
   0% {
     transform: translateY(0) translateX(0);
     opacity: 0;
   }
-  10% {
+  8% {
     opacity: 1;
   }
-  85% {
-    opacity: 0.5;
+  82% {
+    opacity: 0.4;
   }
   100% {
     transform: translateY(-105vh) translateX(var(--drift, 10px));
@@ -233,17 +257,61 @@ img {
   }
 }
 
-@keyframes checkPop {
+/* Premium checkmark pop with glow */
+@keyframes checkPremium {
   0% {
     opacity: 0;
     transform: scale(0);
   }
-  50% {
+  45% {
     opacity: 1;
-    transform: scale(1.2);
+    transform: scale(1.25);
+  }
+  70% {
+    transform: scale(0.92);
   }
   100% {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* Fade in up utility for terminal welcome line */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SUCCESS badge entrance — premium pop with glow */
+@keyframes successBadgeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0px);
+  }
+  75% {
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Loading dots pulse */
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
 }

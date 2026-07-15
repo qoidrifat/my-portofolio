@@ -354,7 +354,7 @@ export default function ProjectCaseStudy() {
                   >
                     <div className="rounded-[2rem] border border-white/[0.06] bg-white/[0.02] overflow-hidden hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-500 h-full">
                       <div className="aspect-[16/10] bg-zinc-950 relative overflow-hidden">
-                        <ProjectVisual project={rp} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <ProjectVisual project={rp} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
                       </div>
                       <div className="p-6">

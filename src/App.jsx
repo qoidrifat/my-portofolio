@@ -1,29 +1,16 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-clients'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ProjectCaseStudy from './pages/ProjectCaseStudy';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegistered.jsx';
-import LoadingScreen from '@/components/LoadingScreen';
-
-// ── Page transition variants ────────────────────────────────────────────────
-const pageVariants = {
-  initial: { opacity: 0, y: 18, scale: 0.98 },
-  animate: {
-    opacity: 1, y: 0, scale: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
-  },
-  exit: {
-    opacity: 0, y: -12, scale: 0.98,
-    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
-  },
-};
+import PortfolioIntro from './components/PortfolioIntro';
+import IntroErrorBoundary from './components/IntroErrorBoundary';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -33,11 +20,11 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AuthenticatedApp = () => {
+// ── Auth guard wrapper — works inside RouterProvider because AuthProvider is above it ──
+function RouteGuard({ children }) {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const hasAppId = !!import.meta.env.VITE_BASE44_APP_ID;
 
-  // Only enforce auth if appId is provided and we're not loading
   if (hasAppId) {
     if (isLoadingPublicSettings || isLoadingAuth) {
       return (
@@ -46,7 +33,6 @@ const AuthenticatedApp = () => {
         </div>
       );
     }
-
     if (authError) {
       if (authError.type === 'user_not_registered') {
         return <UserNotRegisteredError />;
@@ -54,86 +40,140 @@ const AuthenticatedApp = () => {
         navigateToLogin();
         return null;
       }
-      // For other errors, we'll log them but still try to render the app
       console.warn('Auth error encountered:', authError);
     }
   }
 
-  // Render the main app with animated page transitions
-  const location = useLocation();
+  return <>{children}</>;
+}
 
+// ── Root layout — wraps all routes, renders NavigationTracker inside router tree ──
+function RootLayout() {
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-            <LayoutWrapper currentPageName={mainPageKey}>
-              <MainPage />
-            </LayoutWrapper>
-          </motion.div>
-        } />
-        {Object.entries(Pages).map(([path, Page]) => (
-          <Route
-            key={path}
-            path={`/${path}`}
-            element={
-              <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-                <LayoutWrapper currentPageName={path}>
-                  <Page />
-                </LayoutWrapper>
-              </motion.div>
-            }
-          />
-        ))}
-        <Route path="/projects/:slug" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-            <ProjectCaseStudy />
-          </motion.div>
-        } />
-        <Route path="*" element={
-          <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit">
-            <PageNotFound />
-          </motion.div>
-        } />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <NavigationTracker />
+      <Outlet />
+    </>
   );
-};
+}
 
-
+// ── App ──
 function App() {
-  const [loadingDone, setLoadingDone] = useState(false);
-  const [appVisible, setAppVisible] = useState(false);
+  // ── Router definition (useMemo avoids module-level TDZ issues by deferring creation) ──
+  const router = useMemo(() => createBrowserRouter([
+    {
+      element: <RootLayout />,
+      children: [
+        {
+          path: "/",
+          element: (
+            <RouteGuard>
+              <LayoutWrapper currentPageName={mainPageKey}>
+                <MainPage />
+              </LayoutWrapper>
+            </RouteGuard>
+          ),
+        },
+        {
+          path: "/projects/:slug",
+          element: (
+            <RouteGuard>
+              <ProjectCaseStudy />
+            </RouteGuard>
+          ),
+        },
+        {
+          path: "*",
+          element: (
+            <RouteGuard>
+              <PageNotFound />
+            </RouteGuard>
+          ),
+        },
+      ],
+    },
+  ]), []);
 
-  // Hooks before any conditional return — rules of hooks compliant
+  const [introDone, setIntroDone] = useState(false);
+  const [appRevealing, setAppRevealing] = useState(false);
+  const [appVisible, setAppVisible] = useState(false);
+  const safetyTimerRef = useRef(null);
+
+  const handleIntroExitStart = useCallback(() => {
+    setAppRevealing(true);
+  }, []);
+
+  const handleIntroError = useCallback((error, errorInfo) => {
+    if (introDone) return;
+    // ErrorBoundary already logged details; reveal app + force-complete
+    setAppRevealing(true);
+    setIntroDone(true);
+  }, [introDone]);
+
+  // ── SAFETY TIMEOUT: Nuclear fail-safe ──
+  // If PortfolioIntro never calls onFinish within 7.5s (due to crash,
+  // deadlock, or any unexpected failure), force introDone = true.
+  // This is the last line of defense — it always works.
   useEffect(() => {
-    if (loadingDone && !appVisible) {
-      const t = setTimeout(() => setAppVisible(true), 50);
+    if (introDone) return;
+
+    safetyTimerRef.current = setTimeout(() => {
+      // Must reveal app BEFORE forcing introDone to prevent black screen
+      setAppRevealing(true);
+      setIntroDone(true);
+      if (import.meta.env.DEV) {
+        console.warn(
+          '%c[App] ⛑️ Safety timeout: intro did not complete within 7.5s — forcing homepage',
+          'color: #10b981; font-weight: bold;'
+        );
+      }
+    }, 13500);
+
+    return () => {
+      if (safetyTimerRef.current) {
+        clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
+    };
+  }, [introDone]);
+
+  useEffect(() => {
+    if (introDone && !appVisible) {
+      const t = setTimeout(() => setAppVisible(true), 60);
       return () => clearTimeout(t);
     }
-  }, [loadingDone, appVisible]);
-
-  if (!loadingDone) {
-    return <LoadingScreen onFinish={() => setLoadingDone(true)} />;
-  }
+  }, [introDone, appVisible]);
 
   return (
-    <div
-      style={{
-        opacity: appVisible ? 1 : 0,
-        transition: 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)',
-      }}
-    >
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
-    </div>
+    <AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        {/* Intro overlay — wrapped in ErrorBoundary for crash recovery */}
+        {!introDone && (
+          <IntroErrorBoundary onError={handleIntroError}>
+            <PortfolioIntro 
+              onFinish={() => setIntroDone(true)}
+              onExitStart={handleIntroExitStart}
+            />
+          </IntroErrorBoundary>
+        )}
+
+        {/* Router content — fades up after intro */}
+        <div
+          style={{
+            opacity: appRevealing ? 1 : 0,
+            filter: appRevealing ? 'blur(0px)' : 'blur(8px)',
+            transform: appRevealing ? 'translateY(0)' : 'translateY(12px)',
+            transition: appRevealing
+              ? 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1), filter 800ms cubic-bezier(0.22, 1, 0.36, 1), transform 800ms cubic-bezier(0.22, 1, 0.36, 1)'
+              : 'none',
+          }}
+        >
+          <RouterProvider router={router} />
+        </div>
+
+        <Toaster />
+      </QueryClientProvider>
+    </AuthProvider>
   )
 }
 

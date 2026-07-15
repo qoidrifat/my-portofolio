@@ -14,6 +14,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,webp,png,jpg,svg,ico,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: '/',
@@ -79,7 +81,6 @@ export default defineConfig({
             // Icon libraries — both are large
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
             // Radix & cmdk stay in vendor to avoid circular dep with React hooks
-            // (vendor-radix → vendor → vendor-radix causes 'useLayoutEffect' undefined)
             if (id.includes('@radix-ui') || id.includes('cmdk')) return 'vendor';
             // Data fetching
             if (id.includes('@tanstack')) return 'vendor-query';

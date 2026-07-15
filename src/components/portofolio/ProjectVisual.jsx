@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import OptimizedImage from '@/components/OptimizedImage';
 import {
+  ArrowRightLeft,
   BarChart3,
   CalendarCheck,
   CreditCard,
@@ -8,6 +9,7 @@ import {
   QrCode,
   ReceiptText,
   Users,
+  Wallet,
 } from 'lucide-react';
 
 const payrollWidgets = [
@@ -22,13 +24,20 @@ const travelWidgets = [
   { label: 'Invoices', value: 'HTML', icon: CreditCard },
 ];
 
+const cashflowWidgets = [
+  { label: 'Balance', value: 'IDR 12.4M', icon: Wallet },
+  { label: 'Scan Receipt', value: 'AI', icon: ReceiptText },
+  { label: 'Transactions', value: 'Auto', icon: ArrowRightLeft },
+];
+
 function GeneratedThumbnail({ project }) {
   const isTravel = project.visual === 'travel-booking';
-  const widgets = isTravel ? travelWidgets : payrollWidgets;
+  const isCashflow = project.visual === 'cashflow';
+  const widgets = isTravel ? travelWidgets : isCashflow ? cashflowWidgets : payrollWidgets;
   const Icon = project.icon;
 
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-zinc-950 ${isTravel ? 'project-visual-travel' : 'project-visual-payroll'}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-zinc-950 ${isTravel ? 'project-visual-travel' : isCashflow ? 'project-visual-cashflow' : 'project-visual-payroll'}`}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.22),transparent_34%),radial-gradient(circle_at_78%_18%,rgba(16,185,129,0.16),transparent_30%),linear-gradient(145deg,rgba(24,24,27,0.98),rgba(9,9,11,1))]" />
       <div className="absolute inset-x-8 top-10 h-28 rounded-[2rem] border border-white/10 bg-white/[0.04] backdrop-blur-sm" />
       <div className="absolute left-8 right-8 top-10 flex items-center justify-between px-6 py-5">
@@ -46,7 +55,7 @@ function GeneratedThumbnail({ project }) {
           const WidgetIcon = item.icon;
           return (
             <div key={item.label} className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 backdrop-blur-md">
-              <WidgetIcon className="mb-4 h-5 w-5 text-blue-400" />
+              <WidgetIcon className={`mb-4 h-5 w-5 ${isCashflow ? 'text-emerald-400' : 'text-blue-400'}`} />
               <div className="text-sm font-black text-white">{item.value}</div>
               <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-400">{item.label}</div>
             </div>
@@ -62,7 +71,7 @@ function GeneratedThumbnail({ project }) {
   );
 }
 
-export default function ProjectVisual({ project, className = '' }) {
+export default function ProjectVisual({ project, className = '', loading = 'eager' }) {
   const [imageFailed, setImageFailed] = useState(false);
 
   if (project.imageUrl && !imageFailed) {
@@ -70,7 +79,7 @@ export default function ProjectVisual({ project, className = '' }) {
       <OptimizedImage
         src={project.imageUrl}
         alt={project.title}
-        loading="eager"
+        loading={loading}
         decoding="async"
         className={`${className} object-top`}
         onError={() => setImageFailed(true)}
