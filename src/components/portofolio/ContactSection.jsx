@@ -105,6 +105,7 @@ const ContactSection = () => {
                   <label htmlFor="name" className="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Full Name</label>
                   <input 
                     type="text" name="name" id="name" required 
+                    autoComplete="name"
                     placeholder="John Doe"
                     className="w-full bg-zinc-950/50 border border-white/5 rounded-2xl py-4 px-6 text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all duration-300 hover:border-blue-500/20" 
                   />
@@ -113,6 +114,7 @@ const ContactSection = () => {
                   <label htmlFor="email" className="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Email Address</label>
                   <input 
                     type="email" name="email" id="email" required 
+                    autoComplete="email"
                     placeholder="john@example.com"
                     className="w-full bg-zinc-950/50 border border-white/5 rounded-2xl py-4 px-6 text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all duration-300 hover:border-blue-500/20" 
                   />
@@ -122,6 +124,7 @@ const ContactSection = () => {
                 <label htmlFor="message" className="text-xs font-bold text-zinc-400 uppercase tracking-widest ml-1">Your Message</label>
                 <textarea 
                   name="message" id="message" rows="6" required 
+                  autoComplete="off"
                   placeholder="Tell me about your project..."
                   className="w-full bg-zinc-950/50 border border-white/5 rounded-[2rem] py-4 px-6 text-white placeholder:text-zinc-700 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 outline-none transition-all duration-300 resize-none hover:border-blue-500/20"
                 ></textarea>

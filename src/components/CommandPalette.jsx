@@ -101,6 +101,13 @@ export default function CommandPalette() {
     return () => document.removeEventListener('keydown', down);
   }, []);
 
+  // ── External trigger — navbar Search button dispatches this event ──
+  useEffect(() => {
+    const openPalette = () => setOpen(true);
+    window.addEventListener('open-command-palette', openPalette);
+    return () => window.removeEventListener('open-command-palette', openPalette);
+  }, []);
+
   // ── Handle item selection ──
   const handleSelect = useCallback((item) => {
     setOpen(false);
@@ -146,19 +153,6 @@ export default function CommandPalette() {
 
   return (
     <>
-      {/* Keyboard hint badge — shown on bottom-right */}
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-6 left-6 z-40 hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-500 text-xs font-medium hover:bg-white/10 hover:text-zinc-300 transition-all"
-        aria-label="Open command palette"
-      >
-        <Search className="w-3.5 h-3.5" />
-        <span>Search</span>
-        <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white/10 text-[10px] font-mono text-zinc-500">
-          ⌘K
-        </kbd>
-      </button>
-
       <AnimatePresence>
         {open && (
           <motion.div
@@ -194,6 +188,9 @@ export default function CommandPalette() {
                   <div className="flex items-center border-b border-white/[0.06] px-4">
                     <Search className="mr-3 h-4 w-4 shrink-0 text-zinc-500" />
                     <CommandPrimitive.Input
+                      id="cmd-palette-search"
+                      name="cmd-palette-search"
+                      autoComplete="off"
                       placeholder="Search pages, projects, actions..."
                       className="flex h-14 w-full rounded-md bg-transparent py-3 text-base text-white outline-none placeholder:text-zinc-500"
                     />
