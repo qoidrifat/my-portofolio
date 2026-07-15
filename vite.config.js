@@ -81,6 +81,8 @@ export default defineConfig({
             if (id.includes('@tanstack')) return 'vendor-query';
             // framer-motion is standalone
             if (id.includes('framer-motion')) return 'vendor-framer';
+            // Icon libraries — standalone, no internal deps
+            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
           }
         },
       },
