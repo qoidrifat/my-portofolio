@@ -75,21 +75,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Only split truly independent, large libraries to avoid
+          // TDZ errors from interdependent vendor modules.
+          // React Router v7, React, Radix, etc. are best left to
+          // Vite/Rollup's natural chunking to ensure correct ordering.
           if (id.includes('node_modules')) {
-            // Heavy animation library — split into its own chunk
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            // Icon libraries — both are large
+            // Icon libraries are standalone (no internal deps on other node_modules)
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
-            // Radix & cmdk stay in vendor to avoid circular dep with React hooks
-            if (id.includes('@radix-ui') || id.includes('cmdk')) return 'vendor';
-            // Data fetching
-            if (id.includes('@tanstack')) return 'vendor-query';
-            // Rarely-used heavy libs (charts, maps, payments)
-            if (id.includes('recharts') || id.includes('react-leaflet') || id.includes('@stripe')) {
-              return 'vendor-heavy';
-            }
-            // Everything else (React, Router, etc.) stays in main bundle
-            return 'vendor';
+            // framer-motion is standalone
+            if (id.includes('framer-motion')) return 'vendor-framer';
+            // Let everything else chunk naturally via Vite/Rollup defaults
           }
         },
       },
