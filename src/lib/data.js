@@ -48,11 +48,10 @@ export const navLinks = [
   { name: 'Home',     href: '#hero' },
   { name: 'About',    href: '#about' },
   { name: 'Journey',  href: '#journey' },
-  { name: 'Skills',   href: '#skills' },
   { name: 'Projects', href: '#projects' },
+  { name: 'Skills',   href: '#skills' },
   { name: 'Gallery',  href: '#gallery' },
   { name: 'GitHub',   href: '#github' },
-  { name: 'Perf',     href: '#perf' },
   { name: 'Contact',  href: '#contact' },
 ];
 
@@ -65,8 +64,8 @@ export const navLinks = [
 
 export const socials = [
   { name: 'GitHub',    href: 'https://github.com/qoidrifat',       icon: Github },
-  { name: 'LinkedIn',  href: 'https://linkedin.com/in/qoidrifat',  icon: Linkedin },  // TODO: verify real LinkedIn URL
-  { name: 'Instagram', href: 'https://instagram.com/qoidrifat',    icon: Instagram }, // TODO: verify real Instagram URL
+  { name: 'LinkedIn',  href: 'https://www.linkedin.com/in/qoid-rif-at-a6b9701b0/',  icon: Linkedin },
+  { name: 'Instagram', href: 'https://www.instagram.com/qoid_r.a',    icon: Instagram },
   { name: 'Email',     href: 'mailto:qoidrifat23@gmail.com',       icon: Mail },
 ];
 
@@ -93,7 +92,7 @@ export const contactChannels = [
   {
     kind: 'linkedin',
     label: 'LinkedIn',
-    href: 'https://linkedin.com/in/qoidrifat',  // TODO: verify real LinkedIn URL
+    href: 'https://www.linkedin.com/in/qoid-rif-at-a6b9701b0/',
     icon: Linkedin,
   },
   {
@@ -179,7 +178,7 @@ export const techCategories = [
       { name: 'Keras',        icon: SiKeras,        experience_level: 70, years: 2, projectIds: [1] },
       { name: 'DeepFace',     icon: FaBrain,        experience_level: 60, years: 1.5, projectIds: [1] },
       { name: 'OpenCV',       icon: SiOpencv,       experience_level: 58, years: 1.5, projectIds: [1] },
-      { name: 'scikit-learn', icon: SiScikitlearn,  experience_level: 55, years: 1.5, projectIds: [6] },
+      { name: 'scikit-learn', icon: SiScikitlearn,  experience_level: 55, years: 1.5, projectIds: [] },
     ],
   },
   {
@@ -515,37 +514,29 @@ To achieve optimal performance, an 'Aggressive Fine-Tuning' strategy was impleme
   {
     id: 6,
     slug: 'qoid-ra-psd',
-    title: 'Data Mining Jupyter Book',
-    category: 'Data Mining Documentation / Jupyter Book',
-    filterCategory: 'Data Science',
+    title: 'Next Project — Coming Soon',
+    category: 'Upcoming Project',
+    filterCategory: 'Upcoming',
     accent: 'web',
-    year: '2023',
-    role: 'Data Science Notebook Author',
+    year: '2026',
+    role: 'Currently Under Development',
     impact: [
-      'Structured Proyek Sains Data coursework into browsable documentation',
-      'Published notebook-based experiments as a static GitHub Pages site',
-      'Documented audio feature extraction and dataset classification workflows',
+      'A new case study will be published soon',
+      'This portfolio is continuously evolving',
     ],
-    imageUrl: '/project-qoid-ra-psd.webp',
-    technologies: ['Jupyter Book', 'Python', 'Streamlit', 'scikit-learn', 'Pandas', 'librosa', 'GitHub Pages'],
-    features: [
-      'Jupyter Book static documentation',
-      'Audio data exploration',
-      'Zero Crossing Rate feature extraction',
-      'Audio classification notebooks',
-      'Wholesale Customers dataset analysis',
-      'Streamlit prototype scripts',
-      'GitHub Pages deployment',
-    ],
+    imageUrl: null,
+    technologies: [],
+    features: [],
     longDescription:
-      'A comprehensive Jupyter Book documentation project developed for the Data Science Project coursework. It encompasses in-depth data exploration, audio classification, and feature extraction analysis — including Zero Crossing Rate, standard deviation, skewness, and kurtosis — alongside a thorough analysis of the Wholesale Customers dataset. The project is published as a static GitHub Pages site featuring structured documentation navigation, HTML notebook pages, and well-organized experiment reports for seamless browsing and reference.',
+      'This portfolio is continuously evolving. A brand new case study featuring cutting-edge technology and novel solutions is currently under development. Check back soon for the full story, including the challenges, architecture decisions, and key results.',
     challenges:
-      'The main challenge was turning notebook-based experiments and Python analysis scripts into readable static documentation while keeping datasets, model workflows, and experiment outputs easy to scan from a published GitHub Pages site.',
-    githubUrl: 'https://github.com/qoidrifat/qoid_ra.psd',
-    demoUrl: 'https://qoidrifat.github.io/qoid_ra.psd/intro.html',
+      'Stay tuned — the full case study will be published once development is complete.',
+    githubUrl: '#',
+    demoUrl: null,
     featured: false,
-    icon: Globe,
-    color: 'from-blue-500 to-indigo-500',
+    isPlaceholder: true,
+    icon: Sparkles,
+    color: 'from-violet-500 to-fuchsia-500',
   },
 ];
 
