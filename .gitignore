@@ -54,3 +54,20 @@ PORTFOLIO_*_REPORT.md
 
 # Project planning docs (git history only, not updated)
 docs/superpowers/
+
+# IDE & local tool config — not project code
+.claude/
+.idx/
+
+# Deployment config cleanup
+firebase.json
+.firebaserc
+wrangler.toml
+
+# Docs / reports (replaced by README)
+TECHNICAL_DOC.md
+ASSET_SYNC_DEEP_ANALYSIS_REPORT.md
+PORTFOLIO_*_REPORT.md
+
+# Vercel deployment (handled via dashboard)
+vercel.json
