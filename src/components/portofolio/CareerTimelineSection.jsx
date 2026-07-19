@@ -199,7 +199,6 @@ export default function CareerTimelineSection() {
 
   return (
     <section
-      id="journey"
       className="py-24 md:py-32 relative overflow-hidden scroll-mt-20"
       ref={sectionRef}
     >
@@ -224,7 +223,7 @@ export default function CareerTimelineSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            Career <span className="text-zinc-700">Journey</span>
+            Career <span className="text-zinc-500">Journey</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

@@ -1,15 +1,8 @@
 import { useState, useRef, useMemo } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import {
-  FaPhp, FaLaravel, FaPython, FaGitAlt, FaJsSquare, FaHtml5, FaCss3Alt,
-  FaBrain, FaNodeJs, FaMobileAlt, FaRobot,
-} from "react-icons/fa";
-import {
-  SiTensorflow, SiTailwindcss, SiKeras, SiOpencv, SiScikitlearn,
-  SiHuggingface, SiReact, SiSqlite,
-} from "react-icons/si";
-import { VscVscode } from "react-icons/vsc";
-import { DiMysql } from "react-icons/di";
+
+
+
 import { techCategories, projects } from "@/lib/data";
 
 function getLevelLabel(v) {
@@ -107,7 +100,7 @@ function TechCard({ item, index, isExpanded, onToggle }) {
                     </div>
                   </div>
                 )}
-                {lp.length === 0 && <div className="text-[10px] text-zinc-600 italic">No portfolio projects listed yet</div>}
+                {lp.length === 0 && <div className="text-[10px] text-zinc-400 italic">No portfolio projects listed yet</div>}
               </div>
             </motion.div>
           )}
@@ -146,12 +139,12 @@ export default function TechStackSection() {
   const marqueeRow2 = techCategories.slice(3).flatMap(c => c.items);
 
   return (
-    <section id="skills" className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
+    <section className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
           <motion.span initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block">Capabilities</motion.span>
-          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl md:text-6xl font-black text-white mb-6">Tech Stack <span className="text-zinc-700">&amp;</span> Tools</motion.h2>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl md:text-6xl font-black text-white mb-6">Tech Stack <span className="text-zinc-500">&amp;</span> Tools</motion.h2>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.2 }} className="text-zinc-400 max-w-2xl mx-auto text-lg">The specialized tools and frameworks I use to architect robust, scalable, and intelligent digital products.</motion.p>
         </div>
 

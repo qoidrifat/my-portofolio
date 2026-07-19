@@ -116,7 +116,6 @@ export default function PerformanceSection() {
 
   return (
     <section
-      id="perf"
       className="py-24 md:py-32 relative overflow-hidden scroll-mt-20"
       ref={sectionRef}
     >
@@ -141,7 +140,7 @@ export default function PerformanceSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            Performance <span className="text-zinc-700">Dashboard</span>
+            Performance <span className="text-zinc-500">Dashboard</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

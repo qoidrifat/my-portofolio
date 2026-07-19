@@ -30,3 +30,27 @@ dist-ssr
 .env
 .vercel
 .env*
+
+# Audit/report artifacts — never commit
+lighthouse*.json
+lighthouse*.html
+localhost_*.report.*
+*.report.html
+*.report.json
+.firebase/
+
+# Ad-hoc screenshots & scratch files in repo root
+/*.png
+/*.jpg
+bundle_name.txt
+
+# Report artifacts
+HASIL_AUDIT.md
+IMPLEMENTATION_REPORT.md
+PORTFOLIO_*_REPORT.md
+
+# QA screenshots
+.qa-shots/
+
+# Project planning docs (git history only, not updated)
+docs/superpowers/

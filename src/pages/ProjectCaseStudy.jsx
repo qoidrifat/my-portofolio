@@ -339,7 +339,7 @@ export default function ProjectCaseStudy() {
             <FadeSection delay={0.1}>
               <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-                  Related <span className="text-zinc-700">Projects</span>
+                  Related <span className="text-zinc-500">Projects</span>
                 </h2>
                 <p className="text-zinc-400 text-lg">Explore more projects that share similar technologies or themes.</p>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -67,18 +67,73 @@ const ProjectModal = ({ project, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [galleryIndex, setGalleryIndex] = useState(0);
 
-  // Close on Escape
+  // ── Refs ──
+  const modalRef = useRef(null);
+  const closeRef = useRef(null);
+
+  // ── Gallery data (memoized so keyboard handlers see a stable reference) ──
+  const galleryImages = useMemo(
+    () => (project ? getGalleryImages(project) : []),
+    [project]
+  );
+  const hasMultipleImages = galleryImages.length > 1;
+
+  const nextImage = useCallback(() => {
+    if (galleryImages.length === 0) return;
+    setGalleryIndex((g) => (g + 1) % galleryImages.length);
+  }, [galleryImages.length]);
+  const prevImage = useCallback(() => {
+    if (galleryImages.length === 0) return;
+    setGalleryIndex((g) => (g - 1 + galleryImages.length) % galleryImages.length);
+  }, [galleryImages.length]);
+
+  // Keyboard: Escape closes, arrows navigate gallery, Tab is trapped in the modal
+  const handleKeyDown = useCallback((e) => {
+    // Close on Escape
+    if (e.key === 'Escape') { onClose(); return; }
+
+    // Gallery navigation arrows
+    if (e.key === 'ArrowRight') { nextImage(); return; }
+    if (e.key === 'ArrowLeft') { prevImage(); return; }
+
+    // Focus trap
+    if (e.key === 'Tab') {
+      const modal = modalRef.current;
+      if (!modal) return;
+      const focusable = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, [onClose, nextImage, prevImage]);
+
   useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') nextImage();
-      if (e.key === 'ArrowLeft') prevImage();
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  // Focus close button on mount, restore focus to the trigger on unmount
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    // Small delay to let AnimatePresence mount the DOM
+    const t = setTimeout(() => closeRef.current?.focus(), 50);
+    return () => {
+      clearTimeout(t);
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
-  // Lock body scroll
+  // Lock body scroll while the modal is open. Safe because the parent only
+  // mounts this component when a project is selected — the cleanup always runs.
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -88,11 +143,6 @@ const ProjectModal = ({ project, onClose }) => {
 
   const hasDemo = project.demoUrl && project.demoUrl !== '#';
   const hasValidSourceCode = Boolean(project.githubUrl && project.githubUrl !== '#');
-  const galleryImages = getGalleryImages(project);
-  const hasMultipleImages = galleryImages.length > 1;
-
-  const nextImage = () => setGalleryIndex((g) => (g + 1) % galleryImages.length);
-  const prevImage = () => setGalleryIndex((g) => (g - 1 + galleryImages.length) % galleryImages.length);
 
   // Tab content renderer
   const renderTabContent = () => {
@@ -164,27 +214,31 @@ const ProjectModal = ({ project, onClose }) => {
   };
 
   return (
-    <AnimatePresence>
+    <motion.div
+      key="backdrop"
+      variants={backdropVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="fixed inset-0 bg-zinc-950/70 backdrop-blur-lg z-[100] flex items-center justify-center p-3 md:p-6"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Project details: ${project?.title || ''}`}
+    >
       <motion.div
-        key="backdrop"
-        variants={backdropVariants}
+        key="modal"
+        ref={modalRef}
+        variants={modalVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="fixed inset-0 bg-zinc-950/70 backdrop-blur-lg z-[100] flex items-center justify-center p-3 md:p-6"
-        onClick={onClose}
+        className="bg-zinc-900/90 border border-white/10 rounded-[2rem] w-full max-w-5xl max-h-[88vh] overflow-hidden relative shadow-2xl shadow-black/40 flex flex-col md:flex-row"
+        onClick={(e) => e.stopPropagation()}
       >
-        <motion.div
-          key="modal"
-          variants={modalVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="bg-zinc-900/90 border border-white/10 rounded-[2rem] w-full max-w-5xl max-h-[88vh] overflow-hidden relative shadow-2xl shadow-black/40 flex flex-col md:flex-row"
-          onClick={(e) => e.stopPropagation()}
-        >
           {/* ── Close Button ── */}
           <button
+            ref={closeRef}
             onClick={onClose}
             className="absolute top-4 right-4 z-50 p-2.5 rounded-xl bg-zinc-950/60 backdrop-blur-md border border-white/10 text-zinc-400 hover:text-white hover:scale-110 transition-all duration-300"
             aria-label="Close modal"
@@ -268,9 +322,9 @@ const ProjectModal = ({ project, onClose }) => {
                 {project.title}
               </h2>
               <div className="flex items-center gap-3 mt-2">
-                <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">{project.year}</span>
+                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">{project.year}</span>
                 <span className="text-zinc-700">·</span>
-                <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">{project.role}</span>
+                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">{project.role}</span>
               </div>
             </div>
 
@@ -285,7 +339,7 @@ const ProjectModal = ({ project, onClose }) => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`relative flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap transition-colors ${
-                      isActive ? 'text-blue-400' : 'text-zinc-500 hover:text-zinc-300'
+                      isActive ? 'text-blue-400' : 'text-zinc-400 hover:text-zinc-300'
                     }`}
                   >
                     <tab.icon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -361,7 +415,6 @@ const ProjectModal = ({ project, onClose }) => {
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
   );
 };
 

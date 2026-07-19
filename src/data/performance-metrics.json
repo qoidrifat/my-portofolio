@@ -1,103 +1,97 @@
 {
-  "generatedAt": "2026-07-08T16:18:12.379Z",
+  "generatedAt": "2026-07-19T09:20:44.470Z",
   "buildTime": "< 10s",
   "bundles": [
     {
-      "name": "vendor-BDdpcRPt.js",
-      "size": 425485,
-      "sizeLabel": "415.5 KB",
+      "name": "index-C6ypWrJf.js",
+      "size": 342378,
+      "sizeLabel": "334.4 KB",
       "type": "js"
     },
     {
-      "name": "vendor-framer-1xJNm3Up.js",
-      "size": 117688,
-      "sizeLabel": "114.9 KB",
+      "name": "vendor-framer-L0gCDbek.js",
+      "size": 130934,
+      "sizeLabel": "127.9 KB",
       "type": "js"
     },
     {
-      "name": "index--E5xzgvV.css",
-      "size": 109057,
-      "sizeLabel": "106.5 KB",
+      "name": "index-DxPcjFy5.css",
+      "size": 73360,
+      "sizeLabel": "71.6 KB",
       "type": "css"
     },
     {
-      "name": "index-iAxHGfLv.js",
-      "size": 87135,
-      "sizeLabel": "85.1 KB",
+      "name": "vendor-icons-Lb2GfeWB.js",
+      "size": 62403,
+      "sizeLabel": "60.9 KB",
       "type": "js"
     },
     {
-      "name": "vendor-icons-T7_GjuCx.js",
-      "size": 54398,
-      "sizeLabel": "53.1 KB",
-      "type": "js"
-    },
-    {
-      "name": "vendor-query-PDNZv78w.js",
-      "size": 38632,
+      "name": "vendor-query-CjnUWYVE.js",
+      "size": 38639,
       "sizeLabel": "37.7 KB",
       "type": "js"
     },
     {
-      "name": "ProjectSection-C2GLsTTE.js",
-      "size": 20122,
-      "sizeLabel": "19.7 KB",
+      "name": "ProjectSection-BnhjOcym.js",
+      "size": 21173,
+      "sizeLabel": "20.7 KB",
       "type": "js"
     },
     {
-      "name": "PerformanceSection-C2SHK1Od.js",
-      "size": 9698,
-      "sizeLabel": "9.5 KB",
+      "name": "PerformanceSection-CMcVg68f.js",
+      "size": 9577,
+      "sizeLabel": "9.4 KB",
       "type": "js"
     },
     {
-      "name": "GitHubSection-Dy_CR5SA.js",
-      "size": 8502,
-      "sizeLabel": "8.3 KB",
+      "name": "GitHubSection-CPhwy3z0.js",
+      "size": 8887,
+      "sizeLabel": "8.7 KB",
       "type": "js"
     },
     {
-      "name": "TechStackSection-BEEWtFOq.js",
-      "size": 8069,
-      "sizeLabel": "7.9 KB",
+      "name": "GallerySection-Bgpc8eGl.js",
+      "size": 8681,
+      "sizeLabel": "8.5 KB",
       "type": "js"
     },
     {
-      "name": "CareerTimelineSection-DBQDfS4Y.js",
-      "size": 8064,
-      "sizeLabel": "7.9 KB",
+      "name": "TechStackSection-DQmPSoG1.js",
+      "size": 8023,
+      "sizeLabel": "7.8 KB",
       "type": "js"
     },
     {
-      "name": "AboutSection-Bx1agJh5.js",
-      "size": 6936,
+      "name": "CareerTimelineSection-CZsMYL4b.js",
+      "size": 8019,
+      "sizeLabel": "7.8 KB",
+      "type": "js"
+    },
+    {
+      "name": "ContactSection-BvMuzGzg.js",
+      "size": 7590,
+      "sizeLabel": "7.4 KB",
+      "type": "js"
+    },
+    {
+      "name": "AboutSection-D_bH1z9C.js",
+      "size": 6923,
       "sizeLabel": "6.8 KB",
-      "type": "js"
-    },
-    {
-      "name": "ContactSection-C2jHutJA.js",
-      "size": 6100,
-      "sizeLabel": "6.0 KB",
-      "type": "js"
-    },
-    {
-      "name": "GallerySection-BSiPCVAG.js",
-      "size": 5747,
-      "sizeLabel": "5.6 KB",
       "type": "js"
     }
   ],
   "summary": {
-    "totalJsSize": 796576,
-    "totalJsSizeLabel": "777.9 KB",
-    "totalCssSize": 109057,
-    "totalCssSizeLabel": "106.5 KB",
-    "totalPageSize": 913845,
-    "totalPageSizeLabel": "892.4 KB",
-    "totalBundles": 14,
-    "totalSourceFiles": 84,
-    "totalLinesOfCode": 10173,
-    "jsxComponents": 77
+    "totalJsSize": 653227,
+    "totalJsSizeLabel": "637.9 KB",
+    "totalCssSize": 73360,
+    "totalCssSizeLabel": "71.6 KB",
+    "totalPageSize": 735967,
+    "totalPageSizeLabel": "718.7 KB",
+    "totalBundles": 13,
+    "totalSourceFiles": 37,
+    "totalLinesOfCode": 7917,
+    "jsxComponents": 31
   },
   "scores": {
     "performance": 78,

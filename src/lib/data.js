@@ -282,7 +282,7 @@ To achieve optimal performance, an 'Aggressive Fine-Tuning' strategy was impleme
       'Interactive Recharts visualizations with animated gauges and responsive layout',
       'MCP (Model Context Protocol) support for automatic model discovery across providers',
     ],
-    imageUrl: null,
+    imageUrl: '/project-agent-status.webp',
     visual: 'agent-status',
     technologies: [
       'TypeScript', 'Node.js', 'SQLite', 'Recharts',
@@ -365,7 +365,7 @@ To achieve optimal performance, an 'Aggressive Fine-Tuning' strategy was impleme
       'Gmail API integration auto-detects bank & e-wallet transactions',
       'Real-time budget insights with monthly spending reports',
     ],
-    imageUrl: null,
+    imageUrl: '/project-cashflow.webp',
     visual: 'cashflow',
     technologies: [
       'React', 'Node.js', 'Vertex AI', 'Gmail API', 'Google Cloud',

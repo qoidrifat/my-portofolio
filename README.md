@@ -1,39 +1,83 @@
-**Welcome to your Base44 project** 
+# Qoid Rif'at — Portfolio
 
-**About**
+Personal portfolio website showcasing projects, skills, and experience in AI & web development.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+Built with **Vite**, **React 18**, **Tailwind CSS**, and **Framer Motion**.
 
-This project contains everything you need to run your app locally.
+## Tech Stack
 
-**Edit the code in your local development environment**
+| Category | Technologies |
+|----------|-------------|
+| **Frontend** | React 18, Vite 6, Tailwind CSS 3, Framer Motion |
+| **Routing** | React Router 6 |
+| **State / Data** | TanStack React Query |
+| **Icons** | Lucide React, React Icons |
+| **UI Components** | Radix UI (Dialog, Slot), cmdk |
+| **PWA** | vite-plugin-pwa |
+| **Fonts** | Inter, JetBrains Mono |
+| **Tooling** | TypeScript, ESLint, PostCSS |
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## Getting Started
 
-**Prerequisites:** 
+```bash
+# Install dependencies
+npm install
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | Production build + generate bundle stats |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Run ESLint with auto-fix |
+| `npm run typecheck` | TypeScript type checking |
+
+## Project Structure
 
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+src/
+├── api/                    # API clients & SDK wrappers
+├── components/
+│   ├── portofolio/         # Section components (Hero, About, Projects, etc.)
+│   └── ui/                 # Shared UI primitives (Toast, etc.)
+├── data/                   # Static data files
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities & providers
+├── pages/                  # Route page components
+├── App.jsx                 # Root app with routing & intro
+├── Layout.jsx              # Shared layout (navbar, footer, etc.)
+├── main.jsx                # Entry point
+└── index.css               # Global styles & Tailwind imports
 ```
 
-Run the app: `npm run dev`
+## Sections
 
-**Publish your changes**
+- **Hero** — Introduction with animated terminal emulator
+- **About** — Background & expertise
+- **Projects** — Featured project cards with case study modals
+- **Gallery** — Photography collection with lightbox
+- **GitHub** — Live repo stats from GitHub API
+- **Tech Stack** — Technologies & tools used
+- **Career Timeline** — Professional experience
+- **Performance** — Lighthouse metrics showcase
+- **Contact** — Get in touch form
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+## Deployment
 
-**Docs & Support**
+Deployed via **Cloudflare Pages** / **Vercel** with SPA fallback routing.
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+## License
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+© 2026 Qoid Rif'at. All rights reserved.

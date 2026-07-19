@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUp, Search as SearchIcon } from 'lucide-react';
+import { Menu, X, ArrowUp, Search as SearchIcon, TerminalSquare } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
@@ -56,8 +56,19 @@ export default function Layout({ children }) {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    // Sync immediately so the navbar/scroll-spy state is correct when the
+    // page loads already scrolled (reload mid-page, anchor navigation)
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu on Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setMobileMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileMenuOpen]);
 
   const scrollToSection = (href) => {
     const element = document.querySelector(href);
@@ -118,8 +129,10 @@ export default function Layout({ children }) {
               </div>
             </motion.a>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1 bg-white/5 border border-border-soft-strong p-1 rounded-2xl backdrop-blur-md">
+            {/* Desktop Navigation — lg+ only: below 1024px the full pill bar +
+                Search + CTA cannot fit and clips off-screen (768–1023px), so
+                tablets use the mobile menu instead */}
+            <div className="hidden lg:flex items-center gap-1 bg-white/5 border border-border-soft-strong p-1 rounded-2xl backdrop-blur-md">
               {navLinks.map((link) => (
                 <motion.a
                   key={link.name}
@@ -146,7 +159,7 @@ export default function Layout({ children }) {
             </div>
 
             {/* Search + CTA */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3">
               <motion.button
                 onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-border-soft text-text-muted text-sm font-medium hover:bg-white/10 hover:text-white transition-colors"
@@ -173,10 +186,12 @@ export default function Layout({ children }) {
 
             {/* Mobile Menu Button */}
             <motion.button
-              className="md:hidden p-2.5 rounded-xl bg-white/5 border border-border-soft hover:bg-white/10 transition-colors"
+              className="lg:hidden p-2.5 rounded-xl bg-white/5 border border-border-soft hover:bg-white/10 transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
               aria-label="Toggle Menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </motion.button>
@@ -187,10 +202,11 @@ export default function Layout({ children }) {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
+              id="mobile-menu"
               initial={shouldReduceMotion ? false : { opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -20 }}
-              className="md:hidden bg-zinc-950/95 backdrop-blur-2xl border-b border-border-soft"
+              className="lg:hidden bg-zinc-950/95 backdrop-blur-2xl border-b border-border-soft"
             >
               <div className="px-4 py-6 space-y-2">
                 {navLinks.map((link) => (
@@ -304,6 +320,16 @@ export default function Layout({ children }) {
                     <social.icon className="w-5 h-5" aria-hidden="true" />
                   </motion.a>
                 ))}
+                <motion.button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-terminal'))}
+                  aria-label="Open interactive terminal (Ctrl+`)"
+                  title="Interactive terminal — Ctrl+`"
+                  className="p-3 rounded-xl bg-white/5 border border-border-soft text-text-muted hover:text-white hover:border-border-soft-strong transition-all"
+                  whileHover={shouldReduceMotion ? undefined : { scale: 1.1, y: -2 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
+                >
+                  <TerminalSquare className="w-5 h-5" aria-hidden="true" />
+                </motion.button>
               </div>
             </div>
           </div>

@@ -17,7 +17,11 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,webp,png,jpg,svg,ico,woff2}'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // Keep the precache lean: full-size gallery images are fetched on
+        // demand (lightbox only) and cached at runtime instead. Without this,
+        // every first-time visitor silently downloaded the whole gallery.
+        globIgnores: ['gallery/original/**', 'gallery/*.{jpg,png}', 'arsip/**'],
+        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
         navigateFallback: '/',
         runtimeCaching: [
           {
@@ -27,6 +31,22 @@ export default defineConfig({
               cacheName: 'unsplash-images',
               expiration: {
                 maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Full-size gallery images — cached only after the visitor
+            // actually opens them in the lightbox
+            urlPattern: /\/gallery\/original\/.*\.(webp|avif|jpg|png)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gallery-originals',
+              expiration: {
+                maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
               },
               cacheableResponse: {

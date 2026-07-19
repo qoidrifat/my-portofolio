@@ -130,7 +130,6 @@ export default function GitHubSection() {
 
   return (
     <section
-      id="github"
       className="py-24 md:py-32 relative overflow-hidden scroll-mt-20"
       ref={sectionRef}
     >
@@ -156,7 +155,7 @@ export default function GitHubSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            GitHub <span className="text-zinc-700">Activity</span>
+            GitHub <span className="text-zinc-500">Activity</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -213,6 +212,23 @@ export default function GitHubSection() {
               : displayRepos.map((repo, i) => (
                   <RepoCard key={repo.id} repo={repo} index={i} isInView={isSectionInView} />
                 ))}
+          </div>
+        )}
+
+        {/* ── Empty state — API succeeded but every repo is a fork/archived ── */}
+        {!isError && !isLoading && repos && repos.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-zinc-400 font-medium">
+              No original public repositories to show right now.
+            </p>
+            <a
+              href="https://github.com/qoidrifat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-4 text-blue-400 hover:text-blue-300 text-sm font-bold transition-colors"
+            >
+              Browse everything on GitHub →
+            </a>
           </div>
         )}
 

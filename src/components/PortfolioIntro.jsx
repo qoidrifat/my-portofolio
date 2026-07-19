@@ -1,5 +1,6 @@
 import { memo, useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { profile, projects } from '@/lib/data';
+import { profile } from '@/lib/data';
+import PortfolioTerminal, { TERMINAL_TOTAL_MS } from '@/components/PortfolioTerminal';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ENGINEERING INTRODUCTION
@@ -8,15 +9,16 @@ import { profile, projects } from '@/lib/data';
 //
 //   PortfolioIntro
 //     ├─ ReducedMotionIntro   (prefers-reduced-motion: ~1s, opacity only)
-//     └─ CinematicIntro       (full 5–6s cinematic sequence)
+//     └─ CinematicIntro       (full cinematic sequence)
 //           ├─ BackgroundEffects (ambient gradients + particles + noise)
 //           ├─ LogoAnimation     (Stage 1: mask-reveal in)
 //           ├─ LogoMorph         (Stage 2: dissolve upward)
 //           ├─ IdentityReveal    (Stage 3–4: name + subtitle, reposition)
-//           └─ TerminalSequence  (Stage 5–7: glass terminal with typing engine)
+//           └─ PortfolioTerminal (Stage 5–7: macOS Sonoma terminal, own timeline)
 //
 // Orchestration: single `phase` state machine driven by computed OFFSET constants.
-// All timing is derived from the TERMINAL_SCRIPT length — no hardcoded ms values.
+// The terminal's internal sequence lives in PortfolioTerminal.jsx and reports
+// completion via onComplete — event-driven, never estimated.
 // The watchdog is a SAFETY NET only, never a scheduler.
 //
 // Key principles:
@@ -31,10 +33,10 @@ import { profile, projects } from '@/lib/data';
 // ─────────────────────────────────────────────────────────────────────────────
 // Timing Constants (milliseconds)
 //
-// All values are tuned for a 5–6 second total timeline:
+// Spec: premium macOS terminal timeline.
 //   Logo (800) → Morph (400) → Identity (250) → Reposition (450)
-//   → Terminal in (350) → Typing (~1600) → Welcome (300) → Exit (600)
-//   ≈ 4750ms total → ~5.3s with overlaps and animation tails.
+//   → Terminal in (600) → Terminal sequence (TERMINAL_TOTAL_MS, computed)
+//   → Welcome hold (300) → Exit (700)
 // ─────────────────────────────────────────────────────────────────────────────
 const T = {
   LOGO_HOLD      : 800,
@@ -42,48 +44,28 @@ const T = {
   IDENTITY_HOLD  : 250,
   REPOSITION     : 450,
   TERMINAL_LEAD  : 150,
-  TERMINAL_IN    : 350,
-  TYPE_SPEED     : 35,
-  TYPE_START     : 50,
-  OUTPUT_DELAY   : 80,
-  LINE_GAP       : 120,
+  TERMINAL_IN    : 600,
   WELCOME_HOLD   : 300,
-  EXIT           : 600,
+  EXIT           : 700,
   SKIP_EXIT      : 350,
   FINISH_BUFFER  : 50,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Terminal Script — real data, no fake loading.
-// Each command's typing duration is computed from its actual text length,
-// so the OFFSET constants are always in sync with the typing engine.
-// ─────────────────────────────────────────────────────────────────────────────
-const TERMINAL_SCRIPT = [
-  { cmd: 'whoami',   output: `${profile.name} — Full Stack Developer · AI Enthusiast` },
-  { cmd: 'stack',    output: 'React · Laravel · Python · TensorFlow · Node.js' },
-  { cmd: 'projects', output: `${projects.length} case studies loaded` },
-  { cmd: 'status',   output: 'READY', badge: true },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Derived Timeline Offsets — every value is COMPUTED, never hardcoded.
-// The bootMs is calculated from the actual script text, scaling automatically
-// if commands are added, removed, or changed.
+// The terminal sequence duration (TERMINAL_TOTAL_MS) is computed inside
+// PortfolioTerminal.jsx from its own STEPS data, so the watchdog scales
+// automatically if the script changes.
 // ─────────────────────────────────────────────────────────────────────────────
 const OFFSET = (() => {
   const morph      = T.LOGO_HOLD;                                   // 800
   const identity   = morph + T.MORPH_DURATION;                      // 1200
   const reposition = identity + T.IDENTITY_HOLD;                    // 1450
   const terminal   = reposition + T.REPOSITION - T.TERMINAL_LEAD;   // 1750
-  const boot       = terminal + T.TERMINAL_IN;                      // 2100
-  const bootMs     = TERMINAL_SCRIPT.reduce(
-    (sum, line) => sum + T.TYPE_START + line.cmd.length * T.TYPE_SPEED + T.OUTPUT_DELAY + T.LINE_GAP,
-    0
-  );                                                                 // ~1580
+  const boot       = terminal + T.TERMINAL_IN;                      // 2350
   return {
-    morph, identity, reposition, terminal, boot, bootMs,
-    expectedWelcome : boot + bootMs,                                // ~3680
-    expectedDone    : boot + bootMs + T.WELCOME_HOLD + T.EXIT,      // ~4580
+    morph, identity, reposition, terminal, boot,
+    expectedDone: boot + TERMINAL_TOTAL_MS + T.WELCOME_HOLD + T.EXIT,
   };
 })();
 
@@ -112,9 +94,11 @@ const WATCHDOG_TOTAL = OFFSET.expectedDone + STALL_MARGIN;
 export const INTRO_MAX_MS = WATCHDOG_TOTAL;
 export const INTRO_SESSION_KEY = 'qr-intro-played';
 
+// The intro plays on EVERY page load / refresh — no once-per-session gating.
+// The session key is still written (markIntroPlayed) so this policy can be
+// flipped back to once-per-session by restoring the sessionStorage check.
 export function hasIntroPlayed() {
-  if (import.meta.env.DEV && import.meta.env.VITE_INTRO_REPLAY === 'true') return false;
-  try { return sessionStorage.getItem(INTRO_SESSION_KEY) === '1'; } catch { return false; }
+  return false;
 }
 
 function markIntroPlayed() {
@@ -140,7 +124,7 @@ const PHASE_ORDER = ['logo', 'morph', 'identity', 'reposition', 'terminal', 'boo
 const phaseIndex = (p) => PHASE_ORDER.indexOf(p);
 
 /** How far the identity rises (px) when it repositions above the terminal. */
-const REPOSITION_RISE = 120;
+const REPOSITION_RISE = 150;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Reduced Motion Detection — evaluated once
@@ -456,153 +440,37 @@ const IdentityReveal = memo(function IdentityReveal({ visible, repositioned, exi
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// StatusBadge — green READY pill (final terminal output)
-// Premium pop entrance with spring-like easing.
-// ═══════════════════════════════════════════════════════════════════════════════
-const StatusBadge = memo(function StatusBadge({ children }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full"
-      style={{
-        background: 'rgba(52,211,153,0.12)',
-        border: '1px solid rgba(52,211,153,0.2)',
-        fontSize: '11px',
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        color: 'rgba(52,211,153,0.9)',
-        textShadow: '0 0 12px rgba(52,211,153,0.15)',
-        animation: isReduced ? 'none' : 'successBadgeIn 350ms cubic-bezier(0.34,1.56,0.64,1) forwards',
-        opacity: 0,
-        transform: 'scale(0.85)',
-      }}
-    >
-      {children}
-    </span>
-  );
-});
-
-// ── Cursor — CSS-driven blink (zero React re-renders) ─────────────────────
-const Cursor = memo(function Cursor() {
-  return (
-    <span
-      className="inline-block align-middle ml-[1px]"
-      style={{
-        width: '2px',
-        height: '1.1em',
-        background: 'rgba(96,165,250,0.55)',
-        boxShadow: '0 0 6px rgba(59,130,246,0.25)',
-        animation: isReduced ? 'none' : 'cursorBlink 1s linear infinite',
-      }}
-    />
-  );
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// TerminalSequence — Stage 5–7
+// TerminalFrame — Stage 5–7 wrapper
 //
-// Glassmorphic terminal card with authentic typing animation.
-// All four terminal commands are displayed simultaneously as they are typed.
-//
-// Typography:
-//   • Font: JetBrains Mono (self-hosted) at 11–13px (clamp 0.6875rem – 0.8125rem)
-//   • Line height: 1.9 for comfortable reading
-//   • Prompt prefix: `>` in muted blue
-//   • Command text: bright white
-//   • Output text: muted zinc
-//   • Badge output: green READY pill
+// Owns the terminal's entrance/exit transforms (spec):
+//   Entrance: 600ms — opacity 0→1, scale .975→1, translateY 24→0, blur 12→0
+//   Exit:     700ms — opacity 1→0, scale 1→.985, translateY 0→-20, blur 0→10
+// The internal typing/check sequence lives in PortfolioTerminal.jsx.
 // ═══════════════════════════════════════════════════════════════════════════════
-const TerminalSequence = memo(function TerminalSequence({ visible, exiting, exitMs, term }) {
+const TerminalFrame = memo(function TerminalFrame({ visible, booting, exiting, exitMs, onComplete }) {
   return (
     <div
-      className="flex items-center justify-center select-none absolute"
+      className="flex items-center justify-center select-none absolute w-full px-4"
       aria-hidden="true"
       style={{
         opacity: exiting ? 0 : visible ? 1 : 0,
-        filter: exiting ? 'blur(12px)' : visible ? 'blur(0px)' : 'blur(14px)',
+        filter: exiting ? 'blur(10px)' : visible ? 'blur(0px)' : 'blur(12px)',
         transform: exiting
-          ? 'translateY(30px) scale(0.88)'
+          ? 'translateY(-20px) scale(0.985)'
           : visible
             ? 'translateY(0) scale(1)'
-            : 'translateY(28px) scale(0.94)',
+            : 'translateY(24px) scale(0.975)',
         transition: isReduced
           ? 'none'
           : exiting
             ? `opacity ${exitMs}ms ${EASE.PREMIUM}, filter ${exitMs}ms ${EASE.PREMIUM}, transform ${exitMs}ms ${EASE.PREMIUM}`
-            : `opacity ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, filter ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, transform ${T.TERMINAL_IN}ms ${EASE.SNAP}`,
+            : `opacity ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, filter ${T.TERMINAL_IN}ms ${EASE.PREMIUM}, transform ${T.TERMINAL_IN}ms ${EASE.PREMIUM}`,
         pointerEvents: 'none',
-        marginTop: 'clamp(110px, 13vh, 150px)',
+        marginTop: 'clamp(120px, 15vh, 170px)',
         willChange: 'transform, opacity, filter',
       }}
     >
-      <div
-        className="relative overflow-hidden"
-        style={{
-          width: 'min(460px, 86vw)',
-          borderRadius: '22px',
-          border: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(9, 9, 11, 0.55)',
-          backdropFilter: 'blur(20px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-          boxShadow: '0 8px 48px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03)',
-        }}
-      >
-        {/* Terminal window controls */}
-        <div className="flex items-center gap-[7px] px-5 pt-3.5 pb-2.5">
-          <div className="w-[9px] h-[9px] rounded-full bg-red-500/35" />
-          <div className="w-[9px] h-[9px] rounded-full bg-yellow-500/35" />
-          <div className="w-[9px] h-[9px] rounded-full bg-green-500/35" />
-        </div>
-
-        {/* Terminal output */}
-        <div
-          className="px-5 pb-5 pt-1.5"
-          style={{
-            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
-            fontSize: 'clamp(0.6875rem, 1.2vw, 0.8125rem)',
-            lineHeight: 1.9,
-            color: 'rgba(212, 212, 216, 0.82)',
-            minHeight: `${TERMINAL_SCRIPT.length * 2 * 1.9}em`,
-          }}
-        >
-          {TERMINAL_SCRIPT.map((line, idx) => {
-            if (idx > term.line) return null;
-            const typedText = idx < term.line ? line.cmd : line.cmd.slice(0, term.typed);
-            const outputVisible = idx < term.outputs;
-            const isActiveLine = idx === term.line && !outputVisible;
-
-            return (
-              <div key={idx}>
-                {/* Command line */}
-                <div className="flex items-start gap-2.5">
-                  <span
-                    className="shrink-0"
-                    style={{ width: '1.4em', textAlign: 'center', color: 'rgba(96,165,250,0.55)' }}
-                  >
-                    &gt;
-                  </span>
-                  <span style={{ color: 'rgba(212,212,216,0.85)' }}>
-                    {typedText}
-                    {isActiveLine && <Cursor />}
-                  </span>
-                </div>
-                {/* Output line */}
-                {outputVisible && (
-                  <div
-                    style={{
-                      paddingLeft: 'calc(1.4em + 0.625rem)',
-                      color: line.badge ? undefined : 'rgba(161,161,170,0.75)',
-                      animation: isReduced ? 'none' : 'fadeInUp 350ms cubic-bezier(0.22,1,0.36,1) forwards',
-                      opacity: 0,
-                    }}
-                  >
-                    {line.badge ? <StatusBadge>{line.output}</StatusBadge> : line.output}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <PortfolioTerminal visible={booting} onComplete={onComplete} />
     </div>
   );
 });
@@ -631,30 +499,37 @@ function useIntroScrollLock() {
 // ReducedMotionIntro — Accessibility fast path
 //
 // When the user has `prefers-reduced-motion: reduce`:
-//   • Shows name + subtitle immediately
-//   • Fades out within ~1 second
-//   • No animations, no particles, no cinematic sequence
+//   • Shows name + subtitle + fully-completed static terminal immediately
+//   • Fades out within ~1 second — no typing, no animations, no particles
 // ═══════════════════════════════════════════════════════════════════════════════
 function ReducedMotionIntro({ onFinish, onExitStart }) {
   const [fading, setFading] = useState(false);
+  const onFinishRef = useRef(onFinish);
+  const onExitStartRef = useRef(onExitStart);
   useIntroScrollLock();
+
+  useEffect(() => {
+    onFinishRef.current = onFinish;
+    onExitStartRef.current = onExitStart;
+  });
 
   useEffect(() => {
     const tExit = setTimeout(() => {
       markIntroPlayed();
-      try { onExitStart?.(); } catch { /* ignore */ }
+      try { onExitStartRef.current?.(); } catch { /* ignore */ }
       setFading(true);
-    }, 600);
+    }, 700);
     const tDone = setTimeout(() => {
-      try { onFinish?.(); } catch { /* ignore */ }
-    }, 950);
+      try { onFinishRef.current?.(); } catch { /* ignore */ }
+    }, 990);
     return () => { clearTimeout(tExit); clearTimeout(tDone); };
-  }, [onFinish, onExitStart]);
+  }, []);
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center bg-zinc-950"
-      style={{ zIndex: 9999, opacity: fading ? 0 : 1, transition: 'opacity 350ms ease' }}
+      data-intro-overlay
+      className="fixed inset-0 flex flex-col items-center justify-center bg-zinc-950 px-4"
+      style={{ zIndex: 9999, opacity: fading ? 0 : 1, transition: 'opacity 280ms ease' }}
     >
       <span className="sr-only" role="status" aria-live="polite">Loading portfolio…</span>
       <h1
@@ -672,7 +547,7 @@ function ReducedMotionIntro({ onFinish, onExitStart }) {
       </h1>
       <p
         aria-hidden="true"
-        className="text-center mt-4"
+        className="text-center mt-4 mb-8"
         style={{
           fontFamily: "'Inter', system-ui, sans-serif",
           fontWeight: 400,
@@ -682,6 +557,7 @@ function ReducedMotionIntro({ onFinish, onExitStart }) {
       >
         {SUBTITLE}
       </p>
+      <PortfolioTerminal staticMode />
     </div>
   );
 }
@@ -693,7 +569,7 @@ function ReducedMotionIntro({ onFinish, onExitStart }) {
 //
 //   Phase flow:
 //     logo ──[timeline]──→ morph ──→ identity ──→ reposition ──→ terminal ──→ boot
-//     boot ──[typing done]──→ welcome
+//     boot ──[terminal onComplete]──→ welcome
 //     welcome ──[WELCOME_HOLD]──→ exiting
 //     exiting ──[EXIT]──→ done ──[FINISH_BUFFER]──→ onFinish()
 //
@@ -706,7 +582,7 @@ function ReducedMotionIntro({ onFinish, onExitStart }) {
 // Key engineering decisions:
 //   • No per-stage watchdog — only one global safety timeout.
 //     Eliminates false-positive interruptions and console spam.
-//   • All timing constants are derived from TERMINAL_SCRIPT length.
+//   • All timing constants are derived from computed offsets + TERMINAL_TOTAL_MS.
 //   • beginExit() is idempotent — safe to call multiple times.
 //   • Identity container renders independently from the overlay,
 //     enabling a true shared-element FLIP transition.
@@ -716,8 +592,6 @@ function CinematicIntro({ onFinish, onExitStart }) {
   const [phase, setPhase] = useState('logo');
   useIntroScrollLock();
 
-  // Terminal state
-  const [term, setTerm] = useState({ line: 0, typed: 0, outputs: 0 });
   const [overlayOpacity, setOverlayOpacity] = useState(1);
   const [exitFast, setExitFast] = useState(false);
 
@@ -813,38 +687,10 @@ function CinematicIntro({ onFinish, onExitStart }) {
     return () => timers.forEach(clearTimeout);
   }, [safeSetPhase]);
 
-  // ── Typing engine — drives boot → welcome on ACTUAL completion ──
-  useEffect(() => {
-    if (phase !== 'boot') return;
-    let cancelled = false;
-    let timer;
-
-    const typeLine = (i) => {
-      let c = 0;
-      const step = () => {
-        if (cancelled) return;
-        c++;
-        setTerm({ line: i, typed: c, outputs: i });
-        if (c < TERMINAL_SCRIPT[i].cmd.length) {
-          timer = setTimeout(step, T.TYPE_SPEED + (Math.random() * 16 - 8));
-        } else {
-          timer = setTimeout(() => {
-            if (cancelled) return;
-            setTerm({ line: i, typed: c, outputs: i + 1 });
-            if (i + 1 < TERMINAL_SCRIPT.length) {
-              timer = setTimeout(() => { if (!cancelled) typeLine(i + 1); }, T.LINE_GAP);
-            } else {
-              timer = setTimeout(() => { if (!cancelled) safeSetPhase('welcome', 'boot'); }, T.LINE_GAP);
-            }
-          }, T.OUTPUT_DELAY);
-        }
-      };
-      timer = setTimeout(step, T.TYPE_START);
-    };
-
-    typeLine(0);
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [phase, safeSetPhase]);
+  // ── Terminal sequence completion — drives boot → welcome (event-driven) ──
+  const handleTerminalComplete = useCallback(() => {
+    safeSetPhase('welcome', 'terminal-complete');
+  }, [safeSetPhase]);
 
   // ── welcome → exiting after hold ──
   useEffect(() => {
@@ -903,8 +749,15 @@ function CinematicIntro({ onFinish, onExitStart }) {
   }, [forceRecovery]);
 
   // ── Mount ref cleanup ──
+  // Cleanup marks finished so late timers can't fire after unmount.
+  // Mount must RESET both flags — under React StrictMode the component
+  // mounts → unmounts → remounts with the same refs, and a stale
+  // finishedRef=true from the simulated unmount would freeze the phase
+  // machine at 'logo' (safeSetPhase and beginExit both early-return).
   useEffect(() => {
     mountedRef.current = true;
+    finishedRef.current = false;
+    exitStartedRef.current = false;
     return () => {
       mountedRef.current = false;
       finishedRef.current = true;
@@ -932,6 +785,7 @@ function CinematicIntro({ onFinish, onExitStart }) {
     <>
       {/* ── Background + Terminal overlay ── */}
       <div
+        data-intro-overlay
         className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-zinc-950"
         onClick={isExiting ? undefined : skipIntro}
         style={{
@@ -954,11 +808,12 @@ function CinematicIntro({ onFinish, onExitStart }) {
           {isMorphing && <LogoMorph />}
 
           {(isRepositioned || isExiting) && (
-            <TerminalSequence
+            <TerminalFrame
               visible={isTerminalFullyIn}
+              booting={['boot', 'welcome'].includes(phase)}
               exiting={isExiting}
               exitMs={exitMs}
-              term={term}
+              onComplete={handleTerminalComplete}
             />
           )}
         </div>
@@ -976,7 +831,7 @@ function CinematicIntro({ onFinish, onExitStart }) {
           >
             {/* Click hint — subtle arrow + text */}
             <span
-              className="text-zinc-600 text-[10px] font-medium uppercase tracking-[0.15em]"
+              className="text-zinc-400 text-[10px] font-medium uppercase tracking-[0.15em]"
               style={{
                 fontFamily: "'Inter', system-ui, sans-serif",
                 animation: isReduced ? 'none' : 'fadeInUp 400ms cubic-bezier(0.22,1,0.36,1) 400ms forwards',
@@ -1038,9 +893,15 @@ function CinematicIntro({ onFinish, onExitStart }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PortfolioIntro — entry point
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
 export default function PortfolioIntro(props) {
-  return isReduced
+  // Re-check at mount rather than trusting the module-load snapshot — the OS
+  // setting can change between page loads while the module stays cached
+  const reduced =
+    isReduced ||
+    (typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  return reduced
     ? <ReducedMotionIntro {...props} />
     : <CinematicIntro {...props} />;
 }

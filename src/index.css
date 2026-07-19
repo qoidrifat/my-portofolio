@@ -113,6 +113,9 @@
 
   html {
     scroll-behavior: smooth;
+    /* Native anchor jumps (#hash URL, focus scroll) land below the fixed
+       navbar (56–64px tall) — matches the JS scrollToSection -80 offset */
+    scroll-padding-top: 80px;
   }
 }
 
@@ -181,40 +184,22 @@ img {
 
 /* ── Portfolio Intro Keyframes ── */
 
-/* Stage 1: Premium logo appearance with anticipation, overshoot & 360° rotation */
-@keyframes logoPremiumIntro {
+/* Stage 1: Premium logo reveal — opacity + blur + scale + rise, no rotation */
+@keyframes logoRevealIn {
   0% {
     opacity: 0;
-    transform: scale(0.78) rotate(-22deg);
-    filter: blur(12px);
+    transform: scale(0.92) translateY(14px);
+    filter: blur(14px);
   }
-  18% {
+  55% {
     opacity: 1;
-    filter: blur(0px);
-  }
-  40% {
-    transform: scale(1.08) rotate(340deg);
-  }
-  58% {
-    transform: scale(0.96) rotate(358deg);
-  }
-  74% {
-    transform: scale(1.02) rotate(360.5deg);
-  }
-  88% {
-    transform: scale(0.99) rotate(359.9deg);
+    filter: blur(2px);
   }
   100% {
     opacity: 1;
-    transform: scale(1) rotate(360deg);
+    transform: scale(1) translateY(0);
     filter: blur(0px);
   }
-}
-
-/* Subtle floating for logo after intro */
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-5px); }
 }
 
 /* Ambient background breathing */
@@ -257,26 +242,13 @@ img {
   }
 }
 
-/* Premium checkmark pop with glow */
-@keyframes checkPremium {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  45% {
-    opacity: 1;
-    transform: scale(1.25);
-  }
-  70% {
-    transform: scale(0.92);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Terminal cursor blink — CSS-driven, zero React re-renders */
+@keyframes cursorBlink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-/* Fade in up utility for terminal welcome line */
+/* Fade in up utility for terminal output lines */
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -310,8 +282,115 @@ img {
   }
 }
 
-/* Loading dots pulse */
-@keyframes loadingPulse {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 1; }
+/* ── macOS Terminal (PortfolioTerminal.jsx) ── */
+
+/* ✔ status line entrance — opacity + slight slide from right */
+@keyframes checkLineIn {
+  0% {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Cursor idle blink — sinusoidal, never harsh on/off (700ms per half-cycle) */
+@keyframes cursorBlinkSoft {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.15; }
+}
+
+/* Cursor keystroke nudge — tiny mechanical step, translateX only */
+@keyframes cursorStep {
+  0%   { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+/* macOS spinner — thin arc, linear rotation */
+@keyframes spinnerRotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Spinner → ✔ morph: scale 0.8 → 1.05 → 1 (never a plain fade) */
+@keyframes checkMorphIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Success text settle: gray → white → soft green → white */
+@keyframes checkTextSettle {
+  0%   { color: rgba(161, 161, 170, 0.8); }
+  35%  { color: rgba(255, 255, 255, 0.95); }
+  65%  { color: rgba(52, 211, 153, 0.85); }
+  100% { color: rgba(228, 228, 231, 0.9); }
+}
+
+/* Network dot (Connecting GitHub...) — each dot lands softly */
+@keyframes dotIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Loading shimmer sweep — barely-there light pass (Loading Projects) */
+@keyframes shimmerSweep {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+
+/* Identity after `whoami` — opacity + 4px rise + blur clear (never typed) */
+@keyframes nameRevealIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* Subtitle per-character render reveal */
+@keyframes subtitleCharIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Success feedback overlays — pre-composed shadows, opacity-only flashes */
+@keyframes fxShadowBump {
+  0%   { opacity: 0; }
+  40%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fxGlowFlash {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fxGlowPulse {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Scanline — nearly invisible, very slow vertical drift */
+@keyframes terminalScanline {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(50%); }
 }

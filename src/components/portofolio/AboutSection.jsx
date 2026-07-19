@@ -38,7 +38,7 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
+    <section className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-20">
@@ -56,7 +56,7 @@ export default function AboutSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            About <span className="text-zinc-700">Me</span>
+            About <span className="text-zinc-500">Me</span>
           </motion.h2>
         </div>
 
@@ -175,11 +175,15 @@ export default function AboutSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.7 }}
             >
-              <button className="group relative px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold flex items-center gap-3 hover:bg-white/10 transition-all overflow-hidden">
+              <a
+                href={profile.resumeUrl}
+                download
+                className="group relative inline-flex px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold items-center gap-3 hover:bg-white/10 transition-all overflow-hidden"
+              >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <span>Download Resume</span>
                 <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform text-blue-500" aria-hidden="true" />
-              </button>
+              </a>
             </motion.div>
           </div>
         </div>

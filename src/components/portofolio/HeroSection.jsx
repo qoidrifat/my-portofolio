@@ -21,10 +21,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section
-      id="hero"
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20"
-    >
+    <section id="hero" className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20" aria-label="Hero">
       {/* Background — subtle glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-[hsl(var(--accent-web))]/8 rounded-full blur-[150px]" />
@@ -58,7 +55,8 @@ export default function HeroSection() {
         >
           <span className="text-white">Hi, I'm</span>
           <br />
-          <span className="text-gradient">{profile.name}</span>
+          {/* #hero-name — FLIP anchor for the intro's shared-element exit */}
+          <span id="hero-name" className="text-gradient">{profile.name}</span>
         </motion.h1>
 
         {/* Role subtitle */}

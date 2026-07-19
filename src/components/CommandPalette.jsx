@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
@@ -84,16 +84,24 @@ const projectActions = projects.map(p => ({
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
-  const [recentItems, setRecentItems] = useState([]);
+  // Mirror of `open` for global key handlers (avoids re-binding per toggle)
+  const openRef = useRef(false);
+  useEffect(() => { openRef.current = open; }, [open]);
 
   // ── Keyboard shortcut: Cmd+K / Ctrl+K ──
   useEffect(() => {
     const down = (e) => {
+      // Ignore shortcuts while the intro overlay is up — the palette would
+      // open invisibly underneath it (intro z-index 9999 > palette 9998)
+      if (document.querySelector('[data-intro-overlay]')) return;
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
-      if (e.key === 'Escape') {
+      // Only consume Escape when the palette is actually open, so other
+      // overlays (modal, lightbox, terminal) don't all close at once
+      if (e.key === 'Escape' && openRef.current) {
+        e.stopImmediatePropagation();
         setOpen(false);
       }
     };
@@ -123,7 +131,7 @@ export default function CommandPalette() {
         // Trigger download
         const a = document.createElement('a');
         a.href = item.href;
-        a.download = true;
+        a.download = 'Qoid-Rifat-CV.pdf';
         a.click();
       } else {
         window.open(item.href, '_blank', 'noopener noreferrer');
@@ -143,12 +151,6 @@ export default function CommandPalette() {
         }, 600);
       }
     }
-
-    // Track recent item
-    setRecentItems(prev => {
-      const filtered = prev.filter(r => r.id !== item.id);
-      return [item, ...filtered].slice(0, 4);
-    });
   }, []);
 
   return (
@@ -177,6 +179,9 @@ export default function CommandPalette() {
               className="absolute top-[12vh] left-1/2 -translate-x-1/2 w-full max-w-lg px-4"
             >
               <div
+                role="dialog"
+                aria-modal="true"
+                aria-label="Command palette"
                 className="relative overflow-hidden rounded-2xl border border-white/[0.08] shadow-2xl"
                 style={{
                   background: 'rgba(9, 9, 11, 0.92)',
@@ -191,6 +196,7 @@ export default function CommandPalette() {
                       id="cmd-palette-search"
                       name="cmd-palette-search"
                       autoComplete="off"
+                      autoFocus
                       placeholder="Search pages, projects, actions..."
                       className="flex h-14 w-full rounded-md bg-transparent py-3 text-base text-white outline-none placeholder:text-zinc-500"
                     />
@@ -214,7 +220,7 @@ export default function CommandPalette() {
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="text-sm font-medium truncate">{item.label}</span>
-                            <span className="text-xs text-zinc-500 truncate">{item.description}</span>
+                            <span className="text-xs text-zinc-400 truncate">{item.description}</span>
                           </div>
                         </CommandPrimitive.Item>
                       ))}
@@ -236,7 +242,7 @@ export default function CommandPalette() {
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="text-sm font-medium truncate">{item.label}</span>
-                            <span className="text-xs text-zinc-500 truncate">{item.description}</span>
+                            <span className="text-xs text-zinc-400 truncate">{item.description}</span>
                           </div>
                         </CommandPrimitive.Item>
                       ))}
@@ -258,14 +264,14 @@ export default function CommandPalette() {
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="text-sm font-medium truncate">{item.label}</span>
-                            <span className="text-xs text-zinc-500 truncate">{item.description}</span>
+                            <span className="text-xs text-zinc-400 truncate">{item.description}</span>
                           </div>
                         </CommandPrimitive.Item>
                       ))}
                     </CommandPrimitive.Group>
 
                     {/* Footer hint */}
-                    <div className="px-4 py-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-zinc-600">
+                    <div className="px-4 py-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-zinc-400">
                       <div className="flex items-center gap-3">
                         <span><kbd className="px-1 py-0.5 rounded bg-white/[0.06] font-mono">↑↓</kbd> Navigate</span>
                         <span><kbd className="px-1 py-0.5 rounded bg-white/[0.06] font-mono">↵</kbd> Open</span>

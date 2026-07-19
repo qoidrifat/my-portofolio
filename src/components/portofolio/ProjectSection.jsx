@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
@@ -50,7 +50,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
               </span>
             ))}
             {project.technologies.length > 3 && (
-              <span className="px-2.5 py-1 bg-zinc-900/80 border border-zinc-700/50 rounded-lg text-[9px] font-medium text-zinc-500 backdrop-blur-sm">
+              <span className="px-2.5 py-1 bg-zinc-900/80 border border-zinc-700/50 rounded-lg text-[9px] font-medium text-zinc-400 backdrop-blur-sm">
                 +{project.technologies.length - 3}
               </span>
             )}
@@ -79,7 +79,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
             <div className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/50">
               <project.icon className="w-3.5 h-3.5 text-zinc-300" />
             </div>
-            <span className="text-[8px] font-medium text-zinc-500 uppercase tracking-[0.15em]">{project.category}</span>
+            <span className="text-[8px] font-medium text-zinc-400 uppercase tracking-[0.15em]">{project.category}</span>
           </div>
 
           <h3 className="text-base md:text-lg font-bold text-white mb-2 leading-snug tracking-tight line-clamp-2">
@@ -151,6 +151,13 @@ export default function ProjectSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
+  // ── Listen for 'open-project' events from CommandPalette ──
+  useEffect(() => {
+    const handler = (e) => setSelectedProject(e.detail);
+    window.addEventListener('open-project', handler);
+    return () => window.removeEventListener('open-project', handler);
+  }, []);
+
   const categories = useMemo(() => {
     return ['All', ...new Set(projects.map(p => p.filterCategory || p.category))];
   }, []);
@@ -173,7 +180,7 @@ export default function ProjectSection() {
   }, [filter, searchQuery]);
 
   return (
-    <section id="projects" className="py-32 md:py-48 relative overflow-hidden scroll-mt-20" ref={ref}>
+    <section className="py-32 md:py-48 relative overflow-hidden scroll-mt-20" ref={ref}>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[150px] pointer-events-none" />
@@ -196,7 +203,7 @@ export default function ProjectSection() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight"
             >
-              Selected <span className="text-zinc-700">Works</span>
+              Selected <span className="text-zinc-500">Works</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -294,7 +301,7 @@ export default function ProjectSection() {
               <Search className="w-6 h-6 text-zinc-500" />
             </div>
             <p className="text-zinc-400 font-medium mb-1">No projects match your search</p>
-            <p className="text-zinc-600 text-sm">Try a different filter or search term.</p>
+            <p className="text-zinc-400 text-sm">Try a different filter or search term.</p>
             <button
               onClick={() => { setSearchQuery(''); setFilter('All'); }}
               className="mt-4 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
@@ -333,11 +340,15 @@ export default function ProjectSection() {
         </motion.div>
       </div>
 
-      {/* Project Modal — Quick View */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      {/* Project Modal — Quick View (conditionally rendered with exit animation) */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

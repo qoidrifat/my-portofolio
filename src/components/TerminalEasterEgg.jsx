@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { profile, projects, techCategories } from '@/lib/data';
-import { Terminal as TerminalIcon } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TerminalEasterEgg — Interactive terminal hidden in the portfolio footer
@@ -119,22 +118,38 @@ export default function TerminalEasterEgg() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef(null);
   const outputRef = useRef(null);
+  // Mirror of `open` for the global key handler (avoids re-binding per toggle)
+  const openRef = useRef(false);
+  useEffect(() => { openRef.current = open; }, [open]);
 
   // ── Keyboard shortcut: Ctrl+` / Cmd+` ──
   useEffect(() => {
     const down = (e) => {
+      // Ignore shortcuts while the intro overlay is up — the terminal would
+      // open invisibly underneath it and steal focus from the page
+      if (document.querySelector('[data-intro-overlay]')) return;
       // Support both '`' (US) and 'Backquote' (international layouts) via e.code
       const isBackquote = e.key === '`' || e.code === 'Backquote';
       if (isBackquote && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
-      if (e.key === 'Escape') {
+      // Only consume Escape when the terminal is actually open, so other
+      // overlays (modal, lightbox, palette) don't all close at once
+      if (e.key === 'Escape' && openRef.current) {
+        e.stopImmediatePropagation();
         setOpen(false);
       }
     };
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
+  }, []);
+
+  // ── Visible trigger — footer button dispatches this event ──
+  useEffect(() => {
+    const openTerminal = () => setOpen(true);
+    window.addEventListener('open-terminal', openTerminal);
+    return () => window.removeEventListener('open-terminal', openTerminal);
   }, []);
 
   // ── Focus input when opened ──

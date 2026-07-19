@@ -2,16 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 
 const GITHUB_USERNAME = 'qoidrifat';
 
-// ── GitHub API auth ──────────────────────────────────────────────────────
-// Uses VITE_GITHUB_TOKEN env var to authenticate and avoid rate limiting (60 req/hr unauthenticated vs 5000 req/hr authenticated).
-// Create a classic Personal Access Token at https://github.com/settings/tokens with no scopes needed (public data only).
-function getAuthHeaders() {
-  const token = import.meta.env.VITE_GITHUB_TOKEN;
-  if (token) {
-    return { Authorization: `Bearer ${token}` };
-  }
-  return {};
-}
+// ── GitHub API ────────────────────────────────────────────────────────────
+// Uses unauthenticated requests (60 req/hr). Since react-query caches for 15
+// minutes, the rate limit is sufficient for a personal portfolio.
+// If rate limiting becomes an issue, proxy through a serverless function.
+// NEVER embed a Personal Access Token in client-side code — Vite inlines
+// all VITE_ prefixed variables into the public bundle.
 
 // ── Language color map ──────────────────────────────────────────────────────
 const LANGUAGE_COLORS = {
@@ -45,9 +41,7 @@ export function getLanguageColor(lang) {
 
 // ── Fetch profile ───────────────────────────────────────────────────────────
 async function fetchProfile() {
-  const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`, {
-    headers: getAuthHeaders(),
-  });
+  const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
   if (!res.ok) throw new Error('Failed to fetch GitHub profile');
   const data = await res.json();
   return {
@@ -66,8 +60,7 @@ async function fetchProfile() {
 // ── Fetch repos ─────────────────────────────────────────────────────────────
 async function fetchRepos() {
   const res = await fetch(
-    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20&type=public`,
-    { headers: getAuthHeaders() }
+    `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20&type=public`
   );
   if (!res.ok) throw new Error('Failed to fetch GitHub repos');
   const data = await res.json();
