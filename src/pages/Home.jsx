@@ -37,15 +37,15 @@ export default function Home() {
         </Suspense>
       </LazySection>
 
-      <LazySection id="skills" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
-        <Suspense fallback={<SectionFallback minHeight="100vh" />}>
-          <TechStackSection />
-        </Suspense>
-      </LazySection>
-
       <LazySection id="projects" threshold={500} placeholder={<SectionFallback minHeight="200vh" />}>
         <Suspense fallback={<SectionFallback minHeight="200vh" />}>
           <ProjectSection />
+        </Suspense>
+      </LazySection>
+
+      <LazySection id="skills" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
+        <Suspense fallback={<SectionFallback minHeight="100vh" />}>
+          <TechStackSection />
         </Suspense>
       </LazySection>
 
@@ -55,21 +55,15 @@ export default function Home() {
         </Suspense>
       </LazySection>
 
-      <LazySection id="contact" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
-        <Suspense fallback={<SectionFallback minHeight="100vh" />}>
-          <ContactSection />
-        </Suspense>
-      </LazySection>
-
       <LazySection id="github" threshold={500} placeholder={<SectionFallback minHeight="120vh" />}>
         <Suspense fallback={<SectionFallback minHeight="120vh" />}>
           <GitHubSection />
         </Suspense>
       </LazySection>
 
-      <LazySection id="perf" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
+      <LazySection id="contact" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
         <Suspense fallback={<SectionFallback minHeight="100vh" />}>
-          <PerformanceSection />
+          <ContactSection />
         </Suspense>
       </LazySection>
     </div>

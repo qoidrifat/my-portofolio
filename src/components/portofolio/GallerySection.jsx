@@ -9,7 +9,7 @@ const photos = [
     src: "/gallery/original/gedung-perkantoran.webp",
     thumbSrc: "/gallery/preview-modern-office-building.webp",
     alt: "Modern office building",
-    span: "col-span-2 row-span-2"
+    span: "col-span-1 row-span-1 md:col-span-2 md:row-span-2"
   },
   {
     id: 2,

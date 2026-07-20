@@ -79,7 +79,38 @@ async function fetchRepos() {
     }));
 }
 
-// ── Hook ────────────────────────────────────────────────────────────────────
+// ── Search API helper ────────────────────────────────────────────────────────
+async function fetchSearchCount(query) {
+  const res = await fetch(
+    `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=1`
+  );
+  if (!res.ok) return 0;
+  const data = await res.json();
+  return data.total_count ?? 0;
+}
+
+// ── Fetch PR count ──────────────────────────────────────────────────────────
+async function fetchPRs() {
+  return fetchSearchCount(`author:${GITHUB_USERNAME}+type:pr`);
+}
+
+// ── Fetch issue count ───────────────────────────────────────────────────────
+async function fetchIssues() {
+  return fetchSearchCount(`author:${GITHUB_USERNAME}+type:issue`);
+}
+
+// ── Fetch recent push events (proxy for contributions) ───────────────────────
+async function fetchEvents() {
+  const res = await fetch(
+    `https://api.github.com/users/${GITHUB_USERNAME}/events?per_page=100`
+  );
+  if (!res.ok) return 0;
+  const data = await res.json();
+  if (!Array.isArray(data)) return 0;
+  return data.filter(e => e.type === 'PushEvent').length;
+}
+
+// ── Hooks ───────────────────────────────────────────────────────────────────
 export function useGithubProfile() {
   return useQuery({
     queryKey: ['github-profile', GITHUB_USERNAME],
@@ -97,6 +128,39 @@ export function useGithubRepos() {
     queryFn: fetchRepos,
     staleTime: 1000 * 60 * 15,    // 15 min
     gcTime: 1000 * 60 * 60,       // 1 hr
+    retry: 2,
+    retryDelay: 1000,
+  });
+}
+
+export function useGithubPRs() {
+  return useQuery({
+    queryKey: ['github-prs', GITHUB_USERNAME],
+    queryFn: fetchPRs,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+    retry: 2,
+    retryDelay: 1000,
+  });
+}
+
+export function useGithubIssues() {
+  return useQuery({
+    queryKey: ['github-issues', GITHUB_USERNAME],
+    queryFn: fetchIssues,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
+    retry: 2,
+    retryDelay: 1000,
+  });
+}
+
+export function useGithubEvents() {
+  return useQuery({
+    queryKey: ['github-events', GITHUB_USERNAME],
+    queryFn: fetchEvents,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 60,
     retry: 2,
     retryDelay: 1000,
   });

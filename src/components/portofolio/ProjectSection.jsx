@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
   ExternalLink, Github, ArrowUpRight, Star, Code2, BookOpen,
-  Search, X as XIcon, Eye,
+  Search, X as XIcon, Eye, Sparkles,
 } from 'lucide-react';
 import { projects } from '@/lib/data';
 import ProjectModal from './ProjectModal';
@@ -27,6 +27,81 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
         ease: [0.16, 1, 0.3, 1],
       }}
     >
+      {project.isPlaceholder ? (
+        /* ── Premium Coming Soon Placeholder ── */
+        <div className="relative bg-zinc-900/60 border border-zinc-800 rounded-3xl overflow-hidden hover:border-zinc-700/80 hover:shadow-xl hover:shadow-black/20 transition-all duration-500 flex flex-col group/card h-full">
+          {/* Animated gradient border */}
+          <div className="absolute inset-0 rounded-3xl p-[1px] pointer-events-none">
+            <motion.div
+              className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-500/20 via-fuchsia-500/20 to-transparent"
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+
+          {/* Image area — glassmorphism placeholder */}
+          <div className="relative h-56 md:h-72 overflow-hidden bg-zinc-950 shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-fuchsia-500/5 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                animate={{
+                  scale: [1, 1.05, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative"
+              >
+                <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 flex items-center justify-center backdrop-blur-sm">
+                  <project.icon className="w-10 h-10 text-violet-400/60" />
+                </div>
+                {/* Floating glow */}
+                <motion.div
+                  className="absolute -inset-4 rounded-[2.5rem] bg-violet-500/10 blur-xl"
+                  animate={{ opacity: [0.2, 0.5, 0.2] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </motion.div>
+            </div>
+
+            {/* Dashed outline decoration */}
+            <div className="absolute inset-6 border border-dashed border-violet-500/10 rounded-[2rem]" />
+          </div>
+
+          {/* Content */}
+          <div className="p-5 md:p-6 flex flex-col flex-1 relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+              </div>
+              <span className="text-[8px] font-medium text-zinc-500 uppercase tracking-[0.15em]">Upcoming</span>
+            </div>
+
+            <h3 className="text-base md:text-lg font-bold text-white mb-2 leading-snug tracking-tight">
+              {project.title}
+            </h3>
+
+            <p className="text-xs text-zinc-500 leading-relaxed mb-5 flex-1">
+              {project.longDescription}
+            </p>
+
+            {/* Subtle animated border accent */}
+            <div className="pt-4 border-t border-zinc-800/50">
+              <motion.div
+                className="flex items-center gap-2 text-violet-400/60 text-[11px] font-semibold"
+                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-violet-400"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <span>Currently under development</span>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="relative bg-zinc-900/60 border border-zinc-800 rounded-3xl overflow-hidden hover:border-zinc-700/80 hover:shadow-xl hover:shadow-black/20 transition-all duration-500 flex flex-col group/card h-full">
         {project.featured && (
           <div className="absolute top-5 left-5 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/15 border border-blue-500/25 rounded-full backdrop-blur-sm">
@@ -56,7 +131,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
             )}
           </div>
 
-          {/* Quick view overlay — hover (mouse) + focus-visible (keyboard) */}
+          {/* Quick view overlay */}
           <button
             onClick={() => onQuickView(project)}
             className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/40 opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100 transition-opacity duration-400 backdrop-blur-[2px] focus-visible:ring-2 focus-visible:ring-blue-400/50 focus-visible:outline-none"
@@ -139,6 +214,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
           </div>
         </div>
       </div>
+      )}
     </motion.div>
   );
 });
@@ -253,6 +329,8 @@ export default function ProjectSection() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" aria-hidden="true" />
             <input
               type="text"
+              id="project-search"
+              name="project-search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, tech..."

@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
 
@@ -48,11 +48,11 @@ function MarqueeRow({ items, direction, speed }) {
   );
 }
 
-function TechCard({ item, index, isExpanded, onToggle }) {
+const TechCard = React.forwardRef(({ item, index, isExpanded, onToggle }, ref) => {
   const lc = getLevelColor(item.experience_level);
   const lp = getProjectsForTech(item.projectIds || []);
   return (
-    <motion.div layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.95 }} transition={{ duration: 0.35, delay: index * 0.03, ease: [0.16, 1, 0.3, 1] }}>
+    <motion.div ref={ref} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.95 }} transition={{ duration: 0.35, delay: index * 0.03, ease: [0.16, 1, 0.3, 1] }}>
       <button onClick={() => onToggle(item.name)} className={"w-full text-left rounded-2xl border transition-all duration-300 overflow-hidden group " + (isExpanded ? "border-blue-500/30 bg-blue-500/5" : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15] hover:bg-white/[0.04]")}>
         <div className="flex items-center gap-4 px-5 py-4">
           <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-300">
@@ -108,7 +108,7 @@ function TechCard({ item, index, isExpanded, onToggle }) {
       </button>
     </motion.div>
   );
-}
+});
 
 export default function TechStackSection() {
   const [activeFilter, setActiveFilter] = useState("All");

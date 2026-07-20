@@ -75,7 +75,7 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
   return (
     <div
       ref={cardRef}
-      className={`relative flex items-start gap-6 md:gap-10 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+      className={`relative flex items-start gap-4 md:gap-10 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'}`}
     >
       {/* ── Card ── */}
       <motion.div
@@ -93,7 +93,7 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
           }`}
         >
           {/* Header */}
-          <div className="p-5 md:p-6">
+          <div className="p-4 md:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 {/* Year badge */}
@@ -105,12 +105,10 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
                 {/* Category badge */}
                 <span className={`ml-2 inline-flex px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-[9px] font-medium text-zinc-500 uppercase tracking-wider`}>
                   {cat.label}
-                </span>
-
-                <h3 className="text-base md:text-lg font-bold text-white mt-2 leading-snug">
+                </span>                  <h3 className="text-sm md:text-lg font-bold text-white mt-2 leading-snug">
                   {item.title}
                 </h3>
-                <p className="text-sm text-zinc-400 mt-2 leading-relaxed line-clamp-2">
+                <p className="text-xs md:text-sm text-zinc-400 mt-1.5 md:mt-2 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
               </div>
@@ -173,7 +171,7 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
       </div>
 
       {/* ── Mobile Node (inline, md:hidden) ── */}
-      <div className="md:hidden shrink-0 relative z-10">
+      <div className="md:hidden shrink-0 relative z-10 mt-1">
         <div className={`w-10 h-10 rounded-full ${nodeBgStyles[colorKey] || nodeBgStyles.blue} border-4 ${nodeBorderStyles[colorKey] || nodeBorderStyles.blue} flex items-center justify-center shadow-lg ${shadowGlowStyles[colorKey] || shadowGlowStyles.blue}`}>
           <Icon className="w-4 h-4 text-white" aria-hidden="true" />
         </div>
@@ -250,7 +248,7 @@ export default function CareerTimelineSection() {
           </div>
 
           {/* Animated vertical line (mobile) */}
-          <div className="md:hidden absolute left-5 top-0 bottom-0 w-0.5 z-0">
+          <div className="md:hidden absolute left-5 top-2 bottom-0 w-0.5 z-0">
             <div className="absolute inset-0 bg-white/[0.04] rounded-full" />
             <motion.div
               initial={{ scaleY: 0 }}
@@ -262,7 +260,7 @@ export default function CareerTimelineSection() {
           </div>
 
           {/* Timeline entries */}
-          <div className="relative z-10 space-y-12 md:space-y-16">
+          <div className="relative z-10 space-y-10 md:space-y-16">
             {journey.map((item, index) => (
               <TimelineCard
                 key={item.year + item.title}
