@@ -54,6 +54,8 @@ async function fetchProfile() {
     following: data.following,
     htmlUrl: data.html_url,
     location: data.location,
+    createdAt: data.created_at,
+    avatarUrl: data.avatar_url,
   };
 }
 
