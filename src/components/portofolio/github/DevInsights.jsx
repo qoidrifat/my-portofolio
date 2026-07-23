@@ -89,7 +89,7 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {insights.map((item, i) => {
           const accentMap = {
-            blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+            blue: 'text-accent-web bg-accent-web/10 border-accent-web/20',
             amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
             emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
             violet: 'text-violet-400 bg-violet-500/10 border-violet-500/20',

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ArrowUp, Search as SearchIcon, TerminalSquare } from 'lucide-react';
+import { Menu, X, ArrowUp, Search as SearchIcon, TerminalSquare, Palette } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
 import TerminalEasterEgg from '@/components/TerminalEasterEgg';
+import { useTheme, THEMES } from '@/lib/ThemeContext';
 
 export default function Layout({ children }) {
+  const { cycleTheme, setTheme, currentTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
@@ -159,7 +161,28 @@ export default function Layout({ children }) {
             </div>
 
             {/* Search + CTA */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2">
+              {/* Theme Toggle */}
+              <motion.button
+                onClick={cycleTheme}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/5 border border-border-soft text-text-muted hover:text-white hover:bg-white/10 transition-colors group relative"
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                aria-label={`Current theme: ${currentTheme.label}. Click to cycle.`}
+                title={`Theme: ${currentTheme.label}. Click to cycle.`}
+              >
+                <Palette className="w-4 h-4" aria-hidden="true" />
+                <div className="flex -space-x-1">
+                  {THEMES.slice(0, 3).map(t => (
+                    <div
+                      key={t.id}
+                      className="w-2 h-2 rounded-full border border-zinc-800"
+                      style={{ backgroundColor: t.primary }}
+                    />
+                  ))}
+                </div>
+              </motion.button>
+
               <motion.button
                 onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-border-soft text-text-muted text-sm font-medium hover:bg-white/10 hover:text-white transition-colors"
@@ -224,10 +247,33 @@ export default function Layout({ children }) {
                     {link.name}
                   </motion.a>
                 ))}
+
+                {/* Theme toggle — mobile */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-2 text-text-muted text-sm">
+                    <Palette className="w-4 h-4" aria-hidden="true" />
+                    <span>Theme</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {THEMES.map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setTheme(t.id)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all duration-300 ${
+                          currentTheme.id === t.id ? 'border-white scale-110' : 'border-transparent opacity-50 hover:opacity-80'
+                        }`}
+                        style={{ backgroundColor: t.primary }}
+                        aria-label={`Switch to ${t.label} theme`}
+                        title={t.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+
                 <motion.a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}
-                  className="block mt-6 px-4 py-4 bg-gradient-to-r from-accent-web to-accent-web/80 rounded-2xl text-base font-bold text-center text-white shadow-lg shadow-glow-web"
+                  className="block mt-2 px-4 py-4 bg-gradient-to-r from-accent-web to-accent-web/80 rounded-2xl text-base font-bold text-center text-white shadow-lg shadow-glow-web"
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
                 >
                   Let's Talk
@@ -305,6 +351,7 @@ export default function Layout({ children }) {
             </div>
             
             <div className="flex flex-col items-center md:items-end gap-6">
+              {/* Social links + Terminal */}
               <div className="flex items-center gap-3">
                 {socials.map((social) => (
                   <motion.a
@@ -330,6 +377,44 @@ export default function Layout({ children }) {
                 >
                   <TerminalSquare className="w-5 h-5" aria-hidden="true" />
                 </motion.button>
+              </div>
+
+              {/* Theme picker — footer */}
+              <div className="w-full pt-4 border-t border-white/[0.04]">
+                <div className="flex flex-col items-center md:items-end gap-2.5">
+                  <span className="text-[10px] font-bold text-text-muted uppercase tracking-[0.15em]">
+                    Accent Theme
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {THEMES.map(t => (
+                      <motion.button
+                        key={t.id}
+                        onClick={() => setTheme(t.id)}
+                        className={`relative rounded-full transition-all duration-300 ${
+                          currentTheme.id === t.id
+                            ? 'w-7 h-7 shadow-lg'
+                            : 'w-5 h-5 opacity-40 hover:opacity-80'
+                        }`}
+                        style={{ backgroundColor: t.primary }}
+                        whileHover={shouldReduceMotion ? undefined : { scale: 1.2 }}
+                        whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
+                        aria-label={`Switch to ${t.label} theme`}
+                        title={t.label}
+                      >
+                        {currentTheme.id === t.id && (
+                          <motion.span
+                            layoutId="footerThemeDot"
+                            className="absolute inset-0 rounded-full border border-white/40"
+                            transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                          />
+                        )}
+                      </motion.button>
+                    ))}
+                  </div>
+                  <span className="text-[9px] font-medium text-text-muted/50">
+                    {currentTheme.label}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

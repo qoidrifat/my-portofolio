@@ -174,12 +174,84 @@ img {
   @apply transition-opacity duration-300;
 }
 
+/* ── Page transition wrapper ── */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Animated counter shimmer when value changes ── */
+@keyframes counterPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.counter-pop {
+  animation: counterPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THEME ACCENT OVERRIDES
+   Each [data-accent] value overrides the accent-web, accent-ai, and glow
+   variables so the portfolio's accent colors change dynamically.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* -- Purple / Royal -- */
+[data-accent="purple"] {
+  --accent-web: 271 81% 56%;
+  --accent-web-foreground: 0 0% 100%;
+  --accent-web-btn: 271 80% 42%;
+  --glow-web: 139 92 246;
+  --accent-ai: 330 81% 60%;
+  --accent-ai-foreground: 0 0% 100%;
+  --glow-ai: 236 72 153;
+}
+
+/* -- Amber / Sunset -- */
+[data-accent="amber"] {
+  --accent-web: 38 92% 50%;
+  --accent-web-foreground: 0 0% 100%;
+  --accent-web-btn: 38 90% 35%;
+  --glow-web: 245 158 11;
+  --accent-ai: 0 84% 60%;
+  --accent-ai-foreground: 0 0% 100%;
+  --glow-ai: 239 68 68;
+}
+
+/* -- Emerald / Forest -- */
+[data-accent="emerald"] {
+  --accent-web: 160 84% 39%;
+  --accent-web-foreground: 0 0% 100%;
+  --accent-web-btn: 160 83% 28%;
+  --glow-web: 16 185 129;
+  --accent-ai: 217 87% 55%;
+  --accent-ai-foreground: 0 0% 100%;
+  --glow-ai: 59 130 246;
+}
+
+/* -- Rose / Bloom -- */
+[data-accent="rose"] {
+  --accent-web: 340 75% 50%;
+  --accent-web-foreground: 0 0% 100%;
+  --accent-web-btn: 340 74% 38%;
+  --glow-web: 236 72 153;
+  --accent-ai: 271 81% 56%;
+  --accent-ai-foreground: 0 0% 100%;
+  --glow-ai: 139 92 246;
 }
 
 /* ── Portfolio Intro Keyframes ── */

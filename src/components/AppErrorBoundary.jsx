@@ -29,7 +29,7 @@ export default class AppErrorBoundary extends Component {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-white text-sm font-bold transition-colors"
+            className="px-6 py-3 bg-[hsl(var(--accent-web-btn))] hover:brightness-110 rounded-xl text-white text-sm font-bold transition-all duration-300"
           >
             Reload page
           </button>

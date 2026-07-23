@@ -6,7 +6,7 @@ import metrics from '@/data/performance-metrics.json';
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function getScoreColor(score) {
   if (score >= 90) return 'text-emerald-400';
-  if (score >= 80) return 'text-blue-400';
+  if (score >= 80) return 'text-accent-web';
   if (score >= 70) return 'text-amber-400';
   return 'text-red-400';
 }
@@ -31,10 +31,10 @@ function FadeIn({ children, delay = 0, className = '' }) {
 // ── Stat card ───────────────────────────────────────────────────────────────
 function StatCard({ icon: Icon, label, value, sub }) {
   return (
-    <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-blue-500/20 hover:bg-white/[0.04] transition-all duration-300">
+    <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-accent-web/20 hover:bg-white/[0.04] transition-all duration-300">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-blue-400" />
+        <div className="w-9 h-9 rounded-xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+          <Icon className="w-4 h-4 text-accent-web" />
         </div>
         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{label}</span>
       </div>
@@ -90,7 +90,7 @@ function BundleBar({ bundle, maxSize, index }) {
           animate={isInView ? { width: `${pct}%` } : {}}
           transition={{ duration: 0.8, delay: 0.1 + index * 0.05, ease: [0.16, 1, 0.3, 1] }}
           className={`h-full rounded-lg ${
-            bundle.size > 100000 ? 'bg-amber-500' : bundle.size > 50000 ? 'bg-blue-500' : 'bg-emerald-500'
+            bundle.size > 100000 ? 'bg-amber-500' : bundle.size > 50000 ? 'bg-accent-web' : 'bg-emerald-500'
           }`}
           style={{ opacity: 0.7 }}
         />
@@ -108,7 +108,7 @@ export default function PerformanceSection() {
 
   // Build a simple page load breakdown
   const loadBreakdown = [
-    { label: 'JavaScript', size: summary.totalJsSize, color: 'bg-blue-500' },
+    { label: 'JavaScript', size: summary.totalJsSize, color: 'bg-accent-web' },
     { label: 'CSS',        size: summary.totalCssSize, color: 'bg-emerald-500' },
   ];
 
@@ -155,7 +155,7 @@ export default function PerformanceSection() {
         {/* ── Project Stats ── */}
         <FadeIn delay={0.25}>
           <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-blue-400" />
+            <Code2 className="w-4 h-4 text-accent-web" />
             Project Overview
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">

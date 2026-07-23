@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { MotionConfig } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-clients';
 import NavigationTracker from '@/lib/NavigationTracker';
 import { pagesConfig } from './pages.config';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ProjectCaseStudy from './pages/ProjectCaseStudy';
 import PortfolioIntro, {
@@ -14,6 +15,7 @@ import PortfolioIntro, {
 } from './components/PortfolioIntro';
 import IntroErrorBoundary from './components/IntroErrorBoundary';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import { ThemeProvider } from '@/lib/ThemeContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -25,6 +27,49 @@ const LayoutWrapper = ({ children, currentPageName }) =>
   ) : (
     <>{children}</>
   );
+
+// ── Page transition variants ────────────────────────────────────────────────
+const pageVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -16 },
+};
+
+const pageTransition = {
+  duration: 0.35,
+  ease: [0.16, 1, 0.3, 1],
+};
+
+// ── AnimatedRoutes — wraps Routes with AnimatePresence for smooth transitions ──
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key={location.pathname}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
+        <Routes location={location}>
+          <Route
+            path="/"
+            element={
+              <LayoutWrapper currentPageName={mainPageKey}>
+                <MainPage />
+              </LayoutWrapper>
+            }
+          />
+          <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
 // ── App ──
 function App() {
@@ -126,53 +171,44 @@ function App() {
   return (
     <QueryClientProvider client={queryClientInstance}>
       <MotionConfig reducedMotion="user">
-        {/* Intro overlay */}
-        {!introDone && (
-          <IntroErrorBoundary onError={handleIntroError}>
-            <PortfolioIntro
-              onFinish={() => setIntroDone(true)}
-              onExitStart={handleIntroExitStart}
-            />
-          </IntroErrorBoundary>
-        )}
+        <ThemeProvider>
+          {/* Intro overlay */}
+          {!introDone && (
+            <IntroErrorBoundary onError={handleIntroError}>
+              <PortfolioIntro
+                onFinish={() => setIntroDone(true)}
+                onExitStart={handleIntroExitStart}
+              />
+            </IntroErrorBoundary>
+          )}
 
-        {/* Router content — fades up after intro.
-            IMPORTANT: Only `opacity` is animated here. Never add `transform`
-            or `filter` — a non-none value on any ancestor makes it the
-            containing block for every position:fixed descendant. */}
-        <div
-          style={{
-            opacity: appRevealing ? 1 : 0,
-            transition: appRevealing
-              ? 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)'
-              : 'none',
-          }}
-        >
-          <BrowserRouter
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
+          {/* Router content — fades up after intro.
+              IMPORTANT: Only `opacity` is animated here. Never add `transform`
+              or `filter` — a non-none value on any ancestor makes it the
+              containing block for every position:fixed descendant. */}
+          <div
+            style={{
+              opacity: appRevealing ? 1 : 0,
+              transition: appRevealing
+                ? 'opacity 800ms cubic-bezier(0.22, 1, 0.36, 1)'
+                : 'none',
             }}
           >
-            <NavigationTracker />
-            <AppErrorBoundary>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <LayoutWrapper currentPageName={mainPageKey}>
-                      <MainPage />
-                    </LayoutWrapper>
-                  }
-                />
-                <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
-                <Route path="*" element={<PageNotFound />} />
-              </Routes>
-            </AppErrorBoundary>
-          </BrowserRouter>
-        </div>
+            <BrowserRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
+              <NavigationTracker />
+              <AppErrorBoundary>
+                <AnimatedRoutes />
+              </AppErrorBoundary>
+            </BrowserRouter>
+          </div>
 
-        <Toaster />
+          <Toaster />
+        </ThemeProvider>
       </MotionConfig>
     </QueryClientProvider>
   );

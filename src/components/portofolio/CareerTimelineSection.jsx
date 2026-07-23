@@ -13,42 +13,42 @@ const iconMap = {
 
 // ── Static Tailwind class maps (avoids JIT dead-class problem) ──────────────
 const badgeStyles = {
-  blue:    'bg-blue-500/10 border-blue-500/20 text-blue-400',
+  blue:    'bg-accent-web/10 border-accent-web/20 text-accent-web',
   emerald: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
   purple:  'bg-purple-500/10 border-purple-500/20 text-purple-400',
   amber:   'bg-amber-500/10 border-amber-500/20 text-amber-400',
 };
 
 const expandedCardStyles = {
-  blue:    'border-blue-500/30 bg-blue-500/5',
+  blue:    'border-accent-web/30 bg-accent-web/5',
   emerald: 'border-emerald-500/30 bg-emerald-500/5',
   purple:  'border-purple-500/30 bg-purple-500/5',
   amber:   'border-amber-500/30 bg-amber-500/5',
 };
 
 const nodeBorderStyles = {
-  blue:    'border-blue-500/40',
+  blue:    'border-accent-web/40',
   emerald: 'border-emerald-500/40',
   purple:  'border-purple-500/40',
   amber:   'border-amber-500/40',
 };
 
 const shadowGlowStyles = {
-  blue:    'shadow-blue-500/30',
+  blue:    'shadow-accent-web/30',
   emerald: 'shadow-emerald-500/30',
   purple:  'shadow-purple-500/30',
   amber:   'shadow-amber-500/30',
 };
 
 const legendDotStyles = {
-  blue:    'bg-blue-500/10 border-blue-500/30',
+  blue:    'bg-accent-web/10 border-accent-web/30',
   emerald: 'bg-emerald-500/10 border-emerald-500/30',
   purple:  'bg-purple-500/10 border-purple-500/30',
   amber:   'bg-amber-500/10 border-amber-500/30',
 };
 
 const nodeBgStyles = {
-  blue:    'bg-blue-500',
+  blue:    'bg-accent-web',
   emerald: 'bg-emerald-500',
   purple:  'bg-purple-500',
   amber:   'bg-amber-500',
@@ -115,9 +115,9 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
 
               {/* Expand icon */}
               <div className={`shrink-0 mt-1 w-8 h-8 rounded-full border border-white/[0.08] flex items-center justify-center transition-all duration-300 ${
-                isExpanded ? 'rotate-180 border-blue-500/30 bg-blue-500/10' : ''
+                isExpanded ? 'rotate-180 border-accent-web/30 bg-accent-web/10' : ''
               }`}>
-                <ChevronDown className={`w-4 h-4 ${isExpanded ? 'text-blue-400' : 'text-zinc-500'}`} aria-hidden="true" />
+                <ChevronDown className={`w-4 h-4 ${isExpanded ? 'text-accent-web' : 'text-zinc-500'}`} aria-hidden="true" />
               </div>
             </div>
 
@@ -242,7 +242,7 @@ export default function CareerTimelineSection() {
               initial={{ scaleY: 0 }}
               animate={isSectionInView ? { scaleY: 1 } : {}}
               transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-0 left-0 w-full origin-top bg-gradient-to-b from-purple-500 via-blue-500 to-emerald-500 rounded-full"
+              className="absolute top-0 left-0 w-full origin-top bg-gradient-to-b from-purple-500 via-accent-web to-emerald-500 rounded-full"
               style={{ height: '100%' }}
             />
           </div>
@@ -254,7 +254,7 @@ export default function CareerTimelineSection() {
               initial={{ scaleY: 0 }}
               animate={isSectionInView ? { scaleY: 1 } : {}}
               transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-0 left-0 w-full origin-top bg-gradient-to-b from-purple-500 via-blue-500 to-emerald-500 rounded-full"
+              className="absolute top-0 left-0 w-full origin-top bg-gradient-to-b from-purple-500 via-accent-web to-emerald-500 rounded-full"
               style={{ height: '100%' }}
             />
           </div>

@@ -73,7 +73,7 @@ export default function ContributionActivity({ repos, isLoading, isInView, shoul
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-zinc-200 group-hover:text-blue-400 transition-colors truncate">
+                  <span className="text-sm font-semibold text-zinc-200 group-hover:text-accent-web transition-colors truncate">
                     {repo.name}
                   </span>
                   {i === 0 && (

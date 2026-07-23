@@ -216,7 +216,7 @@ export default function CommandPalette() {
                           className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-zinc-300 aria-selected:bg-white/[0.06] aria-selected:text-white data-[selected=true]:bg-white/[0.06] data-[selected=true]:text-white transition-colors"
                         >
                           <div className="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.06] flex items-center justify-center shrink-0">
-                            <item.icon className="w-4 h-4 text-blue-400" />
+                            <item.icon className="w-4 h-4 text-accent-web" />
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="text-sm font-medium truncate">{item.label}</span>
@@ -260,7 +260,7 @@ export default function CommandPalette() {
                           className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-zinc-300 aria-selected:bg-white/[0.06] aria-selected:text-white data-[selected=true]:bg-white/[0.06] data-[selected=true]:text-white transition-colors"
                         >
                           <div className="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.06] flex items-center justify-center shrink-0">
-                            <item.icon className="w-4 h-4 text-blue-400" />
+                            <item.icon className="w-4 h-4 text-accent-web" />
                           </div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <span className="text-sm font-medium truncate">{item.label}</span>

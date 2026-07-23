@@ -164,7 +164,7 @@ const ProjectModal = ({ project, onClose }) => {
             {project.technologies.map(tech => (
               <span
                 key={tech}
-                className="px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-zinc-300 hover:bg-white/10 hover:border-blue-500/30 hover:text-blue-300 transition-all duration-300"
+                className="px-4 py-2 bg-white/5 border border-white/5 rounded-xl text-xs font-bold text-zinc-300 hover:bg-white/10 hover:border-accent-web/30 hover:text-accent-web transition-all duration-300"
               >
                 {tech}
               </span>
@@ -188,8 +188,8 @@ const ProjectModal = ({ project, onClose }) => {
                 key={feature}
                 className="flex items-start gap-3 p-4 rounded-xl border border-white/5 bg-white/[0.03]"
               >
-                <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                <div className="w-5 h-5 rounded-full bg-accent-web/10 border border-accent-web/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent-web" />
                 </div>
                 <span className="text-xs font-semibold text-zinc-300">{feature}</span>
               </div>
@@ -308,7 +308,7 @@ const ProjectModal = ({ project, onClose }) => {
 
             {/* Category badge */}
             <div className="absolute top-4 left-4 z-20">
-              <span className="px-3 py-1.5 rounded-lg bg-blue-500/15 border border-blue-500/25 backdrop-blur-md text-blue-400 text-[9px] font-bold uppercase tracking-widest">
+              <span className="px-3 py-1.5 rounded-lg bg-accent-web/15 border border-accent-web/25 backdrop-blur-md text-accent-web text-[9px] font-bold uppercase tracking-widest">
                 {project.category}
               </span>
             </div>
@@ -339,7 +339,7 @@ const ProjectModal = ({ project, onClose }) => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`relative flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap transition-colors ${
-                      isActive ? 'text-blue-400' : 'text-zinc-400 hover:text-zinc-300'
+                      isActive ? 'text-accent-web' : 'text-zinc-400 hover:text-zinc-300'
                     }`}
                   >
                     <tab.icon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -347,7 +347,7 @@ const ProjectModal = ({ project, onClose }) => {
                     {isActive && (
                       <motion.div
                         layoutId="modalTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-web rounded-full"
                         transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                       />
                     )}
@@ -377,7 +377,7 @@ const ProjectModal = ({ project, onClose }) => {
               <Link
                 to={`/projects/${project.slug}`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 rounded-xl text-white text-xs font-bold hover:bg-blue-500 transition-all duration-300 shadow-lg shadow-blue-500/20 whitespace-nowrap"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[hsl(var(--accent-web-btn))] rounded-xl text-white text-xs font-bold hover:brightness-110 transition-all duration-300 shadow-lg shadow-accent-web/20 whitespace-nowrap"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Full Case Study</span>

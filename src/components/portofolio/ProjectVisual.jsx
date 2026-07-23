@@ -87,7 +87,7 @@ function GeneratedThumbnail({ project }) {
           const WidgetIcon = item.icon;
           return (
             <div key={item.label} className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 backdrop-blur-md">
-              <WidgetIcon className={`mb-4 h-5 w-5 ${isCashflow ? 'text-emerald-400' : 'text-blue-400'}`} />
+              <WidgetIcon className={`mb-4 h-5 w-5 ${isCashflow ? 'text-emerald-400' : 'text-accent-web'}`} />
               <div className="text-sm font-black text-white">{item.value}</div>
               <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-zinc-400">{item.label}</div>
             </div>

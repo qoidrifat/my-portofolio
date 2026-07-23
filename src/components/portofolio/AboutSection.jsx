@@ -46,7 +46,7 @@ export default function AboutSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block"
+            className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block"
           >
             Discovery
           </motion.span>
@@ -70,15 +70,15 @@ export default function AboutSection() {
           >
             <div className="relative aspect-[4/5] max-w-md mx-auto">
               {/* Decorative background blobs */}
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-[80px]" />
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-accent-web/20 rounded-full blur-[80px]" />
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-[80px]" />
               
               {/* Main Profile Card */}
               <div className="relative h-full bg-zinc-900/40 backdrop-blur-2xl border border-white/5 rounded-[3rem] p-10 overflow-hidden group shadow-2xl">
                 {/* Profile picture frame */}
                 <div className="relative w-48 h-48 mx-auto mb-10 group-hover:scale-105 transition-transform duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-[2.5rem] rotate-6 group-hover:rotate-12 transition-transform duration-500 opacity-20" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-[2.5rem] -rotate-3 group-hover:-rotate-6 transition-transform duration-500 opacity-20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent-web to-emerald-500 rounded-[2.5rem] rotate-6 group-hover:rotate-12 transition-transform duration-500 opacity-20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent-web to-emerald-500 rounded-[2.5rem] -rotate-3 group-hover:-rotate-6 transition-transform duration-500 opacity-20" />
                   <OptimizedImage 
                     src={profile.photoUrl} 
                     alt="Qoid Rif'at"
@@ -93,7 +93,7 @@ export default function AboutSection() {
                   </p>
                   
                   <div className="flex items-center justify-center gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[10px]">
-                    <MapPin className="w-4 h-4 text-blue-500" aria-hidden="true" />
+                    <MapPin className="w-4 h-4 text-accent-web" aria-hidden="true" />
                     <span>Surabaya, Indonesia</span>
                   </div>
                 </div>
@@ -122,11 +122,11 @@ export default function AboutSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="space-y-6"
             >
-              <h3 className="text-2xl font-bold text-white flex items-center gap-3">                    <Rocket className="w-6 h-6 text-blue-500" aria-hidden="true" />
+              <h3 className="text-2xl font-bold text-white flex items-center gap-3">                    <Rocket className="w-6 h-6 text-accent-web" aria-hidden="true" />
                 My Journey
               </h3>
               <p className="text-xl text-zinc-400 leading-relaxed">
-                I'm a <span className="text-white font-black underline decoration-blue-500/50 decoration-4 underline-offset-4">final-year Informatics Engineering student</span> at 
+                I'm a <span className="text-white font-black underline decoration-accent-web/50 decoration-4 underline-offset-4">final-year Informatics Engineering student</span> at 
                 Universitas Trunojoyo Madura, dedicated to crafting high-performance digital solutions.
               </p>
               <p className="text-zinc-400 leading-relaxed text-lg">
@@ -141,13 +141,13 @@ export default function AboutSection() {
               {highlights.map((item, index) => {
                 const iconColor = item.color;
                 const iconRing = {
-                  blue:    'hover:border-blue-500/30',
+                  blue:    'hover:border-accent-web/30',
                   emerald: 'hover:border-emerald-500/30',
                   purple:  'hover:border-purple-500/30',
                   orange:  'hover:border-orange-500/30',
                 };
                 const iconBg = {
-                  blue:    'border-blue-500/30 bg-blue-500/10 text-blue-400',
+                  blue:    'border-accent-web/30 bg-accent-web/10 text-accent-web',
                   emerald: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
                   purple:  'border-purple-500/30 bg-purple-500/10 text-purple-400',
                   orange:  'border-orange-500/30 bg-orange-500/10 text-orange-400',
@@ -163,7 +163,7 @@ export default function AboutSection() {
                     <div className={`w-12 h-12 rounded-2xl ${iconBg[iconColor]} flex items-center justify-center mb-4 group-hover:scale-110 transition-all duration-300`}>
                       <item.icon className="w-6 h-6" />
                     </div>
-                    <h4 className="text-white font-bold text-base mb-2 group-hover:text-blue-300 transition-colors duration-300">{item.title}</h4>
+                    <h4 className="text-white font-bold text-base mb-2 group-hover:text-accent-web transition-colors duration-300">{item.title}</h4>
                     <p className="text-zinc-400 text-sm leading-relaxed">{item.description}</p>
                   </motion.div>
                 );
@@ -180,9 +180,9 @@ export default function AboutSection() {
                 download
                 className="group relative inline-flex px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold items-center gap-3 hover:bg-white/10 transition-all overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-r from-accent-web/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <span>Download Resume</span>
-                <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform text-blue-500" aria-hidden="true" />
+                <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform text-accent-web" aria-hidden="true" />
               </a>
             </motion.div>
           </div>

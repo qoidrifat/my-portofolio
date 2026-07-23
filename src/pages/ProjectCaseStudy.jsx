@@ -63,7 +63,7 @@ export default function ProjectCaseStudy() {
           <p className="text-zinc-400 mb-8">The case study you're looking for doesn't exist or has been removed.</p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 rounded-xl text-white font-bold hover:bg-blue-500 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[hsl(var(--accent-web-btn))] rounded-xl text-white font-bold hover:brightness-110 transition-all duration-300"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Portfolio
@@ -101,7 +101,7 @@ export default function ProjectCaseStudy() {
       {/* ── Hero ── */}
       <section className="relative pt-16">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-blue-500/8 rounded-full blur-[180px]" />
+          <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-accent-web/8 rounded-full blur-[180px]" />
           <div className="absolute bottom-0 -right-32 w-[500px] h-[500px] bg-purple-500/8 rounded-full blur-[150px]" />
         </div>
 
@@ -132,7 +132,7 @@ export default function ProjectCaseStudy() {
                 {/* Impact metric bar */}
                 {Array.isArray(project.impact) && project.impact.length > 0 && (
                   <div className="px-8 py-5 border-t border-white/[0.06] bg-zinc-950/60 flex items-center gap-3">
-                    <TrendingUp className="w-5 h-5 text-blue-500 shrink-0" />
+                    <TrendingUp className="w-5 h-5 text-accent-web shrink-0" />
                     <span className="text-sm font-bold text-zinc-200">{project.impact[0]}</span>
                   </div>
                 )}
@@ -148,7 +148,7 @@ export default function ProjectCaseStudy() {
             >
               {/* Badge */}
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] inline-flex items-center gap-1.5">
+                <span className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] inline-flex items-center gap-1.5">
                   <Sparkles className="w-3 h-3" />
                   Case Study
                 </span>
@@ -166,7 +166,7 @@ export default function ProjectCaseStudy() {
               {/* Role + Category */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2 text-zinc-400">
-                  <User className="w-4 h-4 text-blue-500" />
+                  <User className="w-4 h-4 text-accent-web" />
                   <span>{project.role}</span>
                 </div>
                 <span className="text-zinc-700">/</span>
@@ -190,7 +190,7 @@ export default function ProjectCaseStudy() {
                     href={project.demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 rounded-2xl text-white font-bold hover:bg-blue-500 transition-all duration-300 shadow-lg shadow-blue-500/20 group"
+                    className="flex items-center justify-center gap-2 px-8 py-4 bg-[hsl(var(--accent-web-btn))] rounded-2xl text-white font-bold hover:brightness-110 transition-all duration-300 shadow-lg shadow-accent-web/20 group"
                   >
                     <span>Live Demo</span>
                     <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -220,8 +220,8 @@ export default function ProjectCaseStudy() {
           <FadeSection delay={0.1}>
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <Rocket className="w-5 h-5 text-blue-500" />
+                <div className="w-10 h-10 rounded-2xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+                  <Rocket className="w-5 h-5 text-accent-web" />
                 </div>
                 <h2 className="text-2xl font-bold text-white">Overview</h2>
               </div>
@@ -275,7 +275,7 @@ export default function ProjectCaseStudy() {
                 {project.technologies.map(tech => (
                   <span
                     key={tech}
-                    className="px-5 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm font-semibold text-zinc-300 hover:bg-white/[0.06] hover:border-blue-500/30 hover:text-blue-300 transition-all duration-300"
+                    className="px-5 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm font-semibold text-zinc-300 hover:bg-white/[0.06] hover:border-accent-web/30 hover:text-accent-web transition-all duration-300"
                   >
                     {tech}
                   </span>
@@ -364,10 +364,10 @@ export default function ProjectCaseStudy() {
                           </div>
                           <span className="text-[9px] font-medium text-zinc-500 uppercase tracking-wider">{rp.category}</span>
                         </div>
-                        <h3 className="text-base font-bold text-white leading-snug group-hover:text-blue-400 transition-colors mb-3">
+                        <h3 className="text-base font-bold text-white leading-snug group-hover:text-accent-web transition-colors mb-3">
                           {rp.title}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-blue-400 text-xs font-bold">
+                        <div className="flex items-center gap-1.5 text-accent-web text-xs font-bold">
                           <span>Read Case Study</span>
                           <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         </div>

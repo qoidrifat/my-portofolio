@@ -1,8 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
-
-
 import { techCategories, projects } from "@/lib/data";
 
 function getLevelLabel(v) {
@@ -13,7 +11,7 @@ function getLevelLabel(v) {
 }
 
 function getLevelColor(v) {
-  if (v >= 80) return "rgb(59, 130, 246)";
+  if (v >= 80) return "hsl(var(--accent-web))";
   if (v >= 60) return "rgb(52, 211, 153)";
   if (v >= 40) return "rgb(251, 191, 36)";
   return "rgb(161, 161, 170)";
@@ -38,7 +36,7 @@ function MarqueeRow({ items, direction, speed }) {
         className="flex flex-nowrap gap-4 min-w-full"
       >
         {[...items, ...items].map((t, i) => (
-          <div key={t.name + i} className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm hover:bg-white/10 hover:border-blue-500/30 transition-all duration-300">
+          <div key={t.name + i} className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm hover:bg-white/10 hover:border-accent-web/30 transition-all duration-300">
             <t.icon className="text-2xl text-zinc-400" aria-hidden="true" />
             <span className="text-sm font-bold text-zinc-300">{t.name}</span>
           </div>
@@ -53,10 +51,10 @@ const TechCard = React.forwardRef(({ item, index, isExpanded, onToggle }, ref) =
   const lp = getProjectsForTech(item.projectIds || []);
   return (
     <motion.div ref={ref} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, scale: 0.95 }} transition={{ duration: 0.35, delay: index * 0.03, ease: [0.16, 1, 0.3, 1] }}>
-      <button onClick={() => onToggle(item.name)} className={"w-full text-left rounded-2xl border transition-all duration-300 overflow-hidden group " + (isExpanded ? "border-blue-500/30 bg-blue-500/5" : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15] hover:bg-white/[0.04]")}>
+      <button onClick={() => onToggle(item.name)} className={"w-full text-left rounded-2xl border transition-all duration-300 overflow-hidden group " + (isExpanded ? "border-accent-web/30 bg-accent-web/5" : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15] hover:bg-white/[0.04]")}>
         <div className="flex items-center gap-4 px-5 py-4">
-          <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-blue-500/10 transition-all duration-300">
-            <item.icon className="text-lg text-zinc-300 group-hover:text-blue-400 transition-colors duration-300" aria-hidden="true" />
+          <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-accent-web/10 transition-all duration-300">
+            <item.icon className="text-lg text-zinc-300 group-hover:text-accent-web transition-colors duration-300" aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -140,19 +138,19 @@ export default function TechStackSection() {
 
   return (
     <section className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,hsl(var(--accent-web)/0.08),transparent_70%)] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <motion.span initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block">Capabilities</motion.span>
+          <motion.span initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block">Capabilities</motion.span>
           <motion.h2 initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl md:text-6xl font-black text-white mb-6">Tech Stack <span className="text-zinc-500">&amp;</span> Tools</motion.h2>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.2 }} className="text-zinc-400 max-w-2xl mx-auto text-lg">The specialized tools and frameworks I use to architect robust, scalable, and intelligent digital products.</motion.p>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.25 }} className="flex flex-wrap items-center justify-center gap-2 mb-12">
           {filters.map(f => (
-            <button key={f.id} onClick={() => { setActiveFilter(f.id); setExpandedItems(new Set()); }} className={"relative px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 " + (activeFilter === f.id ? "text-white bg-blue-500/15 border border-blue-500/30 shadow-lg shadow-blue-500/10" : "text-zinc-400 bg-white/[0.04] border border-white/[0.06] hover:text-zinc-200 hover:bg-white/[0.08] hover:border-white/[0.12]")}>
+            <button key={f.id} onClick={() => { setActiveFilter(f.id); setExpandedItems(new Set()); }} className={"relative px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 " + (activeFilter === f.id ? "text-white bg-accent-web/15 border border-accent-web/30 shadow-lg shadow-accent-web/10" : "text-zinc-400 bg-white/[0.04] border border-white/[0.06] hover:text-zinc-200 hover:bg-white/[0.08] hover:border-white/[0.12]")}>
               {f.label}
-              {activeFilter === f.id && <motion.div layoutId="activeFilter" className="absolute inset-0 rounded-xl border border-blue-500/20" transition={{ type: "spring", bounce: 0.15, duration: 0.4 }} />}
+              {activeFilter === f.id && <motion.div layoutId="activeFilter" className="absolute inset-0 rounded-xl border border-accent-web/20" transition={{ type: "spring", bounce: 0.15, duration: 0.4 }} />}
             </button>
           ))}
         </motion.div>

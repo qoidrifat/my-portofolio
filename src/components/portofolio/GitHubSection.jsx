@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useCallback } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import {
   Github, Star, GitFork, Users, BookOpen, ExternalLink,
-  FolderOpen, GitBranch, UserPlus, Flame, Activity,
+  FolderOpen, GitBranch, UserPlus, Activity,
   TrendingUp, Calendar, MessageSquare,
 } from 'lucide-react';
 import {
@@ -98,7 +98,7 @@ export default function GitHubSection() {
             initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
             animate={isSectionInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-flex items-center gap-2"
+            className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-flex items-center gap-2"
           >
             <Github className="w-3.5 h-3.5" aria-hidden="true" />
             Open Source
@@ -198,8 +198,8 @@ export default function GitHubSection() {
                   className="flex items-center justify-between mb-6"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-blue-400" aria-hidden="true" />
+                    <div className="w-8 h-8 rounded-lg bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-accent-web" aria-hidden="true" />
                     </div>
                     <h3 className="text-sm font-bold text-white">Recent Projects</h3>
                   </div>
@@ -280,18 +280,18 @@ export default function GitHubSection() {
                   rel="noopener noreferrer"
                   whileHover={shouldReduceMotion ? undefined : { y: -2 }}
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-                  className="group inline-flex items-center gap-3 px-8 py-4 bg-blue-600/10 border border-blue-500/20 rounded-2xl hover:bg-blue-600/20 hover:border-blue-400/40 transition-all duration-300 shadow-lg shadow-blue-500/5"
+                  className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-web/10 border border-accent-web/20 rounded-2xl hover:bg-accent-web/20 hover:border-accent-web/40 transition-all duration-300 shadow-lg shadow-accent-web/5"
                 >
-                  <Github className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors duration-300" aria-hidden="true" />
+                  <Github className="w-5 h-5 text-accent-web" aria-hidden="true" />
                   <div className="text-left">
-                    <p className="text-sm font-bold text-blue-300 group-hover:text-blue-200 transition-colors duration-300">
+                    <p className="text-sm font-bold text-accent-web">
                       View Full GitHub Profile
                     </p>
-                    <p className="text-[10px] text-blue-400/60 font-medium">
+                    <p className="text-[10px] text-accent-web/60 font-medium">
                       Explore all open source projects and contributions
                     </p>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-blue-400/60 group-hover:text-blue-300 transition-colors duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden="true" />
+                  <ExternalLink className="w-4 h-4 text-accent-web/60 group-hover:text-accent-web transition-colors duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden="true" />
                 </motion.a>
               </motion.div>
             )}

@@ -1,7 +1,39 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Download } from 'lucide-react';
-import { profile } from '@/lib/data';
+import { ArrowRight, Download, Briefcase, Code2, Layers } from 'lucide-react';
+import { profile, techCategories } from '@/lib/data';
+import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
+
+function AnimatedStat({ value, suffix = '', label, icon: Icon, delay = 0 }) {
+  const { displayValue, ref } = useAnimatedCounter(value, {
+    duration: 2000,
+    delay: delay * 100,
+    once: true,
+  });
+
+  return (
+    <div ref={ref} className="text-center group">
+      <div className="flex items-center justify-center gap-1.5 text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300">
+        {Icon && <Icon className="w-5 h-5 text-accent-web/60" aria-hidden="true" />}
+        <span>{displayValue}{suffix}</span>
+      </div>
+      <div className="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">{label}</div>
+    </div>
+  );
+}
+
+/** Static stat — visually matches AnimatedStat but renders fixed text instead of an animated counter */
+function StaticStat({ display, label, icon: Icon }) {
+  return (
+    <div className="text-center group">
+      <div className="flex items-center justify-center gap-1.5 text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300">
+        {Icon && <Icon className="w-5 h-5 text-accent-web/60" aria-hidden="true" />}
+        <span>{display}</span>
+      </div>
+      <div className="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">{label}</div>
+    </div>
+  );
+}
 
 export default function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
@@ -14,10 +46,12 @@ export default function HeroSection() {
     }
   };
 
+  // Concrete, verifiable stats synchronised with actual portfolio data
+  const techStackCount = techCategories.length; // 6 categories: Frontend, Backend, Database, AI/ML, Tools, Mobile
   const stats = [
-    { value: '5+', label: 'Projects Done' },
-    { value: '<1', label: 'Year Experience' },
-    { value: '99%', label: 'Commitment' },
+    { type: 'animated', value: 5, suffix: '+', label: 'Projects Built', icon: Briefcase, delay: 0 },
+    { type: 'static',   display: '<1', label: 'Years Coding', icon: Code2 },
+    { type: 'animated', value: techStackCount, suffix: '', label: 'Tech Stacks', icon: Layers, delay: 1 },
   ];
 
   return (
@@ -35,13 +69,13 @@ export default function HeroSection() {
           initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-blue-400 text-xs sm:text-sm font-medium mb-8 md:mb-10"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[hsl(var(--accent-web))] text-xs sm:text-sm font-medium mb-8 md:mb-10"
         >
           <span className="relative flex h-2 w-2">
             {!shouldReduceMotion && (
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[hsl(var(--accent-web))] opacity-75" />
             )}
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[hsl(var(--accent-web))]" />
           </span>
           {profile.status}
         </motion.div>
@@ -90,7 +124,7 @@ export default function HeroSection() {
         >
           <motion.button
             onClick={scrollToProjects}
-            className="group relative px-8 py-4 bg-blue-600 rounded-2xl text-white font-bold flex items-center justify-center gap-2 overflow-hidden hover:bg-blue-500 transition-all duration-300"
+            className="group relative px-8 py-4 bg-[hsl(var(--accent-web-btn))] rounded-2xl text-white font-bold flex items-center justify-center gap-2 overflow-hidden hover:brightness-110 transition-all duration-300"
             whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
           >
@@ -106,28 +140,36 @@ export default function HeroSection() {
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
           >
             <span>Download CV</span>
-            <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform text-blue-400" aria-hidden="true" />
+            <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform text-[hsl(var(--accent-web))]" aria-hidden="true" />
           </motion.a>
         </motion.div>
 
-        {/* Stats — clean, centered */}
+        {/* Stats — animated counters, concrete metrics */}
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
           className="flex items-center justify-center gap-8 sm:gap-16 md:gap-20 border-t border-white/10 pt-6 md:pt-10 max-w-lg mx-auto"
         >
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <motion.div
-                className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1"
-                whileHover={shouldReduceMotion ? undefined : { y: -3 }}
-              >
-                {stat.value}
-              </motion.div>
-              <div className="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">{stat.label}</div>
-            </div>
-          ))}
+          {stats.map((stat) =>
+            stat.type === 'static' ? (
+              <StaticStat
+                key={stat.label}
+                display={stat.display}
+                label={stat.label}
+                icon={stat.icon}
+              />
+            ) : (
+              <AnimatedStat
+                key={stat.label}
+                value={stat.value}
+                suffix={stat.suffix}
+                label={stat.label}
+                icon={stat.icon}
+                delay={stat.delay}
+              />
+            )
+          )}
         </motion.div>
 
         {/* Scroll indicator — tepat di bawah stats, centered, animasi kontinu */}
@@ -140,7 +182,7 @@ export default function HeroSection() {
           {shouldReduceMotion ? (
             <div className="flex flex-col items-center gap-3 text-zinc-500">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Explore</span>
-              <div className="w-px h-12 bg-gradient-to-b from-blue-500/50 to-transparent" />
+              <div className="w-px h-12 bg-gradient-to-b from-[hsl(var(--accent-web))]/50 to-transparent" />
             </div>
           ) : (
             <motion.div
@@ -150,7 +192,7 @@ export default function HeroSection() {
             >
               <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Explore</span>
               <motion.div
-                className="w-px h-14 bg-gradient-to-b from-blue-400 to-transparent"
+                className="w-px h-14 bg-gradient-to-b from-[hsl(var(--accent-web))] to-transparent"
                 animate={{ opacity: [0.4, 1, 0.4] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               />

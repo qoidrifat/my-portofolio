@@ -46,7 +46,7 @@ export function EmptyState() {
         href="https://github.com/qoidrifat"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 rounded-xl text-sm font-bold text-white hover:bg-blue-500 transition-all duration-300 shadow-lg shadow-blue-500/20"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-[hsl(var(--accent-web-btn))] rounded-xl text-sm font-bold text-white hover:brightness-110 transition-all duration-300 shadow-lg shadow-accent-web/20"
       >
         <Github className="w-4 h-4" aria-hidden="true" />
         Browse on GitHub

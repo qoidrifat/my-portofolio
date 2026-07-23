@@ -12,7 +12,7 @@ export function LangDot({ language }) {
 
 export function TopicBadge({ topic }) {
   return (
-    <span className="px-2 py-0.5 rounded-md bg-blue-500/8 border border-blue-500/12 text-[9px] font-medium text-blue-400/70 whitespace-nowrap">
+    <span className="px-2 py-0.5 rounded-md bg-accent-web/8 border border-accent-web/12 text-[9px] font-medium text-accent-web/70 whitespace-nowrap">
       {topic}
     </span>
   );

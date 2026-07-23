@@ -27,13 +27,13 @@ export default function ProfileCard({ profile, isLoading, isInView, shouldReduce
       initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="p-5 md:p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-blue-500/20 hover:bg-white/[0.03] transition-all duration-300"
+      className="p-5 md:p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-accent-web/20 hover:bg-white/[0.03] transition-all duration-300"
     >
       <div className="flex items-center gap-4 md:gap-5">
         {/* Avatar */}
         <a href={profile.htmlUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 group">
           <div className="relative">
-            <div className="absolute inset-0 rounded-2xl bg-blue-500/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 rounded-2xl bg-accent-web/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <OptimizedImage
               src={profile.avatarUrl}
               alt={profile.name || profile.login}
@@ -50,7 +50,7 @@ export default function ProfileCard({ profile, isLoading, isInView, shouldReduce
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2"
           >
-            <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-blue-400 transition-colors duration-300 truncate">
+            <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-accent-web transition-colors duration-300 truncate">
               {profile.name || profile.login}
             </h3>
             <ExternalLink className="w-3.5 h-3.5 text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shrink-0" aria-hidden="true" />

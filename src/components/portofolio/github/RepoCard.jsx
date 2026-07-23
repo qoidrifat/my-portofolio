@@ -14,14 +14,14 @@ export default function RepoCard({ repo, index, isInView, shouldReduceMotion }) 
       transition={{ duration: 0.4, delay: 0.05 + index * 0.04, ease: [0.16, 1, 0.3, 1] }}
       className="block group outline-none"
     >
-      <div className="p-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 h-full relative overflow-hidden group-focus-visible:ring-2 group-focus-visible:ring-blue-400/50">
+      <div className="p-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-accent-web/30 hover:shadow-lg hover:shadow-accent-web/5 transition-all duration-300 h-full relative overflow-hidden group-focus-visible:ring-2 group-focus-visible:ring-accent-web/50">
         {/* Hover accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/0 to-blue-500/0 group-hover:via-blue-500/40 group-hover:to-transparent transition-all duration-500" />
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-web/0 via-accent-web/0 to-accent-web/0 group-hover:via-accent-web/40 group-hover:to-transparent transition-all duration-500" />
 
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <BookOpen className="w-4 h-4 text-blue-400/60 shrink-0 mt-0.5 transition-colors duration-300 group-hover:text-blue-400" aria-hidden="true" />
-            <h3 className="text-sm font-bold text-white truncate transition-colors duration-300 group-hover:text-blue-400">
+            <BookOpen className="w-4 h-4 text-accent-web/60 shrink-0 mt-0.5 transition-colors duration-300 group-hover:text-accent-web" aria-hidden="true" />
+            <h3 className="text-sm font-bold text-white truncate transition-colors duration-300 group-hover:text-accent-web">
               {repo.name}
             </h3>
           </div>
