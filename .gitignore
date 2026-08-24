@@ -49,8 +49,10 @@ HASIL_AUDIT.md
 IMPLEMENTATION_REPORT.md
 PORTFOLIO_*_REPORT.md
 
-# QA screenshots
+# QA screenshots + verification artifacts (generated locally)
 .qa-shots/
+verification/
+PROJECT_UPDATE_REPORT.md
 
 # Project planning docs (git history only, not updated)
 docs/superpowers/

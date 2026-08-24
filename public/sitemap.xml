@@ -5,7 +5,7 @@
 >
   <url>
     <loc>https://qoidrifat.vercel.app/</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
 
@@ -27,12 +27,14 @@
       <image:caption>AI-powered facial expression classification system using deep learning</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/project-payrollpro.webp</image:loc>
-      <image:title>PayrollPro — Payroll &amp; Attendance Management</image:title>
+      <image:loc>https://qoidrifat.vercel.app/projects/payrollpro/cover.webp</image:loc>
+      <image:title>PayrollPro — HR, Attendance &amp; Payroll Management System</image:title>
+      <image:caption>Modern HR, attendance &amp; payroll platform for Indonesian companies built with Laravel 12, Vue 3 and Inertia.js</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/project-explore-bali.webp</image:loc>
-      <image:title>Explore Bali — Travel Booking Website</image:title>
+      <image:loc>https://qoidrifat.vercel.app/projects/explore-bali/cover.webp</image:loc>
+      <image:title>Explore Bali — Travel &amp; Tour Booking Platform</image:title>
+      <image:caption>PHP-native Bali travel &amp; tour booking platform — 6 destinations, flight/hotel/bus/car search flows and tiket.com deep-links</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://qoidrifat.vercel.app/project-qoid-ra-psd.webp</image:loc>

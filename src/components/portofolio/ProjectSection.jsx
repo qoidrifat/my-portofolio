@@ -172,17 +172,34 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
             <div className="p-1.5 rounded-lg bg-zinc-800/80 border border-zinc-700/50">
               <project.icon className="w-3.5 h-3.5 text-zinc-300" />
             </div>
-            <span className="text-[8px] font-medium text-zinc-400 uppercase tracking-[0.15em]">{project.category}</span>
+            <span className="text-[8px] font-medium text-zinc-400 uppercase tracking-[0.15em] truncate">{project.category}</span>
+            {project.status && (
+              <span className="ml-auto inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 border border-emerald-500/25 rounded-full shrink-0">
+                <span className="relative flex w-1.5 h-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-400">{project.status}</span>
+              </span>
+            )}
           </div>
 
           <h3 className="text-base md:text-lg font-bold text-white mb-2 leading-snug tracking-tight line-clamp-2">
             {project.title}
           </h3>
 
+          {project.subtitle && (
+            <p className="text-[10px] font-bold text-accent-web/90 uppercase tracking-wider leading-relaxed mb-2 line-clamp-1">
+              {project.subtitle}
+            </p>
+          )}
+
           <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 mb-5 flex-1">
-            {project.longDescription.length > 150
-              ? project.longDescription.slice(0, 150) + '...'
-              : project.longDescription}
+            {project.description
+              ? project.description
+              : (project.longDescription.length > 150
+                  ? project.longDescription.slice(0, 150) + '...'
+                  : project.longDescription)}
           </p>
 
           {/* Actions row */}

@@ -4,9 +4,13 @@ import { motion, useInView } from 'framer-motion';
 import {
   ArrowLeft, ExternalLink, Github, Layers, ListChecks, Target, Rocket,
   Calendar, User, BarChart3, ChevronRight, Sparkles, TrendingUp, ArrowUpRight,
+  Gauge, ShieldCheck, BookOpen, FileText, Image as ImageIcon,
+  Network, Lightbulb, Compass,
 } from 'lucide-react';
 import { projects } from '@/lib/data';
 import ProjectVisual from '@/components/portofolio/ProjectVisual';
+import ArchitectureViewer from '@/components/portofolio/ArchitectureViewer';
+import TechGroups from '@/components/portofolio/TechGroups';
 
 // ── Section wrapper with scroll-trigger ─────────────────────────────────────
 function FadeSection({ children, delay = 0, className = '' }) {
@@ -235,9 +239,9 @@ export default function ProjectCaseStudy() {
             </div>
           </FadeSection>
 
-          {/* Impact / Key Results */}
+          {/* Impact / Key Results — kept directly after Overview for narrative consistency with every other project */}
           {Array.isArray(project.impact) && project.impact.length > 0 && (
-            <FadeSection delay={0.2}>
+            <FadeSection delay={0.15}>
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -262,7 +266,180 @@ export default function ProjectCaseStudy() {
             </FadeSection>
           )}
 
-          {/* Technologies */}
+          {/* Project Metrics */}
+          {Array.isArray(project.metrics) && project.metrics.length > 0 && (
+            <FadeSection delay={0.25}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+                    <Gauge className="w-5 h-5 text-accent-web" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Project Metrics</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {project.metrics.map((metric, i) => (
+                    <div
+                      key={i}
+                      className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-accent-web/20 transition-all duration-300"
+                    >
+                      <div className="text-2xl md:text-3xl font-black text-white mb-1">{metric.value}</div>
+                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{metric.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Architecture */}
+          {project.architecture && (
+            <FadeSection delay={0.3}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+                    <Network className="w-5 h-5 text-accent-web" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Architecture</h2>
+                </div>
+                <ArchitectureViewer architecture={project.architecture} />
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Tier Strategy */}
+          {Array.isArray(project.tiers) && project.tiers.length > 0 && (
+            <FadeSection delay={0.35}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Acquisition Strategy</h2>
+                </div>
+                <div className="grid gap-3">
+                  {project.tiers.map((tier, i) => (
+                    <div
+                      key={tier.tier}
+                      className={`relative p-5 rounded-2xl border transition-all duration-300 ${
+                        tier.recommended
+                          ? 'bg-accent-web/[0.06] border-accent-web/25 hover:border-accent-web/40'
+                          : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                      }`}
+                    >
+                      {tier.recommended && (
+                        <div className="absolute top-4 right-4 px-2.5 py-1 bg-accent-web/15 border border-accent-web/30 rounded-full">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-accent-web">Recommended Lane</span>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-2">
+                        <span className="text-[10px] font-black text-accent-web uppercase tracking-[0.18em]">{tier.tier}</span>
+                        <h3 className="text-base font-bold text-white">{tier.name}</h3>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-zinc-400">
+                          {tier.reliability} reliability
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${
+                          tier.legal === 'Clean'
+                            ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                            : 'bg-amber-500/10 border-amber-500/25 text-amber-400'
+                        }`}>
+                          {tier.legal}
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-zinc-800/60 border border-zinc-700/50 text-zinc-400">
+                          {tier.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-zinc-400 leading-relaxed">{tier.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Platform Status */}
+          {Array.isArray(project.platforms) && project.platforms.length > 0 && (
+            <FadeSection delay={0.4}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Platform Coverage</h2>
+                </div>
+                <div className="grid gap-3">
+                  {project.platforms.map((platform) => (
+                    <div
+                      key={platform.name}
+                      className="flex items-center justify-between gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center">
+                          <span className="text-[10px] font-black text-zinc-300 uppercase">
+                            {platform.name.slice(0, 2)}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{platform.name}</p>
+                          <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">
+                            Production lane: {platform.lane}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hidden sm:flex flex-col items-end gap-1.5">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
+                          platform.publicStatus === 'warning'
+                            ? 'bg-amber-500/10 border-amber-500/25 text-amber-400'
+                            : 'bg-red-500/10 border-red-500/25 text-red-400'
+                        }`}>
+                          Public: {platform.public}
+                        </span>
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg border bg-emerald-500/10 border-emerald-500/25 text-emerald-400">
+                          Merchant: {platform.merchant}
+                        </span>
+                      </div>
+                      <div className="sm:hidden text-right">
+                        <p className="text-[9px] font-bold text-emerald-400">Merchant: {platform.merchant}</p>
+                        <p className="text-[9px] font-bold text-amber-400 mt-1">Public: {platform.public}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Screenshot Gallery */}
+          {Array.isArray(project.screenshots) && project.screenshots.length > 0 && (
+            <FadeSection delay={0.45}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <ImageIcon className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Gallery</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {project.screenshots.map((shot) => (
+                    <div key={shot.src} className="group relative rounded-2xl overflow-hidden border border-white/[0.06] bg-zinc-950">
+                      <img
+                        src={shot.src}
+                        alt={shot.label}
+                        loading="lazy"
+                        decoding="async"
+                        className={`w-full aspect-[16/9] ${shot.portrait ? 'object-contain' : 'object-cover object-top'} transition-transform duration-700 group-hover:scale-105`}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500" />
+                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">{shot.label}</span>
+                        <span className="w-8 h-[1px] bg-white/30 group-hover:bg-accent-web group-hover:w-12 transition-all duration-300" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
           <FadeSection delay={0.3}>
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-2">
@@ -271,16 +448,21 @@ export default function ProjectCaseStudy() {
                 </div>
                 <h2 className="text-2xl font-bold text-white">Technologies</h2>
               </div>
-              <div className="flex flex-wrap gap-2.5">
-                {project.technologies.map(tech => (
-                  <span
-                    key={tech}
-                    className="px-5 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm font-semibold text-zinc-300 hover:bg-white/[0.06] hover:border-accent-web/30 hover:text-accent-web transition-all duration-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+              {/* Grouped view for projects that ship techGroups — matches the modal presentation */}
+              {Array.isArray(project.techGroups) && project.techGroups.length > 0 ? (
+                <TechGroups groups={project.techGroups} />
+              ) : (
+                <div className="flex flex-wrap gap-2.5">
+                  {project.technologies.map(tech => (
+                    <span
+                      key={tech}
+                      className="px-5 py-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl text-sm font-semibold text-zinc-300 hover:bg-white/[0.06] hover:border-accent-web/30 hover:text-accent-web transition-all duration-300"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </FadeSection>
 
@@ -329,6 +511,127 @@ export default function ProjectCaseStudy() {
               </div>
             </div>
           </FadeSection>
+
+          {/* Lessons Learned */}
+          {Array.isArray(project.lessons) && project.lessons.length > 0 && (
+            <FadeSection delay={0.45}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <Lightbulb className="w-5 h-5 text-violet-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Lessons Learned</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {project.lessons.map((lesson, i) => (
+                    <div
+                      key={i}
+                      className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-violet-500/25 transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-6 h-6 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+                          <span className="text-[10px] font-black text-violet-400">{String(i + 1).padStart(2, '0')}</span>
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+                          Takeaway
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-white mb-2 leading-snug">{lesson.title}</h3>
+                      <p className="text-xs text-zinc-400 leading-relaxed">{lesson.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Future Roadmap */}
+          {Array.isArray(project.roadmap) && project.roadmap.length > 0 && (
+            <FadeSection delay={0.5}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center">
+                    <Compass className="w-5 h-5 text-accent-web" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Future Roadmap</h2>
+                </div>
+                <div className="relative">
+                  {/* Vertical timeline rail */}
+                  <div className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-accent-web/40 via-white/10 to-transparent" aria-hidden="true" />
+                  <div className="space-y-5">
+                    {project.roadmap.map((item, i) => (
+                      <div key={item.phase} className="relative pl-14">
+                        {/* Phase node — number duplicates the visible 'Phase N' label, so hide from AT */}
+                        <div
+                          className="absolute left-0 top-1 w-10 h-10 rounded-xl bg-accent-web/10 border border-accent-web/25 flex items-center justify-center shrink-0"
+                          aria-hidden="true"
+                        >
+                          <span className="text-[10px] font-black text-accent-web">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                        </div>
+                        <div
+                          className={`p-5 rounded-2xl border transition-all duration-300 ${
+                            item.tone === 'active'
+                              ? 'bg-accent-web/[0.04] border-accent-web/20 hover:border-accent-web/35'
+                              : 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-2">
+                            <span className="text-[9px] font-black text-accent-web uppercase tracking-[0.16em]">
+                              {item.phase}
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold px-2 py-1 rounded-lg border ${
+                                item.tone === 'active'
+                                  ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                                  : 'bg-zinc-800/60 border-zinc-700/50 text-zinc-400'
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </div>
+                          <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                          <p className="text-sm text-zinc-400 leading-relaxed">{item.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </FadeSection>
+          )}
+
+          {/* Documentation */}
+          {Array.isArray(project.docs) && project.docs.length > 0 && (
+            <FadeSection delay={0.55}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-sky-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">Documentation</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {project.docs.map((doc) => (
+                    <a
+                      key={doc.href}
+                      href={doc.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-accent-web/25 transition-all duration-300"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-accent-web/10 border border-accent-web/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                        <BookOpen className="w-4 h-4 text-accent-web" aria-hidden="true" />
+                      </div>
+                      <span className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors">{doc.label}</span>
+                      <ArrowUpRight className="w-4 h-4 text-zinc-600 ml-auto group-hover:text-accent-web group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" aria-hidden="true" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </FadeSection>
+          )}
         </div>
       </div>
 

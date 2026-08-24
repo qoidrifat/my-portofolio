@@ -55,9 +55,20 @@ async function fetchProfile() {
     htmlUrl: data.html_url,
     location: data.location,
     createdAt: data.created_at,
-    avatarUrl: data.avatar_url,
   };
 }
+
+// ── Curated descriptions ─────────────────────────────────────────────────────
+// Some repos ship without a GitHub description field — provide a first-party
+// fallback so cards stay informative instead of falling back to a placeholder.
+const CURATED_DESCRIPTIONS = {
+  'superfood-ofd-scraper':
+    'Enterprise data acquisition platform for Indonesian online food delivery — four-tier scraping strategy, merchant portal integration, FastAPI + Celery + Svelte dashboard.',
+  'payrollpro':
+    'Modern HR, attendance & payroll management system for Indonesian companies — Laravel 12 + Vue 3 + Inertia.js, QR & mobile attendance, BPJS/PPh 21 tax engine, payslip PDFs, self-service portal.',
+  'explore-bali':
+    'PHP-native Bali travel & tour booking platform — 6 destinations with detail galleries, flight/hotel/bus/car search flows, tiket.com booking deep-links, and a 14-table MySQL schema. Zero framework, shared-hosting ready.',
+};
 
 // ── Fetch repos ─────────────────────────────────────────────────────────────
 async function fetchRepos() {
@@ -71,7 +82,10 @@ async function fetchRepos() {
     .map(repo => ({
       id: repo.id,
       name: repo.name,
-      description: repo.description || 'No description provided.',
+      description:
+        CURATED_DESCRIPTIONS[repo.name] ||
+        repo.description ||
+        'No description provided.',
       language: repo.language,
       stars: repo.stargazers_count,
       forks: repo.forks_count,

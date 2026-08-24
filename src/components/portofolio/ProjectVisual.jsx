@@ -19,15 +19,15 @@ import {
 } from 'lucide-react';
 
 const payrollWidgets = [
-  { label: 'Employees', value: '128', icon: Users },
-  { label: 'QR Attendance', value: 'Live', icon: QrCode },
+  { label: 'Employees', value: '8', icon: Users },
+  { label: 'Attendance', value: '760', icon: QrCode },
   { label: 'Payslips', value: 'PDF', icon: ReceiptText },
 ];
 
 const travelWidgets = [
-  { label: 'Destinations', value: 'Bali', icon: MapPinned },
-  { label: 'Bookings', value: 'Flow', icon: CalendarCheck },
-  { label: 'Invoices', value: 'HTML', icon: CreditCard },
+  { label: 'Destinations', value: '6', icon: MapPinned },
+  { label: 'Hotels', value: '10', icon: CalendarCheck },
+  { label: 'Flights', value: '4', icon: CreditCard },
 ];
 
 const cashflowWidgets = [
@@ -49,9 +49,15 @@ const aurexWidgets = [
 ];
 
 const superfoodWidgets = [
-  { label: 'Platforms', value: '3 Active', icon: Globe },
-  { label: 'Restaurants', value: '1,247', icon: LineChart },
-  { label: 'Menus', value: '8.3K', icon: BarChart3 },
+  { label: 'Platforms', value: '3', icon: Globe },
+  { label: 'Merchants', value: '128', icon: LineChart },
+  { label: 'Menu Items', value: '192', icon: BarChart3 },
+];
+
+const placeholderWidgets = [
+  { label: 'Status', value: 'In Dev', icon: Sparkles },
+  { label: 'Stack', value: 'TBD', icon: Zap },
+  { label: 'ETA', value: 'Soon', icon: CalendarCheck },
 ];
 
 function GeneratedThumbnail({ project }) {
@@ -60,11 +66,13 @@ function GeneratedThumbnail({ project }) {
   const isAgentStatus = project.visual === 'agent-status';
   const isAurex = project.visual === 'aurex';
   const isSuperfood = project.visual === 'superfood';
+  const isPlaceholder = Boolean(project.isPlaceholder);
   const widgets = isTravel ? travelWidgets
     : isCashflow ? cashflowWidgets
     : isAgentStatus ? agentStatusWidgets
     : isAurex ? aurexWidgets
     : isSuperfood ? superfoodWidgets
+    : isPlaceholder ? placeholderWidgets
     : payrollWidgets;
   const Icon = project.icon;
 

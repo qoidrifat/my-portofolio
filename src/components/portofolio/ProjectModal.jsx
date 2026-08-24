@@ -3,17 +3,25 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ExternalLink, Github, Layers, ListChecks, Target, Rocket,
-  ChevronLeft, ChevronRight, ArrowUpRight, BookOpen,
+  ChevronLeft, ChevronRight, ArrowUpRight, BookOpen, Network,
 } from 'lucide-react';
 import ProjectVisual from './ProjectVisual';
+import ArchitectureViewer from './ArchitectureViewer';
+import TechGroups from './TechGroups';
 
 // ── Tab definitions ─────────────────────────────────────────────────────────
-const TABS = [
+const BASE_TABS = [
   { id: 'overview',    label: 'Overview',    icon: Rocket },
+  { id: 'architecture', label: 'Architecture', icon: Network },
   { id: 'tech',        label: 'Tech Stack',   icon: Layers },
   { id: 'features',    label: 'Features',     icon: ListChecks },
   { id: 'challenges',  label: 'Challenges',   icon: Target },
 ];
+
+// Architecture tab only appears for projects that ship architecture data
+function getTabs(project) {
+  return BASE_TABS.filter((tab) => tab.id !== 'architecture' || Boolean(project?.architecture));
+}
 
 // ── Backdrop animation variants ──────────────────────────────────────────────
 const backdropVariants = {
@@ -42,19 +50,22 @@ const tabContentVariants = {
 
 // ── Gallery placeholder images ───────────────────────────────────────────────
 function getGalleryImages(project) {
+  // Projects that ship real screenshot assets use them directly — avoids
+  // duplicating the card cover as an 'Overview' entry alongside the gallery.
+  if (Array.isArray(project.screenshots) && project.screenshots.length > 0) {
+    return project.screenshots.map((s) => ({ src: s.src, label: s.label, portrait: s.portrait }));
+  }
+
   // Generate gallery images from the project's imageUrl and related screenshots
   const images = [];
   if (project.imageUrl) images.push({ src: project.imageUrl, label: 'Overview' });
 
-  // Add generated thumbnails for projects without real screenshots
+  // Add generated thumbnails for projects without real screenshots.
+  // NOTE: PayrollPro and Explore Bali now ship real screenshots
+  // (short-circuited above), so their generated-thumbnail branches were
+  // intentionally removed — card covers are served from /projects/*/cover.webp.
   if (!project.imageUrl || project.imageUrl.startsWith('/project')) {
-    if (project.slug === 'payrollpro') {
-      images.push({ src: null, label: 'Dashboard', visual: 'payroll' });
-      images.push({ src: null, label: 'Attendance', visual: 'payroll' });
-    } else if (project.slug === 'explore-bali') {
-      images.push({ src: null, label: 'Destinations', visual: 'travel-booking' });
-      images.push({ src: null, label: 'Booking Flow', visual: 'travel-booking' });
-    } else if (project.slug === 'cashflow') {
+    if (project.slug === 'cashflow') {
       images.push({ src: null, label: 'Finance Dashboard', visual: 'cashflow' });
       images.push({ src: null, label: 'Receipt Scan', visual: 'cashflow' });
     }
@@ -66,6 +77,17 @@ function getGalleryImages(project) {
 const ProjectModal = ({ project, onClose }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [galleryIndex, setGalleryIndex] = useState(0);
+
+  // Tabs are derived per project — Architecture is conditionally included
+  const tabs = useMemo(() => getTabs(project), [project]);
+
+  // The modal can stay mounted while `selectedProject` switches (quick view,
+  // CommandPalette open-project) — reset tab + gallery state for the new
+  // project so a stale 'architecture' tab never leaves a blank panel.
+  useEffect(() => {
+    setActiveTab('overview');
+    setGalleryIndex(0);
+  }, [project]);
 
   // ── Refs ──
   const modalRef = useRef(null);
@@ -158,7 +180,18 @@ const ProjectModal = ({ project, onClose }) => {
           </div>
         );
 
+      case 'architecture':
+        return (
+          <div>
+            <ArchitectureViewer architecture={project.architecture} compact />
+          </div>
+        );
+
       case 'tech':
+        // Grouped tech — rendered as category chips when techGroups exist
+        if (Array.isArray(project.techGroups) && project.techGroups.length > 0) {
+          return <TechGroups groups={project.techGroups} compact />;
+        }
         return (
           <div className="flex flex-wrap gap-2">
             {project.technologies.map(tech => (
@@ -264,7 +297,7 @@ const ProjectModal = ({ project, onClose }) => {
                     imageUrl: galleryImages[galleryIndex]?.src || project.imageUrl,
                     visual: galleryImages[galleryIndex]?.visual || project.visual,
                   }}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full ${galleryImages[galleryIndex]?.portrait ? 'object-contain' : 'object-cover'}`}
                 />
               </motion.div>
             </AnimatePresence>
@@ -330,7 +363,7 @@ const ProjectModal = ({ project, onClose }) => {
 
             {/* Tabs */}
             <div className="flex border-b border-white/[0.06] px-6 overflow-x-auto scrollbar-none shrink-0">
-              {TABS.map((tab) => {
+              {tabs.map((tab) => {
                 // Skip features tab if no features data
                 if (tab.id === 'features' && (!Array.isArray(project.features) || project.features.length === 0)) return null;
                 const isActive = activeTab === tab.id;
