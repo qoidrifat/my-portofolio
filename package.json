@@ -16,7 +16,7 @@
     "preview": "vite preview"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx}": ["eslint --fix", "prettier --write --ignore-unknown 2>/dev/null || true"]
+    "src/**/*.{js,jsx}": ["eslint --fix"]
   },
   "dependencies": {
     "@tanstack/react-query": "^5.84.1",

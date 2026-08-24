@@ -1,3 +1,4 @@
+// @ts-check
 import { useQuery } from '@tanstack/react-query';
 
 const GITHUB_USERNAME = 'qoidrifat';

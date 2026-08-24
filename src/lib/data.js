@@ -1,3 +1,4 @@
+// @ts-check
 // =============================================================================
 // src/lib/data.js — Single source of truth for portfolio content
 // =============================================================================
@@ -6,6 +7,51 @@
 // Icons are imported as component references (not JSX) — consumers render
 // them via <item.icon className="..." /> for consistency with existing
 // patterns in TechStackSection.jsx and ProjectSection.jsx.
+//
+// Type safety: // @ts-check + JSDoc typedefs below validate SSoT. jsconfig
+// has checkJs:false globally; this file opts in incrementally.
+
+/**
+ * @typedef {import('react').ComponentType<any>} IconComponent
+ * @typedef {{ value: string, label: string }} Metric
+ * @typedef {{ id: string, label: string, sub: string, icon: string }} ArchNode
+ * @typedef {{ id: string, label: string, nodes: ArchNode[] }} ArchLane
+ * @typedef {{ summary: string, lanes: ArchLane[], foot: ArchNode[] }} Architecture
+ * @typedef {Object} Project
+ * @property {number} id
+ * @property {string} slug
+ * @property {string} title
+ * @property {string} category
+ * @property {string} [filterCategory]
+ * @property {string} [subtitle]
+ * @property {string} accent
+ * @property {string} year
+ * @property {string} role
+ * @property {string} [status]
+ * @property {string} [description]
+ * @property {string[]} [impact]
+ * @property {string|null} [imageUrl]
+ * @property {string|null} [visual]
+ * @property {string[]} [technologies]
+ * @property {Array<{label:string,items:string[]}>} [techGroups]
+ * @property {string[]} [features]
+ * @property {Metric[]} [metrics]
+ * @property {Architecture} [architecture]
+ * @property {Array<{tier:string,name:string,reliability:string,legal:string,status:string,detail:string,recommended?:boolean}>} [tiers]
+ * @property {Array<{name:string,public:string,publicStatus:string,merchant:string,lane:string}>} [platforms]
+ * @property {Array<{src:string,label:string,portrait?:boolean}>} [screenshots]
+ * @property {Array<{label:string,href:string}>} [docs]
+ * @property {Array<{title:string,detail:string}>} [lessons]
+ * @property {Array<{phase:string,title:string,status:string,tone:string,detail:string}>} [roadmap]
+ * @property {string} [longDescription]
+ * @property {string} [challenges]
+ * @property {string} [githubUrl]
+ * @property {string|null} [demoUrl]
+ * @property {boolean} [featured]
+ * @property {IconComponent} [icon]
+ * @property {string} [color]
+ * @property {boolean} [isPlaceholder]
+ */
 
 import { Github, Linkedin, Instagram, Mail, MessageCircle, Copy, MapPin, Phone } from 'lucide-react';
 import { Brain, Building2, Globe, MapPinned, Wallet, Activity, Sparkles } from 'lucide-react';
@@ -223,6 +269,7 @@ export const techCategories = [
 //   6 → Jupyter Book   — Academic foundation
 // -----------------------------------------------------------------------------
 
+/** @type {Project[]} */
 export const projects = [
   {
     id: 1,

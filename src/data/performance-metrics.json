@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-24T19:14:07.020Z",
+  "generatedAt": "2026-08-24T19:55:44.751Z",
   "buildTime": "< 10s",
   "bundles": [
     {
-      "name": "index-kNgbCjKt.js",
+      "name": "index-D6KGtDaL.js",
       "size": 396858,
       "sizeLabel": "387.6 KB",
       "type": "js"
@@ -33,19 +33,19 @@
       "type": "js"
     },
     {
-      "name": "GitHubSection-Cbb-RJDm.js",
+      "name": "GitHubSection-D5UBOhcf.js",
       "size": 35787,
       "sizeLabel": "34.9 KB",
       "type": "js"
     },
     {
-      "name": "ProjectSection-Cd-8gPD6.js",
+      "name": "ProjectSection-Bhl_sr43.js",
       "size": 26950,
       "sizeLabel": "26.3 KB",
       "type": "js"
     },
     {
-      "name": "PerformanceSection-Dz_Sl2UZ.js",
+      "name": "PerformanceSection-peTtQMLV.js",
       "size": 9599,
       "sizeLabel": "9.4 KB",
       "type": "js"
@@ -57,25 +57,25 @@
       "type": "js"
     },
     {
-      "name": "ContactSection-B1g4-mwP.js",
+      "name": "ContactSection-BSlwpPhz.js",
       "size": 8674,
       "sizeLabel": "8.5 KB",
       "type": "js"
     },
     {
-      "name": "CareerTimelineSection-BREmp24T.js",
+      "name": "CareerTimelineSection-DoQEeql9.js",
       "size": 8094,
       "sizeLabel": "7.9 KB",
       "type": "js"
     },
     {
-      "name": "TechStackSection-BJCjoUn1.js",
+      "name": "TechStackSection-Y4_ufy2c.js",
       "size": 8088,
       "sizeLabel": "7.9 KB",
       "type": "js"
     },
     {
-      "name": "AboutSection-BF2ce6J_.js",
+      "name": "AboutSection-DH4uTVHn.js",
       "size": 6955,
       "sizeLabel": "6.8 KB",
       "type": "js"
@@ -90,7 +90,7 @@
     "totalPageSizeLabel": "829.2 KB",
     "totalBundles": 13,
     "totalSourceFiles": 52,
-    "totalLinesOfCode": 10962,
+    "totalLinesOfCode": 11010,
     "jsxComponents": 43
   },
   "scores": {

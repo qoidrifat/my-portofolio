@@ -26,3 +26,17 @@
 - **Status:** Live (Gradio on Hugging Face Spaces)
 
 No fake URLs are claimed. Staging is documented as blocked pending infrastructure, not fabricated.
+
+## Deployment Readiness Checklist
+
+| Area | Portfolio | PayrollPro | SuperFood | FER |
+|------|-----------|------------|-----------|-----|
+| Application | READY (Vite build) | READY (Laravel 12) | READY (FastAPI+ Svelte) | READY |
+| Database | N/A (static) | BLOCKED (MySQL/PG + Redis, no secrets) | BLOCKED (PG16+Redis+S3) | N/A |
+| Storage | READY (public/ + CDN) | BLOCKED (S3 for payslips) | BLOCKED (S3 raw archive) | READY (HF Spaces) |
+| Secrets | N/A (no VITE secrets) | BLOCKED (APP_KEY, DB creds) | BLOCKED (Fernet vault) | N/A |
+| Migrations | N/A | READY (Alembic/Migrate files) | READY (Alembic) | N/A |
+| Health check | N/A (static) | PARTIALLY (Pulse, /health via status page) | PARTIALLY (Prometheus /metrics) | READY |
+| Monitoring | N/A | READY (Pulse+Sentry) in repo | READY (Prometheus+Grafana) in repo | N/A |
+| Rollback | READY (Vercel rollback) | READY (git + migrate rollback) | READY (git + Alembic downgrade) | N/A |
+| Verdict | **READY** | **BLOCKED — infra/secrets** | **BLOCKED — infra/secrets** | **READY** |
