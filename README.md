@@ -2,6 +2,8 @@
 
 Personal portfolio website showcasing projects, skills, and experience in AI & web development. Professional-grade showcase with performance-first architecture, design system, and verifiable engineering practices.
 
+[![CI](https://github.com/qoidrifat/my-portofolio/actions/workflows/ci.yml/badge.svg)](https://github.com/qoidrifat/my-portofolio/actions/workflows/ci.yml)
+
 Live: **https://qoidrifat.vercel.app** · GitHub: **https://github.com/qoidrifat**
 
 ## Why This Portfolio Exists
