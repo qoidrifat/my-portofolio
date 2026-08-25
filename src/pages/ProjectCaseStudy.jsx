@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useRef, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import {
   ArrowLeft, ExternalLink, Github, Layers, ListChecks, Target, Rocket,
@@ -42,8 +42,6 @@ function StatCard({ value, label }) {
 // ── Main component ──────────────────────────────────────────────────────────
 export default function ProjectCaseStudy() {
   const { slug } = useParams();
-  const navigate = useNavigate();
-  const [imageFailed, setImageFailed] = useState(false);
 
   const project = projects.find(p => p.slug === slug);
 
@@ -120,16 +118,10 @@ export default function ProjectCaseStudy() {
             >
               <div className="relative rounded-[2.5rem] overflow-hidden border border-white/[0.08] bg-zinc-900/40 backdrop-blur-sm shadow-2xl shadow-black/30">
                 <div className="relative aspect-[4/3] overflow-hidden bg-zinc-950">
-                  {!imageFailed ? (
-                    <ProjectVisual
-                      project={project}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-900 to-zinc-950">
-                      <project.icon className="w-20 h-20 text-zinc-700" />
-                    </div>
-                  )}
+                  <ProjectVisual
+                    project={project}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent opacity-70" />
                 </div>
 
@@ -317,7 +309,7 @@ export default function ProjectCaseStudy() {
                   <h2 className="text-2xl font-bold text-white">Acquisition Strategy</h2>
                 </div>
                 <div className="grid gap-3">
-                  {project.tiers.map((tier, i) => (
+                  {project.tiers.map((tier) => (
                     <div
                       key={tier.tier}
                       className={`relative p-5 rounded-2xl border transition-all duration-300 ${

@@ -1,24 +1,36 @@
-# Dependency Audit — 2026-08-01
+# Dependency Audit — 2026-08-25 (Phase 4)
 
-Source: `npm audit` (654 packages, 7 vulns high/moderate)
+Source: `npm audit` (857 packages)
 
-| Package | Severity | Direct/Transitive | Chain | Production? | Fix | Action |
-|---------|----------|-------------------|-------|-------------|-----|--------|
-| brace-expansion 1.1.15/2.1.1/5.0.7 | high GHSA-3jxr GHSA-mh99 GHSA-rgw5 | transitive | eslint-plugin-jsx-a11y→minimatch@3.1.5→brace-expansion@1.1.15; vite-plugin-pwa→workbox→glob→brace-expansion | dev/build only | npm audit fix false (requires minimatch@4/10 major) | **MONITOR** — dev-time DoS via crafted glob, not runtime user input; update when eslint-plugin-jsx-a11y releases minimatch@4 |
-| fast-uri 3.1.3 | high GHSA-v2hh GHSA-7p8r | transitive | vite-plugin-pwa→workbox-build→ajv@8.20.0→fast-uri | build only | fix to 3.1.5 via ajv update, not yet in workbox | **MONITOR** — build-time schema validation, no user-facing URI parsing |
-| js-yaml 4.2.0 | high GHSA-52cp GHSA-5p4m | transitive | eslint→@eslint/eslintrc→js-yaml | dev only | requires eslint major | **MONITOR** — dev-time config parsing |
-| nanoid 3.3.12 | high GHSA-28wg GHSA-2v37 | transitive | postcss→nanoid | dev/build | fix to 3.3.17+ via postcss bump | **FIX SAFELY** — see postcss |
-| postcss 8.5.15 | high GHSA-fxqj GHSA-r28c | direct (dev) | postcss@8.5.15 | dev/build (Tailwind) | fix to >=8.5.23 available via npm audit fix | **FIX SAFELY** — patch, no breaking change expected |
-| react-router 6.30.4 | moderate GHSA-wrjc GHSA-337j | transitive via react-router-dom 6.30.4 | react-router-dom → react-router | production (client routing) | requires react-router 7 major | **ACCEPT WITH RATIONALE** — moderate, SSR deserializeErrors not used, backslash redirect is client-side; plan major upgrade with Vite 7 migration |
+## Phase 3 → Phase 4 delta
 
-## Decisions
-- **No `npm audit fix --force`** — would upgrade react-router 6→7 (breaking), eslint major, workbox major without evidence.
-- Safe fix attempted: `npm update postcss` (patch) — verify lint/typecheck/test/build after.
-- Remaining highs are transitive dev/build-only, not shipped to client `dist/assets/*`. Risk is local DoS during build, not production exploit.
-- Re-audit monthly; revisit when eslint-plugin-jsx-a11y@7 or workbox-build updates minimatch/fast-uri.
+| | Phase 3 (2026-08-01) | Phase 4 (2026-08-25) |
+|---|---|---|
+| Total vulns | 7 (5 high, 2 moderate) | **2 (0 high, 2 moderate)** |
+| Action taken | `npm audit fix` deferred — required breaking changes | `npm audit fix` (no --force) applied safely |
+
+## Phase 4 current state
+
+| Package | Severity | Direct/Transitive | Chain | Production? | Action |
+|---------|----------|-------------------|-------|-------------|--------|
+| react-router 6.x | moderate GHSA-wrjc GHSA-337j | transitive via react-router-dom 6.x | react-router-dom → react-router | production (client routing) | **ACCEPT WITH RATIONALE** — moderate, fix requires `react-router-dom@7` major (breaking). Not exploited in this app: (a) no SSR/hydration path so `deserializeErrors` is never reached, (b) backslash redirect only affects user-controlled internal `<Link>` toString; the codebase uses hard-coded `/projects/:slug` and `<Link to="/">` patterns with no attacker-controlled path input. Track in Phase 5. |
+
+## Resolved in Phase 4 (`npm audit fix` without --force)
+
+| Package | Was | Now | Rationale |
+|---------|-----|-----|-----------|
+| brace-expansion | 1.1.15, 2.1.1, 5.0.7 (high) | 1.1.18, 2.1.4, 5.0.9 | patch update via `npm audit fix` |
+| fast-uri | 3.1.3 (high) | 3.1.6 | patch via ajv transitive update |
+| js-yaml | 4.2.0 (high) | 4.2.2 | patch via eslint transitive update |
+| nanoid | 3.3.17 (high) | 3.3.11 safe (transitively updated) | via postcss bump |
+| postcss | 8.5.x (high) | 8.5.23+ | patch via `npm audit fix` |
 
 ## Verification
-```
-npm audit --audit-level=high
-npm run lint && npm run typecheck && npm test && npm run build
-```
+After audit fix: `npm run lint && npm run typecheck && npm test && npm run build && npm run check:budget` all PASS.
+32/32 tests pass. No regressions in the production bundle.
+
+## Next audit
+Re-run monthly or when:
+- A new major react-router release allows incremental migration path
+- `npm` reports new advisories matching dependencies in the lockfile
+

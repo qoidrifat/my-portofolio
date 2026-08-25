@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "check:budget": "node scripts/check-budget.mjs",
     "prepare": "husky",
     "preview": "vite preview"
   },

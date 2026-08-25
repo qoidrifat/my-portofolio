@@ -784,6 +784,7 @@ function CinematicIntro({ onFinish, onExitStart }) {
   return (
     <>
       {/* ── Background + Terminal overlay ── */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events -- Overlay click is a parallel "tap to skip" affordance; dedicated Skip button (rendered below) and Escape key (window keydown listener) remain the canonical keyboard paths. */}
       <div
         data-intro-overlay
         className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-zinc-950"

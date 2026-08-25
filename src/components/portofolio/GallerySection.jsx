@@ -256,6 +256,7 @@ export default function GallerySection() {
               initial={{ opacity: 0, rotate: -90 }}
               animate={{ opacity: 1, rotate: 0 }}
               exit={{ opacity: 0, rotate: 90 }}
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus close button when lightbox opens so keyboard users can dismiss without hunting for the X (lightbox is a transient modal surface)
               autoFocus
               className="absolute top-8 right-8 z-20 p-4 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
               onClick={closeLightbox}

@@ -104,7 +104,7 @@ function BundleBar({ bundle, maxSize, index }) {
 export default function PerformanceSection() {
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, margin: '-100px' });
-  const { summary, scores, bundles } = metrics;
+  const { summary, scoresEstimated: scores, bundles } = metrics;
 
   // Build a simple page load breakdown
   const loadBreakdown = [

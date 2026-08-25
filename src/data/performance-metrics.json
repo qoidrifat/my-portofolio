@@ -1,99 +1,93 @@
 {
-  "generatedAt": "2026-08-24T19:55:44.751Z",
+  "generatedAt": "2026-08-25T03:45:12.594Z",
   "buildTime": "< 10s",
   "bundles": [
     {
-      "name": "index-D6KGtDaL.js",
-      "size": 396858,
-      "sizeLabel": "387.6 KB",
+      "name": "index.js",
+      "size": 396534,
+      "sizeLabel": "387.2 KB",
       "type": "js"
     },
     {
-      "name": "vendor-framer-C_bsunAu.js",
+      "name": "vendor-framer.js",
       "size": 130934,
       "sizeLabel": "127.9 KB",
       "type": "js"
     },
     {
-      "name": "index-CzRC-WIH.css",
-      "size": 85352,
-      "sizeLabel": "83.4 KB",
+      "name": "index.css",
+      "size": 85265,
+      "sizeLabel": "83.3 KB",
       "type": "css"
     },
     {
-      "name": "vendor-icons-B1mw7OUQ.js",
-      "size": 75099,
-      "sizeLabel": "73.3 KB",
+      "name": "vendor-icons.js",
+      "size": 74267,
+      "sizeLabel": "72.5 KB",
       "type": "js"
     },
     {
-      "name": "vendor-query-E58upgZO.js",
+      "name": "vendor-query.js",
       "size": 38639,
       "sizeLabel": "37.7 KB",
       "type": "js"
     },
     {
-      "name": "GitHubSection-D5UBOhcf.js",
+      "name": "GitHubSection.js",
       "size": 35787,
       "sizeLabel": "34.9 KB",
       "type": "js"
     },
     {
-      "name": "ProjectSection-Bhl_sr43.js",
-      "size": 26950,
+      "name": "ProjectSection.js",
+      "size": 26957,
       "sizeLabel": "26.3 KB",
       "type": "js"
     },
     {
-      "name": "PerformanceSection-peTtQMLV.js",
-      "size": 9599,
-      "sizeLabel": "9.4 KB",
-      "type": "js"
-    },
-    {
-      "name": "GallerySection-DeuirO3g.js",
+      "name": "GallerySection.js",
       "size": 8709,
       "sizeLabel": "8.5 KB",
       "type": "js"
     },
     {
-      "name": "ContactSection-BSlwpPhz.js",
+      "name": "ContactSection.js",
       "size": 8674,
       "sizeLabel": "8.5 KB",
       "type": "js"
     },
     {
-      "name": "CareerTimelineSection-DoQEeql9.js",
+      "name": "CareerTimelineSection.js",
       "size": 8094,
       "sizeLabel": "7.9 KB",
       "type": "js"
     },
     {
-      "name": "TechStackSection-Y4_ufy2c.js",
+      "name": "TechStackSection.js",
       "size": 8088,
       "sizeLabel": "7.9 KB",
       "type": "js"
     },
     {
-      "name": "AboutSection-DH4uTVHn.js",
+      "name": "AboutSection.js",
       "size": 6955,
       "sizeLabel": "6.8 KB",
       "type": "js"
     }
   ],
   "summary": {
-    "totalJsSize": 754386,
-    "totalJsSizeLabel": "736.7 KB",
-    "totalCssSize": 85352,
-    "totalCssSizeLabel": "83.4 KB",
-    "totalPageSize": 849138,
-    "totalPageSizeLabel": "829.2 KB",
-    "totalBundles": 13,
+    "totalJsSize": 743638,
+    "totalJsSizeLabel": "726.2 KB",
+    "totalCssSize": 85265,
+    "totalCssSizeLabel": "83.3 KB",
+    "totalPageSize": 838303,
+    "totalPageSizeLabel": "818.7 KB",
+    "totalBundles": 12,
     "totalSourceFiles": 52,
-    "totalLinesOfCode": 11010,
+    "totalLinesOfCode": 11034,
     "jsxComponents": 43
   },
-  "scores": {
+  "scoresEstimated": {
     "performance": 78,
     "accessibility": 96,
     "bestPractices": 92,

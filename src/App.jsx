@@ -89,7 +89,7 @@ function App() {
   }, []);
 
   const handleIntroError = useCallback(
-    (error, errorInfo) => {
+    (_error, _errorInfo) => {
       if (introDone) return;
       setAppRevealing(true);
       setIntroDone(true);

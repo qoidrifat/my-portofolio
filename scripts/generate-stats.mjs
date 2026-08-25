@@ -73,10 +73,16 @@ function generate() {
 
       if (ext === 'js') {
         totalJsSize += size;
-        bundles.push({ name: file, size, sizeLabel: fmtBytes(size), type: 'js' });
+        // Strip Vite's content-hash suffix so the committed performance-metrics.json
+        // doesn't churn on every build. Vite hashes look like "-AbCdEf12" or
+        // "B-iwAfPf" (8 base64url chars after a dash, before the .ext).
+        // Performance governance cares about sizes, not hashes.
+        const stableName = file.replace(/-[A-Za-z0-9_-]{8}(\.[^.]+)$/, '$1');
+        bundles.push({ name: stableName, size, sizeLabel: fmtBytes(size), type: 'js' });
       } else if (ext === 'css') {
         totalCssSize += size;
-        bundles.push({ name: file, size, sizeLabel: fmtBytes(size), type: 'css' });
+        const stableName = file.replace(/-[A-Za-z0-9_-]{8}(\.[^.]+)$/, '$1');
+        bundles.push({ name: stableName, size, sizeLabel: fmtBytes(size), type: 'css' });
       }
     }
   }
@@ -104,9 +110,12 @@ function generate() {
 
   const totalPageSize = totalJsSize + totalCssSize + totalHtmlSize;
 
-  // Estimate Lighthouse scores based on bundle optimization
-  // (These are estimated based on project structure, not actual Lighthouse runs)
-  const scores = {
+  // Estimate Lighthouse scores based on bundle optimization.
+  // These are ESTIMATES, not actual Lighthouse runs. Real measurement requires
+  // @lhci/cli in CI against a preview server. Until then, this is heuristic.
+  // Field name `scoresEstimated` makes the limitation explicit in the artifact
+  // and the consuming PerformanceSection.jsx UI label.
+  const scoresEstimated = {
     performance: totalJsSize < 300000 ? 92 : totalJsSize < 500000 ? 85 : 78,
     accessibility: 96,
     bestPractices: 92,
@@ -129,7 +138,7 @@ function generate() {
       totalLinesOfCode: totalLines,
       jsxComponents: jsxCount,
     },
-    scores,
+    scoresEstimated,
   };
 
   // Write to src/data so the component can import it

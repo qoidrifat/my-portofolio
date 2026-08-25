@@ -42,7 +42,7 @@ const INITIAL_OUTPUT = [
   { text: 'Type `help` to see available commands.', type: 'system' },
 ];
 
-function generateOutput(command, args) {
+function generateOutput(command, _args) {
   const cmd = command.toLowerCase().trim();
 
   switch (cmd) {
@@ -212,13 +212,15 @@ export default function TerminalEasterEgg() {
 
   return (
     <div className="fixed inset-0 z-[9997] flex items-end justify-center p-4 pb-20 md:p-8 pointer-events-none">
-      {/* Backdrop */}
+      {/* Backdrop — click closes; Escape key is handled by TerminalEasterEgg's own window keydown listener (line 192) and the close button in the traffic-light row, so keyboard users have multiple non-click paths. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Dismiss region only; ESC + traffic-light close button remain accessible. */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto"
         onClick={() => setOpen(false)}
       />
 
       {/* Terminal window — floating sheet */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Inner click only stops propagation so clicks inside terminal don't dismiss it; no interactive semantics intended. */}
       <div
         className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl pointer-events-auto"
         style={{

@@ -10,7 +10,6 @@ const ProjectSection = lazy(() => import('@/components/portofolio/ProjectSection
 const GallerySection = lazy(() => import('@/components/portofolio/GallerySection'));
 const ContactSection = lazy(() => import('@/components/portofolio/ContactSection'));
 const GitHubSection = lazy(() => import('@/components/portofolio/GitHubSection'));
-const PerformanceSection = lazy(() => import('@/components/portofolio/PerformanceSection'));
 
 // Stable placeholder shown while waiting for code or viewport proximity.
 // minHeight approximates the mounted section's real height so that anchor

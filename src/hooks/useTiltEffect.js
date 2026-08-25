@@ -1,4 +1,21 @@
+// @ts-check
 import { useRef, useCallback } from 'react';
+
+/**
+ * @typedef {Object} TiltEffectOptions
+ * @property {number} [maxTilt=6] - max rotation in degrees
+ * @property {number} [scale=1.01] - hover scale multiplier
+ * @property {number} [perspective=800] - CSS perspective value
+ * @property {number} [transitionMs=300] - transition duration for settling
+ * @property {boolean} [disabled=false] - disable the effect
+ */
+
+/**
+ * @typedef {Object} TiltEffectResult
+ * @property {import('react').RefObject<HTMLElement | null>} ref
+ * @property {(e: import('react').MouseEvent<HTMLElement>) => void} handleMouseMove
+ * @property {() => void} handleMouseLeave
+ */
 
 /**
  * useTiltEffect — adds a subtle 3D perspective tilt on mouse hover.
@@ -6,11 +23,8 @@ import { useRef, useCallback } from 'react';
  * Attach the returned { ref, handleMouseMove, handleMouseLeave } to your card
  * element and its onMouseMove / onMouseLeave handlers.
  *
- * @param {object} options
- * @param {number} options.maxTilt     — max rotation in degrees (default 6)
- * @param {number} options.scale       — hover scale multiplier (default 1.01)
- * @param {number} options.perspective — CSS perspective value (default 800)
- * @param {number} options.transitionMs — transition duration for settling (default 300)
+ * @param {TiltEffectOptions} [options]
+ * @returns {TiltEffectResult}
  */
 export function useTiltEffect({
   maxTilt = 6,
@@ -19,10 +33,10 @@ export function useTiltEffect({
   transitionMs = 300,
   disabled = false,
 } = {}) {
-  const ref = useRef(null);
-  const cleanupRef = useRef(null);
+  const ref = useRef(/** @type {HTMLElement | null} */ (null));
+  const cleanupRef = useRef(/** @type {ReturnType<typeof setTimeout> | null} */ (null));
 
-  const handleMouseMove = useCallback((e) => {
+  const handleMouseMove = useCallback((/** @type {import('react').MouseEvent<HTMLElement>} */ e) => {
     if (disabled || !ref.current) return;
 
     const rect = ref.current.getBoundingClientRect();
@@ -56,7 +70,7 @@ export function useTiltEffect({
     ].join(' ');
 
     // Remove transition after settle to preserve hover performance
-    if (cleanupRef.current) clearTimeout(cleanupRef.current);
+    if (cleanupRef.current !== null) clearTimeout(cleanupRef.current);
     cleanupRef.current = setTimeout(() => {
       if (ref.current) {
         ref.current.style.transition = '';

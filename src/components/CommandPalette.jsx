@@ -164,7 +164,8 @@ export default function CommandPalette() {
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-[9998]"
           >
-            {/* Backdrop */}
+            {/* Backdrop — click closes; ESC key is handled separately in the parent's useEffect (lines 100-106) so keyboard users have a real close affordance. */}
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Backdrop is decorative dismiss region; ESC and Cmd-K toggles remain available keyboard paths. */}
             <div
               className="absolute inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => setOpen(false)}
@@ -196,6 +197,7 @@ export default function CommandPalette() {
                       id="cmd-palette-search"
                       name="cmd-palette-search"
                       autoComplete="off"
+                      // eslint-disable-next-line jsx-a11y/no-autofocus -- intentional: focus search input on dialog open (ARIA dialog pattern; user just invoked palette via Cmd-K)
                       autoFocus
                       placeholder="Search pages, projects, actions..."
                       className="flex h-14 w-full rounded-md bg-transparent py-3 text-base text-white outline-none placeholder:text-zinc-500"

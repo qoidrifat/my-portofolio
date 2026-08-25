@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/performance-budget.json",
+  "description": "Performance budget derived from the Phase 4 verified build (2026-08-25). Enforced in CI to prevent regression. The 'baseline' block is the actual measured size; the 'budget' block is baseline + controlled safety margin. Raise the budget only after measured optimization, never to mask a regression.",
+  "baseline": {
+    "capturedAt": "2026-08-25T03:37:38.027Z",
+    "commit": "phase-4-baseline",
+    "totalJsSize": 743610,
+    "totalCssSize": 85265,
+    "totalPageSize": 838275,
+    "largestJsChunk": 396513,
+    "largestCssChunk": 85265,
+    "totalBundles": 12
+  },
+  "budget": [
+    {
+      "resource": "total-js",
+      "budget": 790000,
+      "unit": "bytes",
+      "description": "Total JS shipped to the client. Baseline 743 KB + 6% margin (~46 KB)."
+    },
+    {
+      "resource": "total-css",
+      "budget": 95000,
+      "unit": "bytes",
+      "description": "Total CSS shipped. Baseline 85 KB + 12% margin (~10 KB)."
+    },
+    {
+      "resource": "largest-js-chunk",
+      "budget": 420000,
+      "unit": "bytes",
+      "description": "Largest single JS chunk. Baseline 397 KB + 6% margin. The entry chunk (index.js) is the primary candidate for code-splitting regressions."
+    },
+    {
+      "resource": "largest-css-chunk",
+      "budget": 100000,
+      "unit": "bytes",
+      "description": "Largest CSS chunk. Baseline 85 KB + 17% margin. Single CSS file is acceptable for the design system scope."
+    },
+    {
+      "resource": "bundle-count",
+      "budget": 18,
+      "unit": "count",
+      "description": "Maximum number of distinct bundles. Baseline 12 + 50% headroom. More than 18 suggests accidental over-splitting (round-trip cost > savings)."
+    }
+  ]
+}

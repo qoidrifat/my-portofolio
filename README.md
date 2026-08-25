@@ -18,8 +18,8 @@ Demonstrates ability to build maintainable, performant, accessible web experienc
 | **UI** | Radix UI (Dialog, Slot), cmdk |
 | **PWA** | vite-plugin-pwa (lean precache + runtime caching) |
 | **Fonts** | Inter 300-900, JetBrains Mono (self-hosted woff2) |
-| **Tooling** | ESLint + jsx-a11y, jsconfig, Vitest, Husky + lint-staged |
-| **CI** | GitHub Actions `ci.yml` (lint, typecheck, test, build) |
+| **Tooling** | ESLint + jsx-a11y, jsconfig (4 strict modules), Vitest 32 tests, Husky + lint-staged |
+| **CI** | GitHub Actions `ci.yml` (lint, typecheck, test, build, check:budget) |
 
 ## Architecture
 - **Code splitting:** `Home.jsx` lazy + `LazySection` IntersectionObserver, `manualChunks` vendor-query/framer/icons
@@ -83,7 +83,7 @@ docs/adr/                   # Architecture Decision Records
 ```
 
 ## Testing
-`Vitest 3` + `jsdom` + `@testing-library/react` — 15 tests covering smoke, ProjectVisual, TechGroups, ArchitectureViewer, filtering, tech invariants, data integrity.
+`Vitest 3` + `jsdom` + `@testing-library/react` — 32 tests across smoke, portfolio, and integration. Covers rendering, case study routing, theme cycling/validation, performance-metrics shape, ProjectVisual fallback paths, data invariants, featured-project cardinality. Run: `npm test`.
 
 ## Deployment
 
@@ -99,7 +99,9 @@ SPA fallback via `vite.config.js` `navigateFallback: '/'`.
 ## Performance & Accessibility
 - Lazy + Suspense, `SectionFallback minHeight` prevents CLS
 - Reduced-motion respected globally
-- Lighthouse metrics in `src/data/performance-metrics.json`
+- **Performance budget enforced in CI**: `performance-budget.json` defines limits per resource (total JS, total CSS, largest JS/CSS chunk, bundle count); `npm run check:budget` fails CI on regression. Baseline captured 2026-08-25, derived from the verified build.
+- Bundle metrics in `src/data/performance-metrics.json` (consumed by `PerformanceSection`). `scores` is intentionally named `scoresEstimated` — real Lighthouse CI is deferred until a measured baseline exists
+- a11y: jsx-a11y lint at warning level, skip-link, `useReducedMotion`, ARIA dialog patterns, focus management
 
 ## Roadmap
 See `CHANGELOG.md` and per-project `roadmap` in `src/lib/data.js`.

@@ -35,6 +35,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
     >
       {project.isPlaceholder ? (
         /* ── Premium Coming Soon Placeholder ── */
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Tilt effect is a pointer-tracking visual decoration, not an interactive control. The card itself is not a button; keyboard navigation reaches its child links/buttons normally.
         <div
           ref={tiltRef}
           onMouseMove={handleMouseMove}
@@ -114,6 +115,7 @@ const ProjectCard = React.forwardRef(({ project, index, onQuickView }, ref) => {
           </div>
         </div>
       ) : (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Tilt effect is a pointer-tracking visual decoration, not an interactive control. The card itself is not a button; keyboard navigation reaches its child links/buttons normally.
       <div
         ref={tiltRef}
         onMouseMove={handleMouseMove}
