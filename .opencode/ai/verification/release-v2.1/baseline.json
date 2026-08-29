@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-08-29T12:00:00Z",
+  "phase": "0-baseline",
+  "opencodeVersion": "1.18.25",
+  "smartRouterVersion": "2.1.0",
+  "gitHead": "ce47b9d6eb24c0d127f43ef1d6a1f998e72a7bff",
+  "workingTree": "3 pre-existing modified files (eslint.config.js, src/data/performance-metrics.json, vite.config.js) + untracked .opencode/, reports, tests; no unexpected modifications",
+  "tests": "144/144 PASS (post-chaos; baseline of this task was 138/138)",
+  "lint": "exit 0",
+  "typecheck": "exit 0",
+  "build": "exit 0 (52 files, 726.2 KB JS)",
+  "routingPolicy": { "version": "2.0.0", "sha256_16": "4db053b3faba1ce3", "valid": true },
+  "permissionPolicy": { "version": "2.0.0", "sha256_16": "f338597fde6bb5a7", "valid": true, "hardDenies": 15, "confirmationGates": 4 },
+  "capabilityRegistry": { "models": 13, "source": "SSOT opencode.jsonc + opencode-effort-capability-matrix.json", "supportsVision": false },
+  "breakerState": { "implementation": "per-model keys (provider/model), threshold 3, cooldown 300000ms, half_open probe permitted", "entriesAtBaseline": "all closed" },
+  "visionState": "BLOCKED (runtime evidence, PAT Phase 16; unchanged)",
+  "mode": "advisory",
+  "permissionMode": "standard"
+}

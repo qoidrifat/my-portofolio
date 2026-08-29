@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-08-29T04:39:20.739Z",
+  "opencodeVersion": "1.18.25",
+  "hook": "chat.params",
+  "verdict": "HOST-LIMITED for xhigh clamp mutation; hook firing LIVE VERIFIED",
+  "liveFirings": 54,
+  "records": [
+    {
+      "timestamp": "2026-08-29T04:34:55.691Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:35:31.592Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:35:40.754Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:35:49.016Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:36:00.754Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:36:15.598Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:37:05.934Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    },
+    {
+      "timestamp": "2026-08-29T04:38:39.940Z",
+      "kind": "chat.params-invoke",
+      "sessionId": "ses_fb74be418ffeKrK9v7obQA0Phc",
+      "agent": "build",
+      "model": "9router/b.ai/glm-5.3-flash",
+      "hasOptions": true,
+      "effortKey": "reasoningEffort",
+      "requestedEffort": "max"
+    }
+  ],
+  "clampFirings": 0,
+  "findings": [
+    "hook fires live on every LLM request incl. title subagent request (agent=title, reasoningEffort=low observed)",
+    "variant --variant high / max reach the hook as options.reasoningEffort (requested=max observed)",
+    "--variant xhigh: xhigh is not a configured variant on b-ai/glm-5.3-flash (SSOT opencode.jsonc: low|high|max); host normalizes before chat.params -> options carry NO reasoningEffort key -> xhigh never dispatched; clamp has nothing to clamp",
+    "clamp mutation path is unreachable via host variant resolution with current SSOT; clamp retained as defense-in-depth above the LIVE VERIFIED route-level clamp",
+    "route-level xhigh protection NOT regressed: variant-router still clamps xhigh requests to max before selection"
+  ]
+}

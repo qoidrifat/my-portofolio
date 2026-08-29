@@ -1,0 +1,287 @@
+{
+  "generatedAt": "2026-08-28T11:38:06.747Z",
+  "root": "D:\\Workspace\\my-portofolio",
+  "hardDeny": {
+    "safe": [
+      {
+        "op": "git reset --hard HEAD~1",
+        "decision": "deny",
+        "rule": "git-reset-hard",
+        "reason": "HARD DENY (git-reset-hard): destructive git reset destroys uncommitted work"
+      },
+      {
+        "op": "git clean -fd",
+        "decision": "deny",
+        "rule": "git-clean-force",
+        "reason": "HARD DENY (git-clean-force): unbounded filesystem deletion via git clean"
+      },
+      {
+        "op": "git push --force origin main",
+        "decision": "deny",
+        "rule": "git-force-push",
+        "reason": "HARD DENY (git-force-push): force push rewrites remote history"
+      },
+      {
+        "op": "rm -rf /",
+        "decision": "deny",
+        "rule": "fs-destructive-root",
+        "reason": "HARD DENY (fs-destructive-root): unbounded filesystem deletion"
+      },
+      {
+        "op": "netsh advfirewall set allprofiles state off",
+        "decision": "deny",
+        "rule": "firewall-mutation",
+        "reason": "HARD DENY (firewall-mutation): firewall modification"
+      },
+      {
+        "op": "cat ~/.ssh/id_rsa",
+        "decision": "deny",
+        "rule": "secret-exfiltration",
+        "reason": "HARD DENY (secret-exfiltration): credential/secret exposure or exfiltration"
+      },
+      {
+        "op": "printenv",
+        "decision": "deny",
+        "rule": "env-dump",
+        "reason": "HARD DENY (env-dump): dumping environment secrets is never auto-authorized"
+      },
+      {
+        "op": "terraform destroy",
+        "decision": "deny",
+        "rule": "cloud-destructive",
+        "reason": "HARD DENY (cloud-destructive): destructive cloud/cluster resource deletion"
+      }
+    ],
+    "standard": [
+      {
+        "op": "git reset --hard HEAD~1",
+        "decision": "deny",
+        "rule": "git-reset-hard",
+        "reason": "HARD DENY (git-reset-hard): destructive git reset destroys uncommitted work"
+      },
+      {
+        "op": "git clean -fd",
+        "decision": "deny",
+        "rule": "git-clean-force",
+        "reason": "HARD DENY (git-clean-force): unbounded filesystem deletion via git clean"
+      },
+      {
+        "op": "git push --force origin main",
+        "decision": "deny",
+        "rule": "git-force-push",
+        "reason": "HARD DENY (git-force-push): force push rewrites remote history"
+      },
+      {
+        "op": "rm -rf /",
+        "decision": "deny",
+        "rule": "fs-destructive-root",
+        "reason": "HARD DENY (fs-destructive-root): unbounded filesystem deletion"
+      },
+      {
+        "op": "netsh advfirewall set allprofiles state off",
+        "decision": "deny",
+        "rule": "firewall-mutation",
+        "reason": "HARD DENY (firewall-mutation): firewall modification"
+      },
+      {
+        "op": "cat ~/.ssh/id_rsa",
+        "decision": "deny",
+        "rule": "secret-exfiltration",
+        "reason": "HARD DENY (secret-exfiltration): credential/secret exposure or exfiltration"
+      },
+      {
+        "op": "printenv",
+        "decision": "deny",
+        "rule": "env-dump",
+        "reason": "HARD DENY (env-dump): dumping environment secrets is never auto-authorized"
+      },
+      {
+        "op": "terraform destroy",
+        "decision": "deny",
+        "rule": "cloud-destructive",
+        "reason": "HARD DENY (cloud-destructive): destructive cloud/cluster resource deletion"
+      }
+    ],
+    "elevated": [
+      {
+        "op": "git reset --hard HEAD~1",
+        "decision": "deny",
+        "rule": "git-reset-hard",
+        "reason": "HARD DENY (git-reset-hard): destructive git reset destroys uncommitted work"
+      },
+      {
+        "op": "git clean -fd",
+        "decision": "deny",
+        "rule": "git-clean-force",
+        "reason": "HARD DENY (git-clean-force): unbounded filesystem deletion via git clean"
+      },
+      {
+        "op": "git push --force origin main",
+        "decision": "deny",
+        "rule": "git-force-push",
+        "reason": "HARD DENY (git-force-push): force push rewrites remote history"
+      },
+      {
+        "op": "rm -rf /",
+        "decision": "deny",
+        "rule": "fs-destructive-root",
+        "reason": "HARD DENY (fs-destructive-root): unbounded filesystem deletion"
+      },
+      {
+        "op": "netsh advfirewall set allprofiles state off",
+        "decision": "deny",
+        "rule": "firewall-mutation",
+        "reason": "HARD DENY (firewall-mutation): firewall modification"
+      },
+      {
+        "op": "cat ~/.ssh/id_rsa",
+        "decision": "deny",
+        "rule": "secret-exfiltration",
+        "reason": "HARD DENY (secret-exfiltration): credential/secret exposure or exfiltration"
+      },
+      {
+        "op": "printenv",
+        "decision": "deny",
+        "rule": "env-dump",
+        "reason": "HARD DENY (env-dump): dumping environment secrets is never auto-authorized"
+      },
+      {
+        "op": "terraform destroy",
+        "decision": "deny",
+        "rule": "cloud-destructive",
+        "reason": "HARD DENY (cloud-destructive): destructive cloud/cluster resource deletion"
+      }
+    ],
+    "yolo": [
+      {
+        "op": "git reset --hard HEAD~1",
+        "decision": "deny",
+        "rule": "git-reset-hard",
+        "reason": "HARD DENY (git-reset-hard): destructive git reset destroys uncommitted work"
+      },
+      {
+        "op": "git clean -fd",
+        "decision": "deny",
+        "rule": "git-clean-force",
+        "reason": "HARD DENY (git-clean-force): unbounded filesystem deletion via git clean"
+      },
+      {
+        "op": "git push --force origin main",
+        "decision": "deny",
+        "rule": "git-force-push",
+        "reason": "HARD DENY (git-force-push): force push rewrites remote history"
+      },
+      {
+        "op": "rm -rf /",
+        "decision": "deny",
+        "rule": "fs-destructive-root",
+        "reason": "HARD DENY (fs-destructive-root): unbounded filesystem deletion"
+      },
+      {
+        "op": "netsh advfirewall set allprofiles state off",
+        "decision": "deny",
+        "rule": "firewall-mutation",
+        "reason": "HARD DENY (firewall-mutation): firewall modification"
+      },
+      {
+        "op": "cat ~/.ssh/id_rsa",
+        "decision": "deny",
+        "rule": "secret-exfiltration",
+        "reason": "HARD DENY (secret-exfiltration): credential/secret exposure or exfiltration"
+      },
+      {
+        "op": "printenv",
+        "decision": "deny",
+        "rule": "env-dump",
+        "reason": "HARD DENY (env-dump): dumping environment secrets is never auto-authorized"
+      },
+      {
+        "op": "terraform destroy",
+        "decision": "deny",
+        "rule": "cloud-destructive",
+        "reason": "HARD DENY (cloud-destructive): destructive cloud/cluster resource deletion"
+      }
+    ]
+  },
+  "envGuard": {
+    "actual": [
+      {
+        "op": "cat .env",
+        "decision": "deny",
+        "rule": "env-file-read"
+      },
+      {
+        "op": "type .env",
+        "decision": "deny",
+        "rule": "env-file-read"
+      },
+      {
+        "op": "Get-Content .env",
+        "decision": "deny",
+        "rule": "env-file-read"
+      },
+      {
+        "op": "rg API_KEY .env.local",
+        "decision": "deny",
+        "rule": "env-file-read"
+      },
+      {
+        "op": "cat .env.local",
+        "decision": "deny",
+        "rule": "env-file-read"
+      }
+    ],
+    "benign": [
+      {
+        "op": "node -e \"console.log(process.env.NODE_ENV)\"",
+        "decision": "ask",
+        "rule": null,
+        "reason": "no rule matched; default is ASK"
+      },
+      {
+        "op": "if (process.env.NODE_ENV === \"production\") { console.log(\"prod\") }",
+        "decision": "ask",
+        "rule": null,
+        "reason": "no rule matched; default is ASK"
+      },
+      {
+        "op": "echo $env:NODE_ENV",
+        "decision": "ask",
+        "rule": null,
+        "reason": "no rule matched; default is ASK"
+      },
+      {
+        "op": "node scripts/check-budget.mjs",
+        "decision": "allow",
+        "rule": "build",
+        "reason": "safe shell allowed in 'yolo'"
+      }
+    ]
+  },
+  "productionEscalation": {
+    "safe": {
+      "op": "git status",
+      "requested": "safe",
+      "effectiveProfile": "safe",
+      "decision": "allow"
+    },
+    "standard": {
+      "op": "git status",
+      "requested": "standard",
+      "effectiveProfile": "safe",
+      "decision": "allow"
+    },
+    "elevated": {
+      "op": "git status",
+      "requested": "elevated",
+      "effectiveProfile": "standard",
+      "decision": "allow"
+    },
+    "yolo": {
+      "op": "git status",
+      "requested": "yolo",
+      "effectiveProfile": "safe",
+      "decision": "allow"
+    }
+  }
+}

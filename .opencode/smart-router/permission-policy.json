@@ -1,0 +1,107 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2026-08-28",
+  "opencode_version": "1.18.25",
+  "note": "Permission Intelligence Layer. Decisions are ALLOW/ASK/DENY per (profile, agent, tool-class, operation). HARD DENY outranks every profile including YOLO (directive #16). Env policies are defaults, not hardcoded assumptions (#53).",
+  "profiles": {
+    "safe": {
+      "description": "read-only inspection; no mutations",
+      "allow": ["read", "execute:read-only"],
+      "ask": ["write", "execute", "network", "git", "deployment", "infrastructure"],
+      "deny": ["credential"]
+    },
+    "standard": {
+      "description": "normal development: read/write/edit, tests, safe shell, git read",
+      "allow": ["read", "write", "execute:read-only", "execute:build", "git:read"],
+      "ask": ["execute:install", "git:mutate", "network:mutate", "deployment", "infrastructure", "credential"],
+      "deny": ["hard-deny"]
+    },
+    "elevated": {
+      "description": "broader shell, dependency installation, config/build changes, git mutations",
+      "allow": ["read", "write", "execute:read-only", "execute:build", "execute:install", "git:read", "git:mutate:local"],
+      "ask": ["git:push", "deployment", "infrastructure", "credential"],
+      "deny": ["hard-deny"]
+    },
+    "yolo": {
+      "description": "automatic execution with minimal prompts; HARD DENY and confirmation gates still active",
+      "allow": ["read", "write", "execute:read-only", "execute:build", "execute:install", "git:read", "git:commit"],
+      "ask": ["git:push", "network:mutate", "deployment", "infrastructure", "credential"],
+      "deny": ["hard-deny", "credential"]
+    }
+  },
+  "agent_policy": {
+    "build": { "default_profile": "standard", "description": "primary implementer" },
+    "frontend": { "default_profile": "standard", "description": "frontend specialist" },
+    "research": { "default_profile": "safe", "force_read_only": true, "description": "read-only research agent" },
+    "reviewer": { "default_profile": "safe", "force_read_only": true, "description": "read-only reviewer; must not silently become an implementation agent" }
+  },
+  "environment_policy": {
+    "default": "standard",
+    "local": "standard",
+    "staging": "elevated",
+    "production": "safe",
+    "production_note": "production never auto-enables YOLO; permission requirements only increase (#52)"
+  },
+  "production_indicators": {
+    "env": ["NODE_ENV=production", "VERCEL_ENV=production", "OPENCODE_ENV=production"],
+    "branch": [],
+    "path": []
+  },
+  "operation_classes": {
+    "read": ["^(ls|dir|cat|type|head|tail|find|rg|grep|node -v|npm -v|git (status|diff|log|show|branch(?! -[dD])|remote|rev-parse|blame|shortlog|describe)\\b)", "^(npx (vitest|eslint|tsc)|npm (run|test|run lint)|tsc)\\b.*"],
+    "build": ["^(npm (run build|run lint|test|run test)|npx vitest|npx eslint|npx tsc|node scripts/|make)\\b"],
+    "install": ["^(npm (install|i|ci|update)|pnpm (add|install)|yarn (add|install)|pip install|cargo (add|install))\\b"],
+    "git-commit": ["^git commit\\b"],
+    "git-push": ["^git push\\b"],
+    "git-read": ["^git (status|diff|log|show|branch(?! -[dD])|remote|rev-parse|blame)\\b"],
+    "git-mutate": ["^git (add|rm|mv|stash|checkout(?! --)\\b|restore\\b|commit|merge --ff-only|tag)\\b"],
+    "network-read": ["^(curl -I|curl -s https?://|wget -qO-|gh (repo|pr|issue) view)\\b"],
+    "network-mutate": ["^(curl -X (POST|PUT|PATCH|DELETE)|gh (pr create|pr merge|release create|repo (delete|edit)))\\b"],
+    "deploy": ["\\b(vercel|netlify (deploy)|firebase deploy|fly deploy|docker push|kubectl (apply|delete)|terraform (apply|destroy)|sam deploy|gcloud (deploy|run deploy))\\b"],
+    "infrastructure": ["\\b(netsh|Set-NetFirewallRule|New-NetFirewallRule|ufw|iptables|aws (ec2|iam|s3)\\b.*(delete|terminate|revoke)|gcloud .* delete|az .* delete|shutdown|Restart-Computer|Stop-Computer|reg (add|delete)|regedit)\\b"],
+    "credential": ["\\b(id_rsa|id_ed25519|\\.ssh/|private[_ -]?key|\\.pem\\b|credentials\\.json|\\.npmrc.*_auth|\\.netrc|aws_secret_access_key|printenv|set -a;? source \\.env|export (AWS_|GITHUB_TOKEN|API_KEY|SECRET))\\b"]
+  },
+  "hard_denies": {
+    "description": "Regex list. Match => DENY regardless of profile, mode, or user override (unless an explicit supported security mechanism says otherwise).",
+    "patterns": [
+      { "id": "git-reset-hard", "pattern": "git reset --hard", "reason": "destructive git reset destroys uncommitted work" },
+      { "id": "git-clean-force", "pattern": "git clean .*(-f|--force)", "reason": "unbounded filesystem deletion via git clean" },
+      { "id": "git-force-push", "pattern": "git push\\b.*(--force(-with-lease)?|\\s-f(\\s|$))", "reason": "force push rewrites remote history" },
+      { "id": "git-branch-delete-force", "pattern": "git branch (-D|--delete --force|--delete\\s+-f)", "reason": "forced branch deletion" },
+      { "id": "git-history-rewrite", "pattern": "git (filter-branch|filter-repo|rebase .*--root|replace)", "reason": "git history rewrite" },
+      { "id": "git-discard-all", "pattern": "git (checkout -- \\.?$|checkout \\.\\s*$|restore \\.)", "reason": "discards all uncommitted changes" },
+      { "id": "fs-destructive-root", "pattern": "(rm -rf\\s+(/|~|C:\\\\|/home|/Users)\\s*$|rm -rf /[^\\s]*(\\s|$)){1}", "reason": "unbounded filesystem deletion" },
+      { "id": "ps-destructive", "pattern": "Remove-Item .*(-Recurse.*-Force|-Force.*-Recurse).*\\s(/|~|C:\\\\)\\s*$", "reason": "destructive PowerShell deletion" },
+      { "id": "disk-format", "pattern": "\\b(mkfs(\\.\\w+)?|format [a-zA-Z]:|diskpart)\\b", "reason": "disk formatting/partitioning" },
+      { "id": "cloud-destructive", "pattern": "\\b(terraform destroy|aws .*delete-(bucket|instance|db-instance|stack)|gcloud .*delete|az .* delete|kubectl delete (namespace|pv|pvc))\\b", "reason": "destructive cloud/cluster resource deletion" },
+      { "id": "firewall-mutation", "pattern": "\\b(netsh advfirewall|netsh firewall|Set-NetFirewallRule|New-NetFirewallRule|ufw (allow|deny|delete)|iptables -[ADI])\\b", "reason": "firewall modification" },
+      { "id": "secret-exfiltration", "pattern": "\\b(id_rsa|id_ed25519|\\.ssh/id_|aws_secret_access_key|cat .*\\.pem\\b|curl .*://.*token=|echo .*(SECRET|PASSWORD|API_KEY)=)", "reason": "credential/secret exposure or exfiltration" },
+      { "id": "env-dump", "pattern": "^(printenv|env)$|^(printenv|env)\\s*$|powershell .*Get-ChildItem Env:", "reason": "dumping environment secrets is never auto-authorized" },
+      { "id": "env-file-read", "pattern": "\\b(cat|type|head|tail|less|more|Get-Content|grep|rg|findstr)\\b[^|;&]*((?<!process)[/\\\\\\s\"'=:]\\.env\\b|\\s\\.env\\b)", "reason": "reading env/secret files is never auto-authorized (#50)" },
+      { "id": "policy-self-modify", "pattern": "smart-router[/\\\\](permission-policy|routing-policy)\\.json", "reason": "self-modification of the security/routing policy is never auto-authorized (agent could delete its own hard denies)" }
+    ]
+  },
+  "confirmation_gates": {
+    "description": "ASK even under YOLO (directive #15 matrix).",
+    "patterns": [
+      { "id": "git-push", "pattern": "^git push\\b", "reason": "remote mutation; requires explicit confirmation" },
+      { "id": "deploy", "pattern": "\\b(vercel|netlify deploy|firebase deploy|fly deploy|docker push|kubectl apply|terraform apply|sam deploy)\\b", "reason": "deployment requires explicit confirmation" },
+      { "id": "network-mutate", "pattern": "\\b(curl -X (POST|PUT|PATCH|DELETE)|gh pr (create|merge)|gh release create)\\b", "reason": "external mutation requires explicit confirmation" },
+      { "id": "install", "pattern": "^(npm (install|i(?!nit)\\b|ci|update)|pnpm (add|install)|yarn add)\\b", "reason": "package installation changes the dependency tree" }
+    ]
+  },
+  "tool_class_map": {
+    "read": "read",
+    "grep": "read",
+    "glob": "read",
+    "list": "read",
+    "edit": "write",
+    "write": "write",
+    "patch": "write",
+    "multiedit": "write",
+    "bash": "execute",
+    "shell": "execute",
+    "webfetch": "network",
+    "task": "read"
+  }
+}

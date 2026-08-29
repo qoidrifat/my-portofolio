@@ -1,0 +1,78 @@
+{
+  "routeId": "R-22c49aaa87",
+  "timestamp": "2026-08-28T10:10:24.457Z",
+  "sessionId": null,
+  "input": {
+    "promptExcerpt": "Fix a small typo in the README.",
+    "taskType": [
+      "simple",
+      "coding"
+    ],
+    "matched_task_class": "crud-simple",
+    "complexity": "low",
+    "contextDemand": "medium",
+    "reasoningDemand": "low",
+    "modality": "text",
+    "confidence": "high",
+    "latency_preference": "normal",
+    "quality_preference": "normal",
+    "cost_profile": "balanced"
+  },
+  "status": "RESOLVED",
+  "agent": "build",
+  "provider": "minimaxm3new",
+  "model": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+  "variant": "balanced",
+  "variantStatus": "CONFIGURED",
+  "permission": {
+    "profile": "standard",
+    "risk": "low",
+    "hardDenies": [
+      "git-reset-hard",
+      "git-clean-force",
+      "git-force-push",
+      "git-branch-delete-force",
+      "git-history-rewrite",
+      "git-discard-all",
+      "fs-destructive-root",
+      "ps-destructive",
+      "disk-format",
+      "cloud-destructive",
+      "firewall-mutation",
+      "secret-exfiltration",
+      "env-dump",
+      "env-file-read"
+    ],
+    "requiresConfirmation": [
+      "git-push",
+      "deploy",
+      "network-mutate",
+      "install"
+    ]
+  },
+  "fallback": [
+    {
+      "model": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+      "variant": "fast",
+      "status": "CONFIGURED"
+    },
+    {
+      "model": "mygmicloud/MiniMaxAI/MiniMax-M3",
+      "variant": "balanced",
+      "status": "CONFIGURED"
+    },
+    {
+      "model": "b-ai/glm-5.3-flash",
+      "variant": "high",
+      "status": "VERIFIED"
+    }
+  ],
+  "reason": "routine mechanical work does not need deep reasoning",
+  "warnings": [
+    "variant 'balanced' on 'minimaxm3new/MiniMaxAI/MiniMax-M3' is configured but not individually runtime-verified",
+    "variant 'balanced' on 'mygmicloud/MiniMaxAI/MiniMax-M3' is configured but not individually runtime-verified"
+  ],
+  "dispatchCommand": "opencode run --model minimaxm3new/MiniMaxAI/MiniMax-M3 --variant balanced --agent build \"Fix a small typo in the README.\"",
+  "risk": "low",
+  "permissionProfile": "standard"
+}

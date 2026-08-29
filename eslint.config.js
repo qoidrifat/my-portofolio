@@ -7,6 +7,22 @@ import pluginJsxA11y from "eslint-plugin-jsx-a11y";
 
 export default [
   {
+    // global ignores: tooling/staging/build dirs are not app source and must not be linted
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      ".opencode/**",
+      ".opencode-backups/**",
+      ".opencode-skill-staging/**",
+      ".bsp/**",
+      ".lighthouseci/**",
+      ".mimosa/**",
+      ".scala-build/**",
+      "lighthouse-reports/**",
+    ],
+  },
+  {
     files: [
       "src/**/*.{js,mjs,cjs,jsx}",
     ],

@@ -1,0 +1,8 @@
+{
+  "mode": "advisory",
+  "permissionMode": "standard",
+  "costProfile": "balanced",
+  "latencyProfile": "balanced",
+  "qualityProfile": "standard",
+  "updatedAt": "2026-08-28T10:12:58.411Z"
+}

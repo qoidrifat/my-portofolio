@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2026-08-28",
+  "opencode_version": "1.18.25",
+  "note": "Deterministic task-class -> agent/model/variant routing. Consumes the verified capability registry at runtime (opencode-effort-capability-matrix.json + opencode.jsonc). Model/variant requests are clamped to verified ceilings; vision tasks are BLOCKED, never silently degraded (single source of truth: SSOT files in %USERPROFILE%/.config/opencode).",
+  "default_task_class": "standard-coding",
+  "task_classes": [
+    { "task_class": "crud-simple", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "balanced", "chain": ["mygmicloud/MiniMaxAI/MiniMax-M3", "b-ai/glm-5.3-flash"], "escalates_to": "standard-coding", "risk": "low", "reason": "routine mechanical work does not need deep reasoning" },
+    { "task_class": "standard-coding", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["mygmicloud/MiniMaxAI/MiniMax-M3", "b-ai/glm-5.3-flash"], "risk": "medium", "reason": "normal coding uses implementation model at depth" },
+    { "task_class": "complex-implementation", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash", "b-ai/qwen3.8-flash"], "risk": "medium", "reason": "multi-file implementation benefits from depth plus strong fallback" },
+    { "task_class": "latency-sensitive", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "fast", "chain": ["minimaxm3new/MiniMaxAI/MiniMax-M3"], "risk": "low", "reason": "interactive quick operations prefer lowest effort" },
+    { "task_class": "ui-implementation", "agent": "frontend", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "medium", "reason": "frontend implementation on execution engine" },
+    { "task_class": "react-next-architecture", "agent": "frontend", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/qwen3.8-flash", "b-ai/deepseek-v4-flash"], "risk": "high", "reason": "UI architecture requires maximum verified reasoning" },
+    { "task_class": "routine-review", "agent": "reviewer", "model": "b-ai/glm-5.3-flash", "variant": "high", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "medium", "reason": "routine review at high effort; GLM leads Intelligence(58v52)/Agentic(58v48) on OpenRouter, both free on B.AI; DeepSeek#max first cross-model fallback" },
+    { "task_class": "deep-review", "agent": "reviewer", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "high", "reason": "deep review needs maximum reasoning; GLM leads Intelligence(58v52)/Coding(72v69)/Agentic(58v48), free on B.AI" },
+    { "task_class": "security-review", "agent": "reviewer", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "critical", "reason": "security review needs maximum reasoning; GLM benchmark-led; author-vs-reviewer independence preserved (author=M3, first fallback=DeepSeek)" },
+    { "task_class": "complex-debugging", "agent": "reviewer", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "high", "reason": "root-cause analysis needs maximum reasoning; GLM Agentic(58v48) edge matters for multi-step diagnosis" },
+    { "task_class": "repo-research", "agent": "research", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "medium", "reason": "repository research; GLM Intelligence(58v52) edge, 1M context, free on B.AI" },
+    { "task_class": "deep-research", "agent": "research", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/deepseek-v4-flash", "b-ai/qwen3.8-flash"], "risk": "medium", "reason": "deep research; GLM Intelligence(58v52) edge, 1M context, free on B.AI" },
+    { "task_class": "architecture-analysis", "agent": "research", "model": "b-ai/glm-5.3-flash", "variant": "max", "chain": ["b-ai/qwen3.8-flash"], "risk": "high", "reason": "architecture requires maximum verified reasoning" },
+    { "task_class": "documentation", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "balanced", "chain": ["mygmicloud/MiniMaxAI/MiniMax-M3"], "risk": "low", "reason": "documentation is routine work" },
+    { "task_class": "testing", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "low", "reason": "test authoring benefits from depth" },
+    { "task_class": "database", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "high", "reason": "schema/migration work is high-risk" },
+    { "task_class": "performance", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "medium", "reason": "performance diagnosis benefits from depth" },
+    { "task_class": "deployment", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "high", "reason": "deployment changes are high-risk and require elevated permissions" },
+    { "task_class": "tooling", "agent": "build", "model": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep", "chain": ["b-ai/glm-5.3-flash"], "risk": "low", "reason": "tooling scripts are coding work" },
+    { "task_class": "orchestration", "agent": "build", "model": "b-ai/glm-5.3-flash", "variant": "high", "chain": ["b-ai/qwen3.8-flash"], "risk": "medium", "reason": "orchestration requires planning-grade reasoning" },
+    { "task_class": "vision-task", "agent": "reviewer", "model": null, "variant": null, "chain": [], "modality_required": "vision", "risk": "medium", "reason": "no runtime-verified multimodal model exists in this environment; router BLOCKS instead of silent text-only fallback" }
+  ],
+  "review_requirements": {
+    "low": "optional",
+    "medium": "reviewer-on-request",
+    "high": "reviewer-required",
+    "critical": "reviewer-plus-independent-review"
+  },
+  "zcode_independent_review": ["architecture-analysis", "security-review", "deployment"]
+}

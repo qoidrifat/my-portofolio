@@ -73,3 +73,26 @@ PORTFOLIO_*_REPORT.md
 
 # Vercel deployment (handled via dashboard)
 vercel.json
+
+# AI tooling runtime state + one-off audit artifacts (not app source)
+.opencode/ai/permissions/
+.opencode/ai/routing/
+.opencode/ai/logs/
+.opencode/ai/handoffs/
+.opencode/smart-router/status.json
+.opencode/smart-router/final-status.json
+.opencode-backups/
+.opencode-skill-staging/
+.bsp/
+.lighthouseci/
+.mimosa/
+.scala-build/
+lighthouse-reports/
+opencode-effort-config-before.jsonc
+opencode-effort-config-after.jsonc
+opencode-effort-config.diff
+opencode-skill-aitmpl-audit.json
+opencode-skill-audit-before.json
+opencode-skill-install-report.md
+opencode-skill-manifest.json
+opencode-skill-verify.json
