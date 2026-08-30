@@ -1,0 +1,23 @@
+{
+  "description": "Before-dispose observation: OpenCode server for the live session still running",
+  "observedAt": "2026-08-30T10:47:00Z",
+  "liveSession": "ses_fadbddd50ffeVgIM3Ab3mpkadn",
+  "t1": "ABSENT for live session (expected - dispose not yet fired)",
+  "t2": {
+    "executionId": "exec-a674b57c-da9c-4932-9f25-b5647b67e3f3",
+    "outcome": "COMPLETED",
+    "timestamp": "2026-08-30T10:42:08.261Z",
+    "evaluationIdInStore": ""
+  },
+  "priorDisposedSession": {
+    "sessionId": "ses_fadc4c136ffeLP2FMg7NvFp4rX",
+    "t1": {
+      "present": true,
+      "timestamp": "2026-08-30T10:39:27.320Z",
+      "executionId": "exec-8f929a43-e399-4d76-a351-dc19214bc08e",
+      "evaluationId": "EVAL-exec-8f929a43-e399-4d76-a351-dc19214bc08e",
+      "attributionComplete": true
+    }
+  },
+  "conclusion": "T1 ABSENT before dispose for a live session; T1 PRESENT only after a real dispose. Matches lifecycle design."
+}

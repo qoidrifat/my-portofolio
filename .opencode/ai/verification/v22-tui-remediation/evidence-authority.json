@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-08-30T23:59:00+07:00",
+  "evidenceAuthority": {
+    "removedFromUi": ["plain mean over tail", "n/(n+10) confidence", "n>=5 status threshold in UI", "UI freshness derivation from raw timestamps", "UI-side source derivation", "byCandidate tail aggregation loop", "latestBy dead helper"],
+    "authoritativePath": "plugin → EvaluationStore (real implementation, record(flush=false) over the bounded 400-row signal tail, load() never called, never persists) → stats(nowMs) → StoreStats → buildViewModel → resolveObservedQuality (variant segment → model fallback, ×0.5 cap) → verbatim copy → formatter",
+    "noSecondAggregation": "verified: 0 occurrences of reduce(/Math.mean in tui/ layer; freshnessDays is a presentation transform of the authoritative lastUpdated timestamp",
+    "divergenceProof": {
+      "note": "EvaluationStore.aggregate applies one bucket-level freshness factor so mean can equal the plain mean for a single bucket; the observable divergences from the removed naive UI math are: confidence (shrinkage × staleness half-life × CONFIDENCE_CAP), sample counting (signalId dedupe, merged executions, attribution veto), variant threshold n>=5, model fallback n>=20 with ×0.5 confidence cap, taskClass segmentation",
+      "tests": [
+        "copies store aggregates verbatim — quality/confidence/samples are never recomputed",
+        "respects the variant threshold (n<5) — honest UNPROVEN, no fabricated aggregate",
+        "task-class segmentation: only the routed class's aggregates are shown",
+        "variant isolation: variants are never pooled",
+        "model-level fallback with the ×0.5 inheritance cap",
+        "confidence semantics: shrinkage + staleness decay + cap, straight from the store (0.046 vs naive 0.333)",
+        "merged execution + duplicate suppression come from the store, not the UI",
+        "store unavailable → evidence stays UNKNOWN-safe (empty, no fabricated rows)",
+        "evidence panel labels the task-class scope and renders variant notation"
+      ],
+      "staleVsNaive": "5 samples, 40 days: store confidence ≈ 0.046, naive n/(n+10) = 0.333 — UI displays the store value"
+    },
+    "result": "PASS"
+  }
+}

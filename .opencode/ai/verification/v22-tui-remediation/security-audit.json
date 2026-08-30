@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-08-30T23:59:00+07:00",
+  "phase": "12-13",
+  "changeAudit": {
+    "v21Routing": "UNCHANGED",
+    "v21Permission": "UNCHANGED",
+    "breaker": "UNCHANGED",
+    "securityAuthority": "UNCHANGED",
+    "v22Scoring": "UNCHANGED",
+    "v22EvidenceContract": "UNCHANGED",
+    "schema": "UNCHANGED",
+    "flags": "UNCHANGED",
+    "production": "OFF (V2.1 authority intact, V2.2 SHADOW)",
+    "optimized": "OFF",
+    "auto": "OFF",
+    "corpusSemantics": "UNCHANGED",
+    "shadowProtocol": "UNCHANGED",
+    "gitStatus": {
+      "modified": ["src/data/performance-metrics.json (build artifact, pre-existing)", "tsconfig.v22.json (pre-existing from TUI phase, untouched this task)"],
+      "untrackedRemediationScope": [
+        ".opencode/plugins/smart-router-tui.tsx (M1/M2/M3 + LOW-1)",
+        ".opencode/smart-router/v22/tui/view-model.ts (M1 session filter, M3 authoritative evidence, LOW-2)",
+        ".opencode/smart-router/v22/tui/format.ts (LOW-3 risk, LOW-6 notation, evidence scope header)",
+        "tests/smart-router/v22-tui-view.test.ts (18 new tests, 0 removed/weakened)",
+        "docs/smart-router/SMART_ROUTER_V2_2_TUI_UI_IMPLEMENTATION.md (claims corrected)"
+      ],
+      "untouchedV21": [".opencode/plugins/smart-router.ts", ".opencode/smart-router/*.ts (V2.1 router/permission/breaker)", ".opencode/smart-router/v22/{scoring,gates,capability,engine,wire,host}.ts"]
+    }
+  },
+  "securitySelfAudit": {
+    "searched": ["dispatch", "execute", "route mutation", "permission mutation", "breaker mutation", "policy mutation", "model mutation"],
+    "matches": "display strings and event subscriptions only",
+    "authorityChangingOperations": 0,
+    "writesPerformedByTui": [".opencode/ai/logs/smart-router-tui.jsonl (acceptance telemetry only)"],
+    "reducerCheck": "0 occurrences of reduce(/Math.mean/division-aggregation in tui/ layer"
+  }
+}

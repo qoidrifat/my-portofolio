@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-08-30T23:59:00+07:00",
+  "sessionIsolation": {
+    "mechanism": "buildViewModel(input, sessionId?) — strict filter record.sessionId === sessionId; hysteresis rows by key prefix 'sessionId::'",
+    "hostContract": "TuiHostSlotMap.session_prompt_right = { session_id: string } (installed tui.d.ts) — consumed by slot renderer (ctx, props)",
+    "noFallbackRule": "session with no records degrades to UNKNOWN; never falls back to another session's global-latest row",
+    "globalSurfaces": ["home_footer (no session id at surface)", "dialogs (workspace view)"],
+    "tests": [
+      "session route isolation: B UI shows B, never A's global-latest route",
+      "session shadow isolation",
+      "session evaluation isolation",
+      "session hysteresis isolation (keyed sessionId::taskClass::risk)",
+      "global state (breaker, cost/latency) is unaffected by session filtering",
+      "session with no records degrades to UNKNOWN — never falls back to another session",
+      "empty sessionId keeps the global workspace view"
+    ],
+    "result": "PASS"
+  }
+}

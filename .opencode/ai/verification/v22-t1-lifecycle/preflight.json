@@ -1,0 +1,34 @@
+{
+  "date": "2026-08-30",
+  "baseline": {
+    "gitHead": "061fe135ac460612fdfbc6040f10bf94ace9a410",
+    "tagCommit": "2c2bacecf9805cdd32df28ccecf59c0f41d74748",
+    "protocolCommit": "41ec861f6f4be659b47f1d4a578070242d184534",
+    "gitStatus": "clean",
+    "npmTest": "303/303 PASS (18 files)",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "posture": {
+    "v22flags": { "mode": "SHADOW" },
+    "shadowZeroInfluence": true,
+    "optimized": false,
+    "auto": false
+  },
+  "t1Trigger": {
+    "source": "plugins/smart-router.ts:281 dispose hook -> v22.onDispose (host.ts:430) -> emitEvaluation (wire.ts:84) -> emitT1 (telemetry.ts:53)",
+    "hostHookVerifiedInTypes": ".opencode/node_modules/@opencode-ai/plugin/dist/index.d.ts:174 Hooks.dispose?: () => Promise<void>",
+    "classification": "CASE A candidate: T1 emitted only during OpenCode dispose/evaluation lifecycle"
+  },
+  "liveObservation": {
+    "t1EmittedAt": "2026-08-30T10:39:27.320Z",
+    "t1ExecutionId": "exec-8f929a43-e399-4d76-a351-dc19214bc08e",
+    "t1SessionId": "ses_fadc4c136ffeLP2FMg7NvFp4rX",
+    "t1EvaluationId": "EVAL-exec-8f929a43-e399-4d76-a351-dc19214bc08e",
+    "attributionComplete": true,
+    "note": "Session from task brief was disposed after brief was written; real runtime dispose produced real T1. No fabrication."
+  },
+  "convergenceBaseline": "probe-baseline.txt (store-internal merge view over real evaluation-signals.jsonl)",
+  "currentSessionId": "ses_fadbddd50ffeVgIM3Ab3mpkadn"
+}

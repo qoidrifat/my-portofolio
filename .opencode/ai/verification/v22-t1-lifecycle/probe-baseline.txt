@@ -1,0 +1,26 @@
+=== RAW SIGNALS ===
+{"signalId":"SIG-exec-936f748b-189e-4ae5-b45e-926a772b21e6","executionId":"exec-936f748b-189e-4ae5-b45e-926a772b21e6","evaluationId":"","hasQuality":false,"hasExecution":true,"attributionComplete":true}
+{"signalId":"SIG-exec-8f929a43-e399-4d76-a351-dc19214bc08e","executionId":"exec-8f929a43-e399-4d76-a351-dc19214bc08e","evaluationId":"","hasQuality":false,"hasExecution":true,"attributionComplete":true}
+{"signalId":"SIG-EVAL-exec-8f929a43-e399-4d76-a351-dc19214bc08e","executionId":"exec-8f929a43-e399-4d76-a351-dc19214bc08e","evaluationId":"EVAL-exec-8f929a43-e399-4d76-a351-dc19214bc08e","hasQuality":true,"hasExecution":false,"attributionComplete":true}
+{"signalId":"SIG-exec-a674b57c-da9c-4932-9f25-b5647b67e3f3","executionId":"exec-a674b57c-da9c-4932-9f25-b5647b67e3f3","evaluationId":"","hasQuality":false,"hasExecution":true,"attributionComplete":true}
+=== MERGED EXECUTIONS (store view) ===
+{"executionId":"exec-936f748b-189e-4ae5-b45e-926a772b21e6","signalCount":1,"evaluationId":"","outcome":"CANCELLED","userCancel":true,"qualityGrade":null,"converged":false}
+{"executionId":"exec-8f929a43-e399-4d76-a351-dc19214bc08e","signalCount":2,"evaluationId":"EVAL-exec-8f929a43-e399-4d76-a351-dc19214bc08e","outcome":"COMPLETED","userCancel":false,"qualityGrade":1,"converged":true}
+{"executionId":"exec-a674b57c-da9c-4932-9f25-b5647b67e3f3","signalCount":1,"evaluationId":"","outcome":"COMPLETED","userCancel":false,"qualityGrade":null,"converged":false}
+=== STATS ===
+{
+  "total": 4,
+  "attributed": 1,
+  "incomplete": 2,
+  "conflicts": 0,
+  "failureBreakdown": {
+    "modelRelevant": 0,
+    "environment": 0,
+    "user": 0,
+    "unknown": 0,
+    "completed": 1
+  },
+  "qualityByCandidateKeys": [],
+  "recentSuccessByCandidateKeys": [],
+  "reliabilityByCandidateKeys": []
+}

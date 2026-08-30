@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-08-30T23:59:00+07:00",
+  "securityRealtime": {
+    "hostDiscovery": {
+      "toolExecuteBeforeInTuiBus": false,
+      "evidence": "installed @opencode-ai/sdk v2 Event union (types.gen.d.ts) exposes session.next.tool.called/success/failed and permission.asked/replied — no tool.execute.before/after for TUI plugins (those exist only on the server-plugin Hooks interface, index.d.ts)",
+      "classification": "HOST-LIMITED for the literal event"
+    },
+    "implemented": {
+      "optionA": "typed subscriptions: session.next.tool.called / session.next.tool.success / session.next.tool.failed (join existing permission.asked/replied + message/session events), debounced 150ms",
+      "optionC": "ONE bounded fs.watch on .opencode/ai/permissions/ filtered to permission-decisions.jsonl — the exact file the tool.execute.before guard appends denies to; covers hard-deny (which emits no permission.ask). Single watcher, debounced via same refresh path, disposed on onDispose, error handler closes watcher (fail-open)",
+      "noPolling": true
+    },
+    "hardDenyRefreshChain": "guard deny → appendFileSync permission-decisions.jsonl → fs.watch event → debounced refresh() → snapshot → vm.security.denies → security panel",
+    "transitionTelemetry": "deny-count INCREASE logged as tui-security-state-change (machine-verifiable acceptance)",
+    "negativeControl": "unit-proven: allow decisions and permission.updated observations never surface as hard denies (data-driven, not event-driven)",
+    "policyChanges": 0,
+    "result": "PASS (mechanism); tool.execute.before event = HOST-LIMITED, documented"
+  }
+}

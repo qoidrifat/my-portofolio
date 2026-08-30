@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-08-31T00:05:00+07:00",
+  "finalGates": {
+    "tests": { "result": "PASS", "files": 19, "total": 341, "before": 323, "added": 18, "removed": 0, "weakened": 0, "command": "npm test" },
+    "typecheck": { "result": "PASS", "command": "npm run typecheck (jsconfig.json + tsconfig.v22.json)" },
+    "lint": { "result": "PASS", "command": "npm run lint (eslint . --quiet)" },
+    "build": { "result": "PASS", "command": "npm run build (vite build + generate-stats)" },
+    "verifiedAt": "2026-08-31T00:03-00:05+07:00"
+  },
+  "lowFindings": {
+    "LOW-1-theme": { "status": "FIXED (partial)", "change": "theme re-read per render via api.theme.current at call time; doc corrected to PARTIAL/HOST-LIMITED (no theme-change event in installed API)" },
+    "LOW-2-negative-numbers": { "status": "FIXED", "change": "asNum rejects v < 0" },
+    "LOW-3-risk-narrow-width": { "status": "FIXED", "change": "risk included in <80 footer before clip" },
+    "LOW-4-legacy-api": { "status": "ACCEPTED DEBT (unchanged, per brief)" },
+    "LOW-5-tail-edge": { "status": "ACCEPTED DEBT (unchanged; bounded-tail is a deliberate performance ceiling, upgrade path = larger tail window)" },
+    "LOW-6-variant-notation": { "status": "FIXED", "change": "shadow label + evidence keys render 'model · variant' (display-only)" }
+  }
+}
