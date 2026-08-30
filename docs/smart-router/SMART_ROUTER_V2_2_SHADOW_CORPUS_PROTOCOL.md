@@ -1,6 +1,7 @@
-# SMART ROUTER V2.2 — SHADOW CORPUS COLLECTION PROTOCOL v1.0
+# SMART ROUTER V2.2 — SHADOW CORPUS COLLECTION PROTOCOL v1.0.1
 
 Status: **PROTOCOL — COLLECTION NOT STARTED** · Epoch: **NONE**
+Amendment v1.0.1 (pre-epoch, 2026-08-30): epoch id format aligned to run spec — `v2.2.0-shadow.1-<UTC YYMMDD>-<SEQ>` (start timestamp remains fully bound in `epoch.json.startTime`). No semantic change to any contract.
 Governs: shadow corpus collection for baseline `v2.2.0-shadow.1`
 Companions (canonical): `SMART_ROUTER_V2_2_EVIDENCE_CONTRACT.md` (field semantics), `SMART_ROUTER_V2_2_EVALUATION_DESIGN.md` (outcome model, taxonomy), `SMART_ROUTER_V2_2_REPLAY_CONTRACT.md` (replay), `SMART_ROUTER_V2_2_OBSERVABILITY_DESIGN.md` (T1–T5), `SMART_ROUTER_V2_2_SECURITY_BOUNDARY.md` (safety), `SMART_ROUTER_V2_2_SHADOW_BASELINE.md` (frozen state), `SMART_ROUTER_V2_2_V2_1_INSTRUMENTATION_SPEC.md` (capture), `SMART_ROUTER_V2_2_IMPLEMENTATION_GATE.md` (gates).
 
@@ -337,7 +338,7 @@ All classified INVALID with machine-readable reason; retained for audit; zero ag
 
 ## Machine configuration
 
-`.opencode/ai/verification/v22-shadow-corpus/corpus-config.json` — config only (no records, no epoch, no run state). The epoch identifier format: `v2.2.0-shadow.1-<UTC yyyymmddThhmmssZ>` bound at start time to baseline commit + schemaVersion 1 + protocolVersion 1.0 + corpus-config content hash.
+`.opencode/ai/verification/v22-shadow-corpus/corpus-config.json` — config only (no records, no epoch, no run state). The epoch identifier format: `v2.2.0-shadow.1-<UTC YYMMDD>-<SEQ>` (SEQ 3-digit, never reused), bound at start time to baseline commit + schemaVersion 1 + protocolVersion + corpus-config content hash + ISO-8601 UTC start time (in `epoch.json`).
 
 ## Governance rule
 

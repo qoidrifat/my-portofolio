@@ -1,5 +1,5 @@
 {
-  "protocolVersion": "1.0",
+  "protocolVersion": "1.0.1",
   "schemaVersion": 1,
   "protocolDoc": "docs/smart-router/SMART_ROUTER_V2_2_SHADOW_CORPUS_PROTOCOL.md",
   "baseline": {
@@ -12,7 +12,7 @@
   },
   "epoch": {
     "started": false,
-    "idFormat": "v2.2.0-shadow.1-<UTC yyyymmddThhmmssZ>",
+    "idFormat": "v2.2.0-shadow.1-<UTC YYMMDD>-<SEQ>",
     "binds": ["baselineCommit", "schemaVersion", "protocolVersion", "corpusConfigHash", "startTime"],
     "mutationPolicy": "PAUSE -> new baseline/protocol version -> new epoch; never mix corpus versions"
   },
@@ -88,3 +88,4 @@
     "decisions": ["statistical_sufficiency=HUMAN_APPROVAL_REQUIRED", "protocol_committed_before_first_epoch", "retention=30d_all_artifacts"]
   }
 }
+
