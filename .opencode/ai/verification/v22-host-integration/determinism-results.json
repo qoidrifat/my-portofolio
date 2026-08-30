@@ -1,0 +1,6 @@
+{
+  "date": "2026-08-29",
+  "test": "determinism ×5: identical inputs → identical decisionId + selection (Phase 25)",
+  "result": "PASS",
+  "verified": ["same requirement", "same candidate set", "same score (0, cold-start)", "same tier (UNPROVEN)", "same selected candidate (ladder head)", "no random tie-breaking"]
+}

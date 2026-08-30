@@ -69,10 +69,10 @@ export function classify(prompt: string, overrides: ClassifyOverrides = {}): Tas
     if (!matched) {
       // unknown explicit class degrades to standard-coding with a "defaulted" signal (baseline behavior)
       matched = RULES.find((r) => r.cls === "standard-coding") ?? null
-      signals.push(`unknown task class '${overrides.taskType}' -> defaulted to 'standard-coding'`)
+      if (matched) signals.push(`unknown task class '${overrides.taskType}' -> defaulted to 'standard-coding'`)
     }
     labels.clear()
-    for (const l of matched.labels) labels.add(l)
+    if (matched) for (const l of matched.labels) labels.add(l)
   }
 
   const taskType: TaskLabel[] = matched ? [...matched.labels] : ["unknown", "coding"]

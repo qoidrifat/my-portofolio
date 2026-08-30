@@ -53,6 +53,8 @@ PORTFOLIO_*_REPORT.md
 .qa-shots/
 verification/
 PROJECT_UPDATE_REPORT.md
+# Smart Router audit evidence is committed (baseline reproducibility)
+!.opencode/ai/verification/
 
 # Project planning docs (git history only, not updated)
 docs/superpowers/
@@ -79,6 +81,13 @@ vercel.json
 .opencode/ai/routing/
 .opencode/ai/logs/
 .opencode/ai/handoffs/
+.opencode/ai/telemetry/
+.opencode/ai/evidence/
+.opencode/ai/.opencode/
+.opencode/plans/
+.opencode/smart-router/status.json
+.opencode/smart-router/final-status.json
+.opencode/smart-router/v22-flags.json
 .opencode/smart-router/status.json
 .opencode/smart-router/final-status.json
 .opencode-backups/

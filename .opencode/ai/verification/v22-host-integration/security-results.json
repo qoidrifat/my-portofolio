@@ -1,0 +1,19 @@
+{
+  "date": "2026-08-29",
+  "hardDenyLiveProof": {
+    "trigger": "node -e read of routing-policy.json during integration work",
+    "result": "SMART-ROUTER HARD DENY [policy-self-modify]: self-modification of the security/routing policy is never auto-authorized",
+    "conclusion": "V2.1 hard-deny authority active and effective while V2.2 integrated"
+  },
+  "privacyScan": {
+    "scope": ".opencode/ai/evidence/v22/**, .opencode/ai/telemetry/v22/** (live runtime stores)",
+    "patterns": ["prompt content", "part content", "password", "secret", "authorization", "api_key", "private key", "Bearer"],
+    "result": "CLEAN"
+  },
+  "securityAuthority": {
+    "v22CannotAlter": ["permission", "breaker state", "production dispatch", "route object"],
+    "tests": ["shadow isolation (route not mutated, breaker file unchanged)", "breaker OPEN excludes candidate but never mutates state (Phase 16)", "fail-open unwritable root (Phase 23)"],
+    "hardDenies": "unchanged V2.1 set (git-reset-hard, git-force-push, policy-self-modify, env-file-read, ...)",
+    "result": "PASS"
+  }
+}

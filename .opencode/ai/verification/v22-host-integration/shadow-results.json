@@ -1,0 +1,27 @@
+{
+  "date": "2026-08-29",
+  "liveHostRun": {
+    "method": "opencode run --model b-ai/glm-5.3-flash --variant max (real OpenCode session, flags=SHADOW)",
+    "executionId": "exec-d6b7b321-edec-4d21-adf5-7503482fe6ac",
+    "taskClass": "standard-coding",
+    "v21Actual": { "providerId": "minimaxm3new", "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3", "variant": "deep" },
+    "v22Hypothetical": "minimaxm3new/MiniMaxAI/MiniMax-M3#deep",
+    "selectedTier": "UNPROVEN",
+    "divergent": false,
+    "v21DispatchedModel": "minimaxm3new/MiniMaxAI/MiniMax-M3 (V2.1 authority unchanged)",
+    "v22SelectionDispatched": false
+  },
+  "cliShadowRun": {
+    "command": "node .opencode/smart-router/cli.ts v22 shadow --prompt 'Review the authentication middleware...'",
+    "v21": { "model": "b-ai/glm-5.3-flash", "variant": "max" },
+    "v22Selected": "b-ai/glm-5.3-flash#max",
+    "tier": "UNPROVEN",
+    "note": "D-COLD ladder-head honored; registry-remainder candidates (9router/b.ai/...) present, all UNPROVEN"
+  },
+  "shadowIsolation": {
+    "routeObjectMutated": false,
+    "breakerFileMutated": false,
+    "tests": ["shadow isolation: route object not mutated; breaker file unchanged", "breaker OPEN excludes the OPEN candidate (D4) but never mutates breaker state"]
+  },
+  "corpusNote": "Live corpus currently 1 real request + CLI runs; too small for delta analysis (Phase 20/21 = collection window required)"
+}

@@ -1,0 +1,29 @@
+{
+  "baselineName": "Smart Router V2.2 Shadow Baseline",
+  "baselineVersion": "v2.2.0-shadow.1",
+  "date": "2026-08-30",
+  "tag": "v2.2.0-shadow.1",
+  "parentCommit": "fca4f595d4c1344c901f544093efcee93584d5b9",
+  "v21Tag": "v2.1.0",
+  "mode": "OFF (repo state; SHADOW engaged locally by uncommitted flags file)",
+  "promotionStatus": "NOT AUTHORIZED",
+  "verification": {
+    "regression": "303/303 PASS",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "critical1": "CLOSED",
+    "deepseekReReview": "APPROVED",
+    "shadowIsolation": "PASS",
+    "security": "PASS",
+    "determinism": "PASS",
+    "schemaIntegrity": "PASS"
+  },
+  "artifacts": [
+    "source-manifest.json",
+    "configuration.json",
+    "smoke-results.json",
+    "integrity-results.json",
+    "baseline.json"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "date": "2026-08-29",
+  "measurements": [
+    {
+      "what": "shadow compute + record overhead per host decision",
+      "method": "vitest: 50 onChatMessage calls against tmp root, wall clock / N",
+      "budget": "< 20 ms design budget",
+      "result": "PASS (asserted in v22-host-integration.test.ts)"
+    },
+    {
+      "what": "router dispatch CLI end-to-end",
+      "method": "20 sequential dispatch invocations, wall clock / 20",
+      "result": "183.2 ms/dispatch including node process startup (~150 ms baseline); router logic itself is a fraction of this"
+    },
+    {
+      "what": "live host control-plane overhead",
+      "method": "not separately measurable in this session without instrumenting the host binary",
+      "honesty": "control-plane vs inference separation NOT independently verified on live run; bounded by the <20 ms test at the same code path"
+    }
+  ],
+  "stability": "no V2.1 destabilization observed across 222/222 suite + live runs"
+}

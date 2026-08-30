@@ -1,0 +1,177 @@
+{
+ "agreement": {
+  "same": 1,
+  "diff": 90,
+  "blocked": 2,
+  "unprofiledV21": 14,
+  "total": 107,
+  "agreementRatePct": 14
+ },
+ "determinism": {
+  "doubleRunIdentical": true
+ },
+ "classCoverage": {
+  "security-review": 47,
+  "architecture-analysis": 13,
+  "crud-simple": 3,
+  "standard-coding": 40,
+  "complex-debugging": 1,
+  "routine-review": 1,
+  "vision-task": 1,
+  "documentation": 1
+ },
+ "threshold": [
+  {
+   "threshold": 0.5,
+   "floorEnforceableDecisions": 76,
+   "total": 91,
+   "rate": 0.835
+  },
+  {
+   "threshold": 0.6,
+   "floorEnforceableDecisions": 76,
+   "total": 91,
+   "rate": 0.835
+  },
+  {
+   "threshold": 0.7,
+   "floorEnforceableDecisions": 76,
+   "total": 91,
+   "rate": 0.835
+  },
+  {
+   "threshold": 0.8,
+   "floorEnforceableDecisions": 76,
+   "total": 91,
+   "rate": 0.835
+  }
+ ],
+ "sensTop": [
+  {
+   "dim": "quality",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "quality",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "capability",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "capability",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "reliability",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "reliability",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "latency",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "latency",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "cost",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "cost",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "context",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "context",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "recent",
+   "pct": 0.1,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  },
+  {
+   "dim": "recent",
+   "pct": 0.2,
+   "churn": 12,
+   "total": 91,
+   "rate": 0.132
+  }
+ ],
+ "coldStart": {
+  "knownRanking": [
+   "b-ai/glm-5.3-flash#max",
+   "minimaxm3new/MiniMaxAI/MiniMax-M3#deep"
+  ],
+  "withUnknownInserted": [
+   "b-ai/glm-5.3-flash#max",
+   "minimaxm3new/MiniMaxAI/MiniMax-M3#deep",
+   "new-provider/new-model#max"
+  ],
+  "allUnknownWinner": "a/a#max",
+  "unknownNeverAutoBest": false,
+  "unknownNeverAutoLast": true
+ },
+ "oscillation": {
+  "leader": "b-ai/glm-5.3-flash#max",
+  "margin": 0.4999,
+  "oscillationRisk": false,
+  "recommendedGuard": "hysteresis: minimum score delta 0.02 OR route stickiness within a session (design note, ADR-001 follow-up)"
+ },
+ "securityReplay": {
+  "hardDenyUntouched": true,
+  "permissionIndependent": true,
+  "openCircuitSelected": 0,
+  "unsupportedVariantSelected": 0,
+  "visionRouted": 0,
+  "yoloBypass": 0
+ }
+}

@@ -1,0 +1,92 @@
+{
+  "date": "2026-08-30",
+  "runner": "node .opencode/smart-router/cli.ts v22 shadow (flags temporarily SHADOW, file removed after)",
+  "modeRestoredToOFF": true,
+  "rows": [
+    {
+      "taskClass": "standard-coding",
+      "v21Actual": {
+        "model": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+        "variant": "deep"
+      },
+      "v22Hypothetical": {
+        "selected": "minimaxm3new/MiniMaxAI/MiniMax-M3#deep",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    },
+    {
+      "taskClass": "routine-review",
+      "v21Actual": {
+        "model": "b-ai/glm-5.3-flash",
+        "variant": "high"
+      },
+      "v22Hypothetical": {
+        "selected": "b-ai/glm-5.3-flash#high",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    },
+    {
+      "taskClass": "deep-review",
+      "v21Actual": {
+        "model": "b-ai/glm-5.3-flash",
+        "variant": "max"
+      },
+      "v22Hypothetical": {
+        "selected": "b-ai/glm-5.3-flash#max",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    },
+    {
+      "taskClass": "security-review",
+      "v21Actual": {
+        "model": "b-ai/glm-5.3-flash",
+        "variant": "max"
+      },
+      "v22Hypothetical": {
+        "selected": "b-ai/glm-5.3-flash#max",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    },
+    {
+      "taskClass": "repo-research",
+      "v21Actual": {
+        "model": "b-ai/glm-5.3-flash",
+        "variant": "max"
+      },
+      "v22Hypothetical": {
+        "selected": "b-ai/glm-5.3-flash#max",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    },
+    {
+      "taskClass": "deep-research",
+      "v21Actual": {
+        "model": "b-ai/glm-5.3-flash",
+        "variant": "max"
+      },
+      "v22Hypothetical": {
+        "selected": "b-ai/glm-5.3-flash#max",
+        "tier": "UNPROVEN",
+        "degradedToV21": false
+      },
+      "v22InfluencesDispatch": false,
+      "noDivergenceAtColdStart": true
+    }
+  ],
+  "verdict": "PASS (6/6: V2.2 compute-only, D-COLD anchor == V2.1 route, zero telemetry writes, zero dispatch influence)"
+}

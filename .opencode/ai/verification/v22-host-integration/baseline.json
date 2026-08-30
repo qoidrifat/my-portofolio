@@ -1,0 +1,14 @@
+{
+  "baselineCommit": "fca4f595d4c1344c901f544093efcee93584d5b9",
+  "baselineTag": "v2.1.0",
+  "baselineSuite": "197/197 PASS (per prior implementation report; not re-executed before integration)",
+  "workingTreePreIntegration": "V2.2 implementation untracked (v22 modules, tests, docs) + 4 modified files",
+  "postIntegration": {
+    "date": "2026-08-29",
+    "tests": "222/222 PASS (197 prior + 25 new host-integration)",
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "v21Regression": 0
+}

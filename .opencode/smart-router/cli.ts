@@ -15,6 +15,14 @@ import { getSession, loadState, recordReroute, recordFailure, recordRoute } from
 import { evaluate } from "./evaluator.ts"
 import { nextEscalationRoute, MAX_REROUTES } from "./escalation.ts"
 import { loadBreaker, resetBreaker, breakerStatus } from "./circuit-breaker.ts"
+import { loadFlags } from "./v22/flags.ts"
+import { noopProviders, runEngine } from "./v22/engine.ts"
+import { buildRequirement } from "./v22/requirement.ts"
+import { discoverCandidates } from "./v22/discovery.ts"
+import { emptyHysteresisState } from "./v22/hysteresis.ts"
+import { emitEvaluation } from "./v22/wire.ts"
+import { runCapabilityProbe } from "./v22/host.ts"
+import { telemetryDir, sweepRetention, telemetryDiagnostics } from "./v22/telemetry.ts"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = process.env.SMART_ROUTER_PROJECT_ROOT || join(__dirname, "..", "..")
@@ -57,13 +65,13 @@ async function main() {
       const prompt = await readPrompt()
       const modelOverride = argValue("--model")
       const variantOverride = argValue("--variant")
-      const { decision, risk, permissionProfile } = resolveRoute(PROJECT_ROOT, { prompt, sessionId: argValue("--session"), modelOverride, variantOverride })
+      const { decision, risk, permissionProfile } = resolveRoute(PROJECT_ROOT, { prompt, sessionId: argValue("--session") ?? undefined, modelOverride, variantOverride })
       out(decision.status === "RESOLVED" ? { ...decision, risk, permissionProfile } : { ...decision, risk, permissionProfile })
       break
     }
     case "dispatch": {
       const prompt = await readPrompt()
-      const { decision } = resolveRoute(PROJECT_ROOT, { prompt, sessionId: argValue("--session") })
+      const { decision } = resolveRoute(PROJECT_ROOT, { prompt, sessionId: argValue("--session") ?? undefined })
       if (decision.status !== "RESOLVED") {
         out({ status: "BLOCKED", reason: decision.reason, warnings: decision.warnings })
         process.exitCode = 2
@@ -159,6 +167,12 @@ async function main() {
         contextIssues: [],
       }
       const evaluation = evaluate(signals)
+      // V2.2 T1 (additive, fail-open): attribution from session's last decision; incomplete
+      // attribution ⇒ audit-only record (I-016). Never affects the escalation flow itself.
+      const state0 = loadState(PROJECT_ROOT)
+      const session0 = state0.sessions[sessionId] ?? getSession(PROJECT_ROOT, sessionId)
+      const last = (session0.lastDecision ?? {}) as { model?: string | null; variant?: string | null; agent?: string; fallback?: Array<{ model: string; variant: string }> }
+      emitEvaluation(PROJECT_ROOT, { sessionId, routeId: null, model: last.model ?? null, variant: last.variant ?? null }, evaluation, { t3: new Date().toISOString() })
       const state = loadState(PROJECT_ROOT)
       const session = state.sessions[sessionId] ?? getSession(PROJECT_ROOT, sessionId)
       const lastDecision = (session.lastDecision ?? {}) as { model?: string | null; variant?: string | null; agent?: string; fallback?: Array<{ model: string; variant: string }> }
@@ -246,11 +260,90 @@ async function main() {
       })
       break
     }
+    case "v22": {
+      // V2.2 shadow runner (feature-flagged, default OFF). Additive: never mutates V2.1 flow.
+      const sub = process.argv[3] ?? "status"
+      const flags = loadFlags(PROJECT_ROOT)
+      if (sub === "status") {
+        out({ flags, telemetryDir: telemetryDir(PROJECT_ROOT), diagnostics: telemetryDiagnostics() })
+        break
+      }
+      if (sub === "sweep") {
+        out({ removed: sweepRetention(PROJECT_ROOT), diagnostics: telemetryDiagnostics() })
+        break
+      }
+      if (sub === "probe") {
+        // T5 capability probe runner — manual, outside the decision path (INSTRUMENTATION_SPEC §2).
+        // Source: host runtime-verified variant registry (method INTEGRATION). Vision NOT probed
+        // (stays BLOCKED per I-005 — a registry flag cannot promote it).
+        const registry = buildRegistry()
+        const emitted = runCapabilityProbe(PROJECT_ROOT, registry)
+        out({ status: "PROBE", emitted, diagnostics: telemetryDiagnostics(), note: "T5 records written for runtime-verified variants (dim reasoning, method INTEGRATION); vision remains BLOCKED" })
+        break
+      }
+      if (sub === "shadow") {
+        if (flags.mode === "OFF") {
+          out({ status: "OFF", reason: "v22 flags OFF — no shadow computation (byte-identical v2.1 behavior)" })
+          break
+        }
+        const prompt = await readPrompt()
+        const policy = loadRoutingPolicy(PROJECT_ROOT)
+        const { decision } = resolveRoute(PROJECT_ROOT, { prompt, sessionId: argValue("--session") ?? undefined })
+        const taskClass = decision.input.matched_task_class
+        const entry = policy.task_classes.find((t) => t.task_class === taskClass) ?? null
+        if (!entry) {
+          out({ status: "SHADOW_BLOCKED", reason: `no policy entry for ${taskClass}` })
+          break
+        }
+        const req = buildRequirement({
+          sourceTaskClass: taskClass as Parameters<typeof buildRequirement>[0]["sourceTaskClass"],
+          riskClass: ((entry.risk ?? "medium") as Parameters<typeof buildRequirement>[0]["riskClass"]),
+          agent: entry.agent,
+          modality: entry.modality_required === "vision" ? "vision" : "text",
+          complexity: decision.input.complexity,
+          contextDemand: "medium",
+          reasoningDemand: "medium",
+          latencyPreference: taskClass === "latency-sensitive" ? "speed" : "normal",
+          qualityPreference: "normal",
+          costProfile: "balanced",
+          sessionId: decision.sessionId,
+          routeId: decision.routeId,
+        })
+        if (req.kind === "blocked") {
+          out({ status: "SHADOW_BLOCKED", reason: req.reason, v21: { model: decision.model, variant: decision.variant } })
+          break
+        }
+        const registry = buildRegistry()
+        const discovery = discoverCandidates(registry, entry)
+        const result = runEngine({
+          mode: "SHADOW",
+          requirement: req.requirement,
+          candidates: discovery.candidates,
+          providers: noopProviders,
+          budgets: { costBudget: null, latencyBudgetP95Ms: null },
+          hysteresis: emptyHysteresisState({ taskClass: req.requirement.sourceTaskClass, risk: req.requirement.riskClass }),
+          stickyRouteBroken: false,
+          now: new Date().toISOString(),
+          sessionId: decision.sessionId ?? "unknown",
+          routeId: decision.routeId,
+          attempt: 1,
+        })
+        const v22 =
+          result.kind === "blocked" ? { blocked: true, reason: result.reason, exclusions: result.exclusions } :
+          result.kind === "degraded" ? { degraded: true, reason: result.reason, v21ResultPreserved: true } :
+          { selected: result.decision.selected, scores: result.decision.scores.map((s) => ({ candidateId: s.candidateId, score: Number(s.score.toFixed(4)), tier: s.tier })), tieBreaker: result.decision.tieBreaker, degradedToV21: result.decision.degradedToV21 }
+        out({ status: "SHADOW", mode: flags.mode, v21: { model: decision.model, variant: decision.variant }, v22, warnings: discovery.warnings.slice(0, 5) })
+        break
+      }
+      out({ error: "unknown v22 subcommand", valid: ["status", "sweep", "shadow", "probe"] })
+      process.exitCode = 1
+      break
+    }
     default:
       out({
         name: "smart-router",
         version: ROUTER_VERSION,
-        commands: ["classify", "route|explain", "dispatch", "matrix", "status", "history", "session", "set-mode", "set-permissions", "escalate", "breaker", "health", "permissions"],
+        commands: ["classify", "route|explain", "dispatch", "matrix", "status", "history", "session", "set-mode", "set-permissions", "escalate", "breaker", "health", "permissions", "v22 [status|shadow|sweep|probe]"],
         notes: "prompt via --prompt, --prompt-file, or stdin",
       })
   }

@@ -20,6 +20,9 @@ import { recordFailure as breakerFailure, recordSuccess as breakerSuccess, break
 import { appendJsonl, LOG } from "../smart-router/logger.ts"
 import { writeStatus } from "../smart-router/status.ts"
 import { evaluate } from "../smart-router/evaluator.ts"
+// V2.2 host observation (additive, I-021): observational sidecar — never influences routing.
+import { loadFlags } from "../smart-router/v22/flags.ts"
+import { createHostV22 } from "../smart-router/v22/host.ts"
 
 const SIGNALS = { toolErrors: [] as string[], exceptions: [] as string[], testFailures: 0, reviewBlockers: [] as string[], repeatedRetries: 0, providerErrors: [] as string[], contextIssues: [] as string[] }
 
@@ -63,6 +66,11 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
     writeStatus(projectRoot, { startedAt: new Date().toISOString() })
   } catch {}
 
+  // V2.2 flags default OFF (fail-safe). OFF ⇒ createHostV22 is never constructed ⇒ zero V2.2
+  // activity. SHADOW ⇒ T1–T5 telemetry + shadow computation, all fail-open, zero influence.
+  const v22flags = loadFlags(projectRoot)
+  const v22 = v22flags.mode === "OFF" ? null : createHostV22(projectRoot, { registry, mode: v22flags.mode })
+
   try {
     await client.app
       .log({
@@ -82,7 +90,7 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
       try {
         if (cfg.mode === "off") return
         const text = (output.parts ?? [])
-          .filter((p): p is { type: "text"; text: string } => (p as { type?: string })?.type === "text")
+          .filter((p) => (p as { type?: string })?.type === "text")
           .map((p) => (p as { text?: string }).text ?? "")
           .join("\n")
         if (!text.trim()) return
@@ -111,6 +119,16 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
             note: "advisory only — /auto dispatch reroutes on the next request (no in-flight model mutation)",
           })
         }
+        // V2.2 (additive, observational): t0 + attribution + shadow computation. Cannot mutate
+        // the route — chat.message output is untouched and the host cannot receive a model here.
+        v22?.onChatMessage({
+          sessionId: input.sessionID,
+          agent,
+          liveModel,
+          liveVariant: input.variant ?? null,
+          route,
+          ts: Date.now(),
+        })
       } catch {}
     },
 
@@ -118,6 +136,8 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
     "chat.params": async (input, output) => {
       try {
         if (cfg.mode === "off") return
+        // V2.2 (additive, observational): t1 = provider dispatch moment (host-exposed transition)
+        v22?.onChatParams(input.sessionID)
         const modelId = input.model ? `${(input.model as { providerID?: string }).providerID ?? ""}/${(input.model as { modelID?: string }).modelID ?? (input.model as { id?: string }).id ?? ""}` : null
         const opts = output.options as Record<string, unknown>
         const key = opts ? ("reasoning_effort" in opts ? "reasoning_effort" : "reasoningEffort" in opts ? "reasoningEffort" : null) : null
@@ -234,6 +254,8 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
     // -------- event: provider/session observation (#63) — observation, not control
     event: async ({ event }) => {
       try {
+        // V2.2 (additive, observational): T2 outcome + T3 t2/t3 + T4 usage from the event bus
+        v22?.onEvent(event)
         const type = (event as { type?: string }).type ?? ""
         if (type === "session.error") {
           const props = (event as { properties?: { error?: string; sessionID?: string } }).properties ?? {}
@@ -260,6 +282,8 @@ export const SmartRouterPlugin: Plugin = async ({ client, directory }) => {
       try {
         const result = evaluate(SIGNALS)
         appendJsonl(projectRoot, LOG.smartRouterLog, { timestamp: new Date().toISOString(), kind: "dispose-evaluation", quality: result.quality, action: result.action, reasons: result.reasons })
+        // V2.2 (additive, observational): T1 evaluation attribution (+ T3 window fallback)
+        v22?.onDispose(result)
       } catch {}
     },
   }

@@ -1,0 +1,223 @@
+{
+  "manifestVersion": 1,
+  "algorithm": "sha256",
+  "note": "relative paths, sorted; excludes runtime state, logs, machine-local paths",
+  "v22Source": [
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/discovery.ts",
+      "sha256": "2e2db1387ef46eecf072efe94fb76ac5067d49cb5605e4c8e3e6a43ab29798ea",
+      "bytes": 2814
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/engine.ts",
+      "sha256": "e91d631ad38655bbba715566e67c9bcb585832d973744947adb8bedd8904b79a",
+      "bytes": 17080
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/evaluation-store.ts",
+      "sha256": "21da819e3d579bb995955c8e89d0ec533c3e52ae7bb19b322552fb6491859ffb",
+      "bytes": 19099
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/evidence-snapshot.ts",
+      "sha256": "7a5fd0b7b86f25bdcb4435115197c2491f12200de053a88a599eb4f4be23c574",
+      "bytes": 4335
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/evidence.ts",
+      "sha256": "3769e1b10f4bb508f69c23b25f8354686ce00096c670b662ee548762c9698be9",
+      "bytes": 6697
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/flags.ts",
+      "sha256": "331c991ba52078567cc9726c885c17c4b6d0e523fb9a766cac84ad86c4d700b8",
+      "bytes": 1276
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/gates.ts",
+      "sha256": "d47aab30d08521c5f49cf021b13f7b5448588e7414c7e0dbc3f93469c8ca13f0",
+      "bytes": 10254
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/host.ts",
+      "sha256": "40d82b1cd1f33f5f7d21b2fab86561fb84b880f536569866b0dce5dbd376cce1",
+      "bytes": 23417
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/hysteresis-store.ts",
+      "sha256": "00ce6ceb314942ff7e52bb28398800b7d9fefd08ba8a1bf2f7a7fc559aa7e7b7",
+      "bytes": 2007
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/hysteresis.ts",
+      "sha256": "2385c06b79f4ee78274ab8da4b8bf9b6d6878dae3b58314a5ada66a66b3c809b",
+      "bytes": 4827
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/policy-data.ts",
+      "sha256": "2cd0fdd3de2d2248ecce1263a09f57cd9dbb4d48045769606b9daaa59d35af1a",
+      "bytes": 7404
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/replay.ts",
+      "sha256": "1700cf1d20d25d70441aa594b84ebb880ad5dc12e1a672c3072431a96debbfb4",
+      "bytes": 7162
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/requirement.ts",
+      "sha256": "73d3da3a6ee3c61fedcf5fb22c604616249256664f5cfd62fc5952ff8132d6e9",
+      "bytes": 2668
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/scoring.ts",
+      "sha256": "9adf9a4a388f213c1c8eea2b3dabad021950f2061700252ae2c8b640d621b661",
+      "bytes": 9203
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/telemetry.ts",
+      "sha256": "c1c6ab313230c07840b685336b680b747d489a07379b0fefbc01c8c7e7a256b9",
+      "bytes": 3325
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/types.ts",
+      "sha256": "144d29130442181336b32b43a1780dadeac6a99cd36c66061107f31ec9aa6df8",
+      "bytes": 14206
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/v22/wire.ts",
+      "sha256": "74505f4aca3262648bb62b5f1d1c0cd28e303ff5651e977ee384d3a063e1e128",
+      "bytes": 6956
+    }
+  ],
+  "v22Tests": [
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-engine-integration.test.ts",
+      "sha256": "0f826a61bb0ee085189f42092fb7a3056307d95f9e926fa9bc993506d1627810",
+      "bytes": 11444
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-engine.test.ts",
+      "sha256": "a27d04e86ea2b5e0ac682bc0b61b7397ce2a8b542fd90048daa7a318b905788d",
+      "bytes": 22496
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-flags-replay.test.ts",
+      "sha256": "338954c88b583111b3d486d38cdaf704223bf39a01d0e7c0829c2b950ae118be",
+      "bytes": 5937
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-host-integration.test.ts",
+      "sha256": "2b3a513b6a8195e0f0d9e2256b747898fcb65627530b9015548a33d5618311d1",
+      "bytes": 22096
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-identity-integration.test.ts",
+      "sha256": "2fe3475ce1ad0acb659481b9fcd6582259054d7085ef0e51e703ff6756043caa",
+      "bytes": 14105
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-wave1-remediation.test.ts",
+      "sha256": "6aa326c85838162caf56df6a8403e9d4c85fe0c2caee6ea79cdaa90df017c5c1",
+      "bytes": 21964
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tests/smart-router/v22-wave2-evidence-loop.test.ts",
+      "sha256": "b094907372de8b5769f74589398b12b31fb002953db99331be96e696803724b6",
+      "bytes": 30228
+    }
+  ],
+  "integrationWiring": [
+    {
+      "path": "D:/Workspace/my-portofolio/.gitignore",
+      "sha256": "33cc7e4aad3f239ba5faa960f654b8ab7640295b46fe27795aa5e614491293e2",
+      "bytes": 1816
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/plugins/smart-router.ts",
+      "sha256": "fe1477481ea161dc61b5b3c997c2eff985393801694263905fcc3621b20a090d",
+      "bytes": 14749
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/classifier.ts",
+      "sha256": "04b06494fd85cc6667af1e8252b65cf2d89d688e035732504e651e023371c0e7",
+      "bytes": 7778
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/.opencode/smart-router/cli.ts",
+      "sha256": "36af81c98269f9552c17a8f8ff40598dd5b3fef94bdbb1f6befe9a04169e9cc7",
+      "bytes": 17488
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/package.json",
+      "sha256": "cd4e8acf60218b3795e2f01c595d2ab1f5c1a841cb8034b757402b53b2347fb0",
+      "bytes": 2003
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/tsconfig.v22.json",
+      "sha256": "cc3d340e271cad390a7c50c30d807b6ebf4f34a9524282bdd7f17f32f677b6a2",
+      "bytes": 649
+    }
+  ],
+  "designContracts": [
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_ARCHITECTURE.md",
+      "sha256": "3dffa4aff9eb894c81a343df6478114e09c358c55fe9bdc6ae949aebc6596739",
+      "bytes": 18330
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_DECISION_MATRIX.md",
+      "sha256": "7ffe8de0c0a87bbce14d694fb61bad518bf32241524117165804ffe5da974c40",
+      "bytes": 15742
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_EVALUATION_DESIGN.md",
+      "sha256": "9b2442376ccb78649786b41b6c00149a45fa13d493314094fbe5967d75eca36c",
+      "bytes": 18005
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_EVIDENCE_AUDIT.md",
+      "sha256": "c2deb1055f88c855626af965da54d9aab5c302767504fafda8f2baca145eba7f",
+      "bytes": 5475
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_EVIDENCE_CONTRACT.md",
+      "sha256": "c546fef306639d04a35d987830e5daa370ffd4b1d91fc90b15ea41534c0320af",
+      "bytes": 8087
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_OBSERVABILITY_DESIGN.md",
+      "sha256": "6a9f7253863fa80010360fcef7416eb782b7a60f391a7f77279c3e64f53f4387",
+      "bytes": 8570
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_REPLAY_CONTRACT.md",
+      "sha256": "9d1d771ff5ec04204c106256f761884a9d4de088d57bdeac9301c7cbb038febf",
+      "bytes": 5244
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_ROUTING_MODEL.md",
+      "sha256": "dc934d7e96e5d52b49385624a0972a370cf9dfbe48a57cbc9af8b3e92bc874b0",
+      "bytes": 33618
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_SECURITY_BOUNDARY.md",
+      "sha256": "7a444dd6f1f2e27f297c48ff10c2fb4a31a77144b040b07c99558d9611916423",
+      "bytes": 10450
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_THRESHOLD_ANALYSIS.md",
+      "sha256": "7098924f90b79f78b41233d7f7306dfa5e5fc27d910c8570a027bd66d4018b12",
+      "bytes": 2953
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_V2_1_INSTRUMENTATION_SPEC.md",
+      "sha256": "a76b6c866217aa5e536c267f6239ef2b4f83766a393b8a72c4fded0197199857",
+      "bytes": 4805
+    },
+    {
+      "path": "D:/Workspace/my-portofolio/docs/smart-router/SMART_ROUTER_V2_2_WEIGHT_ANALYSIS.md",
+      "sha256": "23bc19a260484c54765d12af3db29638e93e4deb9ef23a888ac597393d292994",
+      "bytes": 3384
+    }
+  ]
+}
