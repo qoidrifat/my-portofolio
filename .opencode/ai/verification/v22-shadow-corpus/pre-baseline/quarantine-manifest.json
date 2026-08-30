@@ -1,0 +1,58 @@
+[
+  {
+    "source": ".opencode\\ai\\telemetry\\v22\\t1.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\t1.jsonl",
+    "file": "t1.jsonl",
+    "sha256": "20cfbad16c94860e931428052ac9a064c4e4a13db260cf9eb8762ab944deb952",
+    "bytes": 801,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\telemetry\\v22\\t2.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\t2.jsonl",
+    "file": "t2.jsonl",
+    "sha256": "595b71196a561a0dc005deebe4a341e7919dbbaf1aabd2b00cb0ea5cab43d727",
+    "bytes": 609,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\telemetry\\v22\\t3.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\t3.jsonl",
+    "file": "t3.jsonl",
+    "sha256": "8a3f2b9ca505f99f30dd30d1aaa22a3c74b120bef9775ce2e5a16c6adead4ddd",
+    "bytes": 548,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\telemetry\\v22\\t4.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\t4.jsonl",
+    "file": "t4.jsonl",
+    "sha256": "87af1dde2fbe61b87b5530071f22e2aa902177e5bb4df0ec155e13128b19681c",
+    "bytes": 497,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\telemetry\\v22\\t5.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\t5.jsonl",
+    "file": "t5.jsonl",
+    "sha256": "62ebf0ac351bfac525cec6e47a1355ce935236477056279de9e12a7e52b80a66",
+    "bytes": 4300,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\evidence\\v22\\shadow-decisions.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\shadow-decisions.jsonl",
+    "file": "shadow-decisions.jsonl",
+    "sha256": "d22de92e06347ef604c09d6cb6898238322761e21de78b7b4004ba4bf5f3ccfc",
+    "bytes": 4974,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  },
+  {
+    "source": ".opencode\\ai\\evidence\\v22\\shadow-deltas.jsonl",
+    "archive": ".opencode\\ai\\verification\\v22-shadow-corpus\\pre-baseline\\shadow-deltas.jsonl",
+    "file": "shadow-deltas.jsonl",
+    "sha256": "80bc7b1f25a9f31ab7d815bd05a78cb1ad78321b24d14cc59afcbe52dc8822c4",
+    "bytes": 1013,
+    "classified": "PRE_BASELINE_DEVELOPMENT"
+  }
+]

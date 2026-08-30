@@ -1,0 +1,37 @@
+{
+  "preflightVersion": 1,
+  "at": "2026-08-30T09:33:53.298Z",
+  "baselineCommit": "2c2bacecf9805cdd32df28ccecf59c0f41d74748",
+  "baselineCommitExpected": "2c2bacecf9805cdd32df28ccecf59c0f41d74748",
+  "baselineMatch": true,
+  "v21ParentMatch": true,
+  "protocolCommit": "702a01bd41a6c0a476ccaa69b11a73592413b6dc",
+  "protocolVersion": "1.0.1",
+  "sourceManifest": "PASS (42/42 recomputed, see phase-1 log in session transcript; run at 2026-08-30)",
+  "configSafety": {
+    "optimized": false,
+    "auto": false,
+    "vision": "BLOCKED",
+    "zeroInfluence": true,
+    "collectionEnabledPreStart": false
+  },
+  "quarantine": {
+    "performed": true,
+    "manifest": ".opencode\\ai\\verification\\v22-shadow-corpus/pre-baseline/quarantine-manifest.json",
+    "files": 7,
+    "classification": "PRE_BASELINE_DEVELOPMENT"
+  },
+  "officialStoresClean": {
+    "telemetryAbsentPreStart": true,
+    "evidenceAbsentPreStart": true,
+    "evaluationSignalsAbsent": true
+  },
+  "flagsMode": "SHADOW (local gitignored file; host engages at next session start; loadFlags runs once at plugin load — verified)",
+  "gates": {
+    "tests": "303/303 PASS (re-run this session, phase-0)",
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "verdict": "PASS"
+}

@@ -1,0 +1,36 @@
+{
+  "checkpointId": "corpus-checkpoint-001",
+  "at": "2026-08-30T09:33:53.298Z",
+  "epochId": "v2.2.0-shadow.1-260830-001",
+  "baselineCommit": "2c2bacecf9805cdd32df28ccecf59c0f41d74748",
+  "protocolCommit": "702a01bd41a6c0a476ccaa69b11a73592413b6dc",
+  "schemaVersion": 1,
+  "recordCount": 0,
+  "syntheticCanaryRecords": 1,
+  "coverage": {
+    "taskClassesSeen": [
+      "standard-coding"
+    ],
+    "optimizationClassesSeen": [
+      "routine-coding"
+    ],
+    "riskClassesSeen": [
+      "medium"
+    ],
+    "providerModelVariantSeen": [
+      "minimaxm3new/MiniMaxAI/MiniMax-M3#deep"
+    ]
+  },
+  "unknownRate": "n/a",
+  "duplicates": 0,
+  "fatalViolations": 0,
+  "warnings": [
+    "0 organic records at checkpoint — pre-first-session"
+  ],
+  "hashes": {
+    "corpusConfigSha256": "0404d80eff22e7902df1e8cd92ac6c86d53d6f48e0679ca277cbef695eb9be07",
+    "preflightSha256": "97dbe731229c4313219aef3c4a9fedd2bcbda7de25682b63147a2b6ec818de39",
+    "epochSha256": "480030f13a39b8342f4e72578490bab7ba6ff5ba5def618ec432a284c0e28f95"
+  },
+  "dataIntegrityVerdict": "PASS (pipeline verified; first-checkpoint data-integrity only, no model-quality claim)"
+}

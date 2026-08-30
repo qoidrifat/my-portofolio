@@ -1,0 +1,440 @@
+{
+  "capturedAt": "2026-08-30T09:33:53.298Z",
+  "tempRoot": "C:\\Users\\USER\\AppData\\Local\\Temp\\v22-canary-NJpqsI",
+  "note": "wire-path canary via createHostV22(SHADOW) in temp dir; official stores untouched (officialStoresTouched=false)",
+  "route": {
+    "taskClass": "standard-coding",
+    "model": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+    "variant": "deep",
+    "routeId": "R-b8f1265381",
+    "sessionId": "S-canary-1788082151920"
+  },
+  "shadowDecision": {
+    "schemaVersion": 1,
+    "recordId": "rec-0d6ceaf9-4c8c-43df-bbce-9bc165cb051b",
+    "sessionId": "S-canary-1788082151920",
+    "routeId": "R-b8f1265381",
+    "decisionId": "D-4cd43e018b5e",
+    "attempt": 1,
+    "timestamp": "2026-08-30T09:29:11.945Z",
+    "requirement": {
+      "sessionId": "S-canary-1788082151920",
+      "routeId": "R-b8f1265381",
+      "sourceTaskClass": "standard-coding",
+      "optimizationClass": "routine-coding",
+      "riskClass": "medium",
+      "agent": "build",
+      "modality": "text",
+      "complexity": "medium",
+      "contextDemand": "medium",
+      "reasoningDemand": "medium",
+      "contextTokens": "[REDACTED]",
+      "capabilityRequirements": [
+        {
+          "dim": "coding",
+          "tier": "REQUIRED_FLOOR",
+          "minLevel": "STATIC"
+        }
+      ],
+      "latencyPreference": "normal",
+      "qualityPreference": "normal",
+      "costProfile": "balanced"
+    },
+    "v21Route": {
+      "providerId": "minimaxm3new",
+      "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+      "variant": "deep"
+    },
+    "v21CandidateSet": [
+      {
+        "candidateId": "minimaxm3new/MiniMaxAI/MiniMax-M3#deep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "minimaxm3new/MiniMaxAI/MiniMax-M3#fast",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "minimaxm3new/MiniMaxAI/MiniMax-M3#balanced",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "mygmicloud/MiniMaxAI/MiniMax-M3#fast",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "mygmicloud/MiniMaxAI/MiniMax-M3#balanced",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "mygmicloud/MiniMaxAI/MiniMax-M3#deep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "b-ai/glm-5.3-flash#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/glm-5.3-flash#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "9router/b.ai/deepseek-v4-flash#low",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "9router/b.ai/deepseek-v4-flash#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "9router/b.ai/deepseek-v4-flash#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "9router/b.ai/glm-5.3-flash#low",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "9router/b.ai/glm-5.3-flash#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "9router/b.ai/glm-5.3-flash#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/z-ai/glm-5.2:free#balanced",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/z-ai/glm-5.2:free#deep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m3:free#fast",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m3:free#balanced",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m3:free#deep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m3:free#xdeep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m2.7:free#fast",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m2.7:free#balanced",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m2.7:free#deep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "open-router/minimax/minimax-m2.7:free#xdeep",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "CONFIGURED"
+      },
+      {
+        "candidateId": "b-ai/deepseek-v4-flash#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/deepseek-v4-flash#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/deepseek-v4-flash-vision-exp#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/deepseek-v4-flash-vision-exp#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/hy3#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/mimo-v2.5#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/mimo-v2.5#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "BLOCKED_UPSTREAM"
+      },
+      {
+        "candidateId": "b-ai/qwen3.8-flash#high",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      },
+      {
+        "candidateId": "b-ai/qwen3.8-flash#max",
+        "policyStatus": "ALLOWED",
+        "variantStatus": "VERIFIED"
+      }
+    ],
+    "v21Exclusions": [],
+    "evidence": {
+      "capability": {
+        "missing": [
+          {
+            "field": "capability",
+            "reason": "no-source"
+          }
+        ]
+      },
+      "health": {
+        "missing": [
+          {
+            "field": "health",
+            "reason": "breaker-state-only; health aggregates no-source"
+          }
+        ]
+      },
+      "quality": {
+        "missing": [
+          {
+            "field": "quality",
+            "reason": "no-source"
+          }
+        ]
+      },
+      "latency": {
+        "missing": [
+          {
+            "field": "latency",
+            "reason": "no-source"
+          }
+        ]
+      },
+      "cost": {
+        "missing": [
+          {
+            "field": "cost",
+            "reason": "no-source"
+          }
+        ]
+      },
+      "variantEvidence": {
+        "missing": [
+          {
+            "field": "variantEvidence",
+            "reason": "no-source"
+          }
+        ]
+      }
+    },
+    "outcomeRefs": [
+      "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06"
+    ],
+    "missing": [
+      {
+        "field": "v21Exclusions",
+        "reason": "v2.1 breaker-exclusion list not exposed on RouteDecision"
+      }
+    ]
+  },
+  "evaluationSignal": [
+    {
+      "signalId": "SIG-exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+      "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+      "chain": {
+        "sessionId": "S-canary-1788082151920",
+        "routeId": "R-b8f1265381",
+        "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+        "candidate": {
+          "providerId": "minimaxm3new",
+          "modelId": "MiniMaxAI/MiniMax-M3",
+          "variant": "deep"
+        },
+        "taskClass": "standard-coding",
+        "evaluationId": ""
+      },
+      "attributionComplete": true,
+      "quality": null,
+      "execution": {
+        "sessionId": "S-canary-1788082151920",
+        "routeId": "R-b8f1265381",
+        "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+        "providerId": "minimaxm3new",
+        "modelId": "MiniMaxAI/MiniMax-M3",
+        "variant": "deep",
+        "taskClass": "standard-coding",
+        "optimizationClass": "routine-coding",
+        "outcome": "COMPLETED",
+        "errorClass": null,
+        "environment": {
+          "timeout": false,
+          "network": false,
+          "quota": false,
+          "tooling": false,
+          "userCancel": false
+        },
+        "timestamp": "2026-08-30T09:29:11.961Z",
+        "provenance": [
+          "wire"
+        ]
+      }
+    },
+    {
+      "signalId": "SIG-EVAL-exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+      "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+      "chain": {
+        "sessionId": "S-canary-1788082151920",
+        "routeId": "R-b8f1265381",
+        "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+        "candidate": {
+          "providerId": "minimaxm3new",
+          "modelId": "MiniMaxAI/MiniMax-M3",
+          "variant": "deep"
+        },
+        "taskClass": "standard-coding",
+        "evaluationId": "EVAL-exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06"
+      },
+      "attributionComplete": true,
+      "quality": {
+        "grade": 1,
+        "confidence": 0.6,
+        "evaluatorId": "v2.1-evaluator",
+        "failureClass": null
+      },
+      "execution": null
+    }
+  ],
+  "t2": {
+    "schemaVersion": 1,
+    "event": "T2",
+    "timestamp": "2026-08-30T09:29:11.961Z",
+    "eventId": "EVT-65fa8c0f-0d36-4ec5-948f-d5335583d804",
+    "provenance": [
+      "smart-router/v22"
+    ],
+    "sessionId": "S-canary-1788082151920",
+    "routeId": "R-b8f1265381",
+    "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+    "providerId": "minimaxm3new",
+    "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+    "variant": "deep",
+    "taskClass": "standard-coding",
+    "optimizationClass": "routine-coding",
+    "attributionComplete": true,
+    "outcome": "COMPLETED",
+    "errorClass": null,
+    "environment": {
+      "timeout": false,
+      "network": false,
+      "quota": false,
+      "tooling": false,
+      "userCancel": false
+    }
+  },
+  "t3": {
+    "schemaVersion": 1,
+    "event": "T3",
+    "timestamp": "2026-08-30T09:29:11.963Z",
+    "eventId": "EVT-ad75cdc3-8885-4aa7-863f-b1005b6e445a",
+    "provenance": [
+      "smart-router/v22"
+    ],
+    "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+    "routeId": "R-b8f1265381",
+    "candidate": {
+      "providerId": "minimaxm3new",
+      "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+      "variant": "deep"
+    },
+    "taskClass": "standard-coding",
+    "outputSizeBucket": null,
+    "t0": 1788082151945,
+    "t1": null,
+    "t2": 1788082151961,
+    "t3": 1788082151961,
+    "ttfrMs": 16,
+    "completionMs": 16,
+    "timeout": false,
+    "missingReason": null
+  },
+  "t4": {
+    "schemaVersion": 1,
+    "event": "T4",
+    "timestamp": "2026-08-30T09:29:11.963Z",
+    "eventId": "EVT-bfc1b16b-f0ff-498f-9b2c-0017e2937899",
+    "provenance": [
+      "smart-router/v22"
+    ],
+    "executionId": "exec-1ea0bc63-1056-4982-afdc-afc1ab85ba06",
+    "routeId": "R-b8f1265381",
+    "candidate": {
+      "providerId": "minimaxm3new",
+      "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+      "variant": "deep"
+    },
+    "inputUsage": 1200,
+    "outputUsage": 340,
+    "pricingSource": {
+      "id": "opencode-host",
+      "version": "host-runtime",
+      "status": "VERIFIED"
+    },
+    "effectiveCost": 0.0021,
+    "unit": "USD"
+  },
+  "hysteresisState": {
+    "key": "S-canary-1788082151920::standard-coding::medium",
+    "state": {
+      "segment": {
+        "taskClass": "standard-coding",
+        "risk": "medium"
+      },
+      "currentRoute": {
+        "providerId": "minimaxm3new",
+        "modelId": "minimaxm3new/MiniMaxAI/MiniMax-M3",
+        "variant": "deep"
+      },
+      "stickSince": "2026-08-30T09:29:11.945Z",
+      "exceedCount": 0,
+      "exceedStrongCount": 0,
+      "exceedStrongSince": null,
+      "environmentOutcomeStreak": 0
+    }
+  }
+}
