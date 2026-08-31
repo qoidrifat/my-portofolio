@@ -22,6 +22,7 @@ const GLM = "b-ai/glm-5.3-flash"
 const DEEPSEEK = "b-ai/deepseek-v4-flash"
 const QWEN = "b-ai/qwen3.8-flash"
 const M3 = "minimaxm3new/MiniMaxAI/MiniMax-M3"
+const M3FREE = "open-router/minimax/minimax-m3:free"
 
 const BREAKER = { failureThreshold: 3, cooldownMs: 60_000 }
 const SECURITY_PROMPT = "Audit the authentication and authorization architecture for security weaknesses."
@@ -91,7 +92,7 @@ describe("circuit breaker → routing eligibility (closed-loop)", () => {
     open(root, GLM)
     const coding = route("standard-coding", root)
     expect(coding.status).toBe("RESOLVED")
-    expect(coding.model).toBe(M3)
+    expect(coding.model).toBe(M3FREE)
     const arch = route("architecture-analysis", root)
     expect(arch.model).toBe(QWEN) // architecture chain: glm → qwen; glm open → qwen
   })
