@@ -21,12 +21,16 @@
   "include": [
     ".opencode/smart-router/**/*.ts",
     ".opencode/plugins/*.ts",
-    ".opencode/plugins/*.tsx",
     "tests/smart-router/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "tests/smart-router/agent-threading.test.ts"
+    "tests/smart-router/agent-threading.test.ts",
+    // The TUI plugin needs @opencode-ai/plugin/tui, solid-js and @opentui/solid.
+    // Those live in .opencode/node_modules, which is gitignored and never
+    // installed by `npm ci`, so a clean checkout cannot typecheck it. It is a
+    // host-side UI extension, not part of the app build or the test suite.
+    ".opencode/plugins/smart-router-tui.tsx"
   ]
 }
