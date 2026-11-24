@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # main plus release-candidate branches. A branch push must produce a run,
+    # otherwise CI looks green simply because it never started.
+    branches: [main, 'security/release-candidate-*']
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 # Least privilege: this workflow only reads the repository. Fork PRs get a
 # read-only token, and nothing here needs write access to contents, issues,
