@@ -98,7 +98,11 @@ export const INTRO_SESSION_KEY = 'qr-intro-played';
 // The session key is still written (markIntroPlayed) so this policy can be
 // flipped back to once-per-session by restoring the sessionStorage check.
 export function hasIntroPlayed() {
-  return false;
+  try {
+    return sessionStorage.getItem(INTRO_SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
 }
 
 function markIntroPlayed() {
@@ -118,7 +122,7 @@ const EASE = {
 // Content Constants
 // ─────────────────────────────────────────────────────────────────────────────
 const NAME     = profile.name;
-const SUBTITLE = 'Full Stack Developer  •  AI Enthusiast';
+const SUBTITLE = 'Full-Stack Developer  •  Applied AI';
 
 const PHASE_ORDER = ['logo', 'morph', 'identity', 'reposition', 'terminal', 'boot', 'welcome', 'exiting', 'done'];
 const phaseIndex = (p) => PHASE_ORDER.indexOf(p);

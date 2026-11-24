@@ -39,7 +39,7 @@ export default function RepoCard({ repo, index, isInView, shouldReduceMotion }) 
               <TopicBadge key={topic} topic={topic} />
             ))}
             {repo.topics.length > 3 && (
-              <span className="text-[9px] font-medium text-zinc-600">
+              <span className="text-xs font-medium text-zinc-400">
                 +{repo.topics.length - 3}
               </span>
             )}
@@ -49,17 +49,17 @@ export default function RepoCard({ repo, index, isInView, shouldReduceMotion }) 
         {/* Metadata row */}
         <div className="flex items-center gap-4 text-xs">
           {repo.language && <LangDot language={repo.language} />}
-          <span className="flex items-center gap-1 text-zinc-500">
+          <span className="flex items-center gap-1 text-zinc-400">
             <Star className="w-3.5 h-3.5" aria-hidden="true" />
             {fmt(repo.stars)}
           </span>
-          <span className="flex items-center gap-1 text-zinc-500">
+          <span className="flex items-center gap-1 text-zinc-400">
             <GitFork className="w-3.5 h-3.5" aria-hidden="true" />
             {fmt(repo.forks)}
           </span>
-          <span className="flex items-center gap-1 text-zinc-600 ml-auto">
+          <span className="flex items-center gap-1 text-zinc-400 ml-auto">
             <Clock className="w-3 h-3" aria-hidden="true" />
-            <span className="text-[10px]">{timeAgo(repo.updatedAt)}</span>
+            <span className="text-xs">{timeAgo(repo.updatedAt)}</span>
           </span>
         </div>
       </div>

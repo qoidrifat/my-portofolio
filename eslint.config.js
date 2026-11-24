@@ -51,6 +51,11 @@ export default [
       "jsx-a11y": pluginJsxA11y,
     },
     rules: {
+      // Both recommended presets must be merged into `rules` explicitly.
+      // Spreading the whole config object at this level lets the trailing
+      // `rules:` key clobber them, which silently disabled no-undef and friends.
+      ...pluginJs.configs.recommended.rules,
+      ...pluginReact.configs.flat.recommended.rules,
       ...pluginJsxA11y.configs.recommended.rules,
       "jsx-a11y/click-events-have-key-events": "warn",
       "jsx-a11y/no-static-element-interactions": "warn",
@@ -75,6 +80,11 @@ export default [
         { ignore: ["cmdk-input-wrapper", "toast-close"] },
       ],
       "react-hooks/rules-of-hooks": "error",
+      // Cosmetic only, and never enforced before the config fix. Kept as warnings
+      // so the security-relevant rules above stay at error without touching
+      // unrelated JSX copy in five already-dirty files.
+      "react/no-unescaped-entities": "warn",
+      "react/display-name": "warn",
     },
   },
 ];

@@ -5,37 +5,62 @@ import { useRef } from 'react';
 import { GraduationCap, MapPin, Rocket, Brain, Code, Camera, Download } from 'lucide-react';
 import { profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
+import { useCopy } from '@/lib/LanguageContext';
+
+const COPY = {
+  en: {
+    eyebrow: 'Discovery',
+    headingA: 'About',
+    headingB: 'Me',
+    status: 'Ready to Innovate',
+    journey: 'My Journey',
+    introA: "I'm a",
+    introHighlight: 'final-year Informatics Engineering student',
+    introB: 'at',
+    introC: 'Universitas Trunojoyo Madura, dedicated to crafting high-performance digital solutions.',
+    focus: 'I specialize in bridging the gap between sophisticated backend logic and intuitive frontend experiences, with a growing focus on integrating Artificial Intelligence to solve real-world challenges.',
+    download: 'Download Resume',
+    highlights: [
+      { title: 'Education', description: 'Final-year Informatics Engineering student at Universitas Trunojoyo Madura' },
+      { title: 'AI Integration', description: 'Passionate about bridging Web Development with Artificial Intelligence' },
+      { title: 'Full Stack', description: 'Builds end-to-end web applications with React, Laravel and Node.js' },
+      { title: 'Creative Side', description: 'Photography enthusiast capturing moments between lines of code' },
+    ],
+  },
+  id: {
+    eyebrow: 'Mengenal Saya',
+    headingA: 'Tentang',
+    headingB: 'Saya',
+    status: 'Siap Berinovasi',
+    journey: 'Perjalanan Saya',
+    introA: 'Saya',
+    introHighlight: 'mahasiswa tingkat akhir Teknik Informatika',
+    introB: 'di',
+    introC: 'Universitas Trunojoyo Madura yang berfokus membangun solusi digital berperforma tinggi.',
+    focus: 'Saya berspesialisasi menjembatani logika backend yang kompleks dengan pengalaman frontend yang intuitif, dengan fokus yang terus berkembang pada integrasi Artificial Intelligence untuk menjawab tantangan nyata.',
+    download: 'Unduh CV',
+    highlights: [
+      { title: 'Pendidikan', description: 'Mahasiswa tingkat akhir Teknik Informatika di Universitas Trunojoyo Madura' },
+      { title: 'Integrasi AI', description: 'Antusias menjembatani Web Development dengan Artificial Intelligence' },
+      { title: 'Full Stack', description: 'Membangun aplikasi web end-to-end dengan React, Laravel, dan Node.js' },
+      { title: 'Sisi Kreatif', description: 'Penggemar fotografi yang mengabadikan momen di sela baris kode' },
+    ],
+  },
+};
+
+const HIGHLIGHT_STYLE = [
+  { icon: GraduationCap, color: 'blue' },
+  { icon: Brain, color: 'emerald' },
+  { icon: Code, color: 'purple' },
+  { icon: Camera, color: 'orange' },
+];
 
 export default function AboutSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const t = useCopy(COPY);
 
-  const highlights = [
-    {
-      icon: GraduationCap,
-      title: "Education",
-      description: "Final-year Informatics Engineering student at Universitas Trunojoyo Madura",
-      color: "blue"
-    },
-    {
-      icon: Brain,
-      title: "AI Integration",
-      description: "Passionate about bridging Web Development with Artificial Intelligence",
-      color: "emerald"
-    },
-    {
-      icon: Code,
-      title: "Full Stack",
-      description: "Experienced in building end-to-end web applications with Laravel & Python",
-      color: "purple"
-    },
-    {
-      icon: Camera,
-      title: "Creative Side",
-      description: "Photography enthusiast capturing moments between lines of code",
-      color: "orange"
-    }
-  ];
+  const highlights = HIGHLIGHT_STYLE.map((style, i) => ({ ...style, ...t.highlights[i] }));
 
   return (
     <section className="py-24 md:py-32 relative overflow-hidden scroll-mt-20" ref={ref}>
@@ -48,7 +73,7 @@ export default function AboutSection() {
             transition={{ duration: 0.5 }}
             className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block"
           >
-            Discovery
+            {t.eyebrow}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -56,7 +81,7 @@ export default function AboutSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            About <span className="text-zinc-500">Me</span>
+            {t.headingA} <span className="text-zinc-500">{t.headingB}</span>
           </motion.h2>
         </div>
 
@@ -89,7 +114,7 @@ export default function AboutSection() {
                 <div className="text-center space-y-4">
                   <h3 className="text-3xl font-black text-white">Qoid Rif'at</h3>
                   <p className="text-zinc-400 font-medium text-lg italic">
-                    Web Developer & AI Enthusiast
+                    {profile.role}
                   </p>
                   
                   <div className="flex items-center justify-center gap-3 text-zinc-400 font-bold uppercase tracking-widest text-[10px]">
@@ -106,7 +131,7 @@ export default function AboutSection() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                       </span>
-                      <span className="text-zinc-300 text-xs font-bold uppercase tracking-wider">Ready to Innovate</span>
+                      <span className="text-zinc-300 text-xs font-bold uppercase tracking-wider">{t.status}</span>
                     </div>
                   </div>
                 </div>
@@ -123,16 +148,14 @@ export default function AboutSection() {
               className="space-y-6"
             >
               <h3 className="text-2xl font-bold text-white flex items-center gap-3">                    <Rocket className="w-6 h-6 text-accent-web" aria-hidden="true" />
-                My Journey
+                {t.journey}
               </h3>
               <p className="text-xl text-zinc-400 leading-relaxed">
-                I'm a <span className="text-white font-black underline decoration-accent-web/50 decoration-4 underline-offset-4">final-year Informatics Engineering student</span> at 
-                Universitas Trunojoyo Madura, dedicated to crafting high-performance digital solutions.
+                {t.introA} <span className="text-white font-black underline decoration-accent-web/50 decoration-4 underline-offset-4">{t.introHighlight}</span> {t.introB}{' '}
+                {t.introC}
               </p>
               <p className="text-zinc-400 leading-relaxed text-lg">
-                I specialize in bridging the gap between sophisticated backend logic and 
-                intuitive frontend experiences, with a growing focus on integrating 
-                Artificial Intelligence to solve real-world challenges.
+                {t.focus}
               </p>
             </motion.div>
 
@@ -181,7 +204,7 @@ export default function AboutSection() {
                 className="group relative inline-flex px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold items-center gap-3 hover:bg-white/10 transition-all overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-accent-web/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span>Download Resume</span>
+                <span>{t.download}</span>
                 <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform text-accent-web" aria-hidden="true" />
               </a>
             </motion.div>

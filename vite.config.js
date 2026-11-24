@@ -16,11 +16,10 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,webp,png,jpg,svg,ico,woff2}'],
-        // Keep the precache lean: full-size gallery images are fetched on
-        // demand (lightbox only) and cached at runtime instead. Without this,
-        // every first-time visitor silently downloaded the whole gallery.
-        globIgnores: ['gallery/original/**', 'gallery/*.{jpg,png}', 'arsip/**'],
+        globPatterns: ['**/*.{js,css,html,svg,ico,woff2}', 'icon*.{png,webp}', 'profile.{webp,avif}', 'logo.webp'],
+        // Keep precache lean: screenshots, case study assets, and gallery images
+        // are loaded on-demand and cached via runtimeCaching.
+        globIgnores: ['gallery/**', 'projects/**', 'arsip/**', '**/*.pdf', 'fonts/inter/Inter-normal-{500,600,900}.woff2'],
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
         navigateFallback: '/',
         runtimeCaching: [
@@ -39,15 +38,27 @@ export default defineConfig({
             },
           },
           {
-            // Full-size gallery images — cached only after the visitor
-            // actually opens them in the lightbox
-            urlPattern: /\/gallery\/original\/.*\.(webp|avif|jpg|png)$/i,
+            urlPattern: /\/(projects|gallery)\/.*\.(webp|avif|jpg|png)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'gallery-originals',
+              cacheName: 'portfolio-media',
               expiration: {
-                maxEntries: 30,
+                maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /\/fonts\/.*\.woff2$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'portfolio-fonts',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -110,6 +121,9 @@ export default defineConfig({
             if (id.includes('framer-motion')) return 'vendor-framer';
             // Icon libraries — standalone, no internal deps
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
+            // react-router-dom v7 pulls the whole router runtime into the entry
+            // chunk when left unsplit (+26 KB raw / +9 KB gzip on the LCP path).
+            if (id.includes('react-router')) return 'vendor-router';
           }
         },
       },

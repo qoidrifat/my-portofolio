@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# Least privilege: this workflow only reads the repository. Fork PRs get a
+# read-only token, and nothing here needs write access to contents, issues,
+# packages or deployments.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -13,15 +19,40 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Actions are pinned to full commit SHAs, not floating major tags.
+      # Dependabot bumps the SHA; the human-readable version stays in the
+      # trailing comment. Both are node24 releases — GitHub removed the node20
+      # runner on 2026-09-23, so v4 actions would fail to start.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
-          node-version: 20
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
           cache: npm
+
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
       - run: npm run check:budget
+
+      # Gate the deployment configuration itself: a malformed vercel.json is
+      # the difference between shipped security headers and no headers at all.
+      - name: Validate vercel.json
+        run: node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8')); console.log('vercel.json valid')"
+
+      - name: Assert security headers are declared
+        run: |
+          node -e "
+          const { headers } = JSON.parse(require('fs').readFileSync('vercel.json','utf8'));
+          const all = headers.flatMap(h => h.headers.map(x => x.key));
+          const required = ['Content-Security-Policy','X-Frame-Options','X-Content-Type-Options','Referrer-Policy','Permissions-Policy','Strict-Transport-Security'];
+          const missing = required.filter(k => !all.includes(k));
+          if (missing.length) { console.error('Missing security headers:', missing.join(', ')); process.exit(1); }
+          console.log('All required security headers declared');
+          "

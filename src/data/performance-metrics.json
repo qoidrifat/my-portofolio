@@ -1,29 +1,35 @@
 {
-  "generatedAt": "2026-08-29T05:17:57.966Z",
+  "generatedAt": "2026-11-24T22:25:01.742Z",
   "buildTime": "< 10s",
   "bundles": [
     {
       "name": "index.js",
-      "size": 396534,
-      "sizeLabel": "387.2 KB",
+      "size": 202742,
+      "sizeLabel": "198.0 KB",
+      "type": "js"
+    },
+    {
+      "name": "vendor-router.js",
+      "size": 174191,
+      "sizeLabel": "170.1 KB",
       "type": "js"
     },
     {
       "name": "vendor-framer.js",
-      "size": 130934,
+      "size": 130942,
       "sizeLabel": "127.9 KB",
       "type": "js"
     },
     {
       "name": "index.css",
-      "size": 85265,
-      "sizeLabel": "83.3 KB",
+      "size": 89423,
+      "sizeLabel": "87.3 KB",
       "type": "css"
     },
     {
       "name": "vendor-icons.js",
-      "size": 74267,
-      "sizeLabel": "72.5 KB",
+      "size": 74532,
+      "sizeLabel": "72.8 KB",
       "type": "js"
     },
     {
@@ -34,14 +40,44 @@
     },
     {
       "name": "GitHubSection.js",
-      "size": 35787,
-      "sizeLabel": "34.9 KB",
+      "size": 36127,
+      "sizeLabel": "35.3 KB",
       "type": "js"
     },
     {
       "name": "ProjectSection.js",
-      "size": 26957,
-      "sizeLabel": "26.3 KB",
+      "size": 25845,
+      "sizeLabel": "25.2 KB",
+      "type": "js"
+    },
+    {
+      "name": "ProjectCaseStudy.js",
+      "size": 24143,
+      "sizeLabel": "23.6 KB",
+      "type": "js"
+    },
+    {
+      "name": "PortfolioMascot.js",
+      "size": 21026,
+      "sizeLabel": "20.5 KB",
+      "type": "js"
+    },
+    {
+      "name": "ContactSection.js",
+      "size": 12231,
+      "sizeLabel": "11.9 KB",
+      "type": "js"
+    },
+    {
+      "name": "CareerTimelineSection.js",
+      "size": 8927,
+      "sizeLabel": "8.7 KB",
+      "type": "js"
+    },
+    {
+      "name": "TechGroups.js",
+      "size": 8798,
+      "sizeLabel": "8.6 KB",
       "type": "js"
     },
     {
@@ -51,41 +87,35 @@
       "type": "js"
     },
     {
-      "name": "ContactSection.js",
-      "size": 8674,
-      "sizeLabel": "8.5 KB",
-      "type": "js"
-    },
-    {
-      "name": "CareerTimelineSection.js",
-      "size": 8094,
-      "sizeLabel": "7.9 KB",
-      "type": "js"
-    },
-    {
       "name": "TechStackSection.js",
-      "size": 8088,
-      "sizeLabel": "7.9 KB",
+      "size": 8381,
+      "sizeLabel": "8.2 KB",
       "type": "js"
     },
     {
       "name": "AboutSection.js",
-      "size": 6955,
-      "sizeLabel": "6.8 KB",
+      "size": 8239,
+      "sizeLabel": "8.0 KB",
+      "type": "js"
+    },
+    {
+      "name": "TerminalEasterEgg.js",
+      "size": 6206,
+      "sizeLabel": "6.1 KB",
       "type": "js"
     }
   ],
   "summary": {
-    "totalJsSize": 743638,
-    "totalJsSizeLabel": "726.2 KB",
-    "totalCssSize": 85265,
-    "totalCssSizeLabel": "83.3 KB",
-    "totalPageSize": 838303,
-    "totalPageSizeLabel": "818.7 KB",
-    "totalBundles": 12,
-    "totalSourceFiles": 52,
-    "totalLinesOfCode": 11034,
-    "jsxComponents": 43
+    "totalJsSize": 789678,
+    "totalJsSizeLabel": "771.2 KB",
+    "totalCssSize": 89423,
+    "totalCssSizeLabel": "87.3 KB",
+    "totalPageSize": 888390,
+    "totalPageSizeLabel": "867.6 KB",
+    "totalBundles": 17,
+    "totalSourceFiles": 59,
+    "totalLinesOfCode": 12264,
+    "jsxComponents": 47
   },
   "scoresEstimated": {
     "performance": 78,

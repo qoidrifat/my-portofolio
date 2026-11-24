@@ -1,1 +1,0 @@
-Perform a deep investigation of the implementation strategy and determine the safest architectural approach before any code modification.

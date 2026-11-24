@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Menu, X, ArrowUp, Search as SearchIcon, TerminalSquare, Palette } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
-import TerminalEasterEgg from '@/components/TerminalEasterEgg';
+const TerminalEasterEgg = lazy(() => import('@/components/TerminalEasterEgg'));
 import { useTheme, THEMES } from '@/lib/ThemeContext';
+import { useLanguage } from '@/lib/LanguageContext';
 
+const NAV_TRANSLATIONS = {
+  en: { Home: 'Home', About: 'About', Journey: 'Journey', Projects: 'Projects', Skills: 'Skills', Contact: 'Contact' },
+  id: { Home: 'Beranda', About: 'Tentang', Journey: 'Jejak', Projects: 'Proyek', Skills: 'Keahlian', Contact: 'Kontak' },
+};
 export default function Layout({ children }) {
   const { cycleTheme, setTheme, currentTheme } = useTheme();
+  const { lang, setLang } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
@@ -97,6 +103,7 @@ export default function Layout({ children }) {
         className="fixed top-0 left-0 right-0 z-50"
         style={{
           transition: 'background 400ms cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 400ms cubic-bezier(0.22, 1, 0.36, 1), border-color 400ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1), padding 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
           background: isScrolled ? 'rgba(9, 9, 11, 0.82)' : 'transparent',
           backdropFilter: isScrolled ? 'blur(16px) saturate(180%)' : 'none',
           WebkitBackdropFilter: isScrolled ? 'blur(16px) saturate(180%)' : 'none',
@@ -155,13 +162,41 @@ export default function Layout({ children }) {
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  {link.name}
+                  {NAV_TRANSLATIONS[lang]?.[link.name] || link.name}
                 </motion.a>
               ))}
             </div>
 
-            {/* Search + CTA */}
+            {/* Search + Language + CTA */}
             <div className="hidden lg:flex items-center gap-2">
+              {/* Language Selector */}
+              <div className="flex items-center p-0.5 rounded-xl bg-white/5 border border-border-soft text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                    lang === 'en'
+                      ? 'bg-accent-web text-accent-web-foreground font-bold shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                  aria-label="Switch language to English"
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang('id')}
+                  className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                    lang === 'id'
+                      ? 'bg-accent-web text-accent-web-foreground font-bold shadow-sm'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                  aria-label="Ganti bahasa ke Bahasa Indonesia"
+                >
+                  ID
+                </button>
+              </div>
+
               {/* Theme Toggle */}
               <motion.button
                 onClick={cycleTheme}
@@ -191,7 +226,7 @@ export default function Layout({ children }) {
                 aria-label="Open command palette"
               >
                 <SearchIcon className="w-4 h-4" aria-hidden="true" />
-                <span>Search</span>
+                <span>{lang === 'id' ? 'Cari' : 'Search'}</span>
                 <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white/10 text-[10px] font-mono text-text-muted">⌘K</kbd>
               </motion.button>
 
@@ -203,13 +238,13 @@ export default function Layout({ children }) {
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
               >
                 <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
-                <span className="relative">Let's Talk</span>
+                <span className="relative">{lang === 'id' ? 'Mari Bicara' : "Let's Talk"}</span>
               </motion.a>
             </div>
 
             {/* Mobile Menu Button */}
             <motion.button
-              className="lg:hidden p-2.5 rounded-xl bg-white/5 border border-border-soft hover:bg-white/10 transition-colors"
+              className="lg:hidden min-w-[44px] min-h-[44px] p-2.5 rounded-xl bg-white/5 border border-border-soft hover:bg-white/10 transition-colors flex items-center justify-center"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
               aria-label="Toggle Menu"
@@ -244,7 +279,7 @@ export default function Layout({ children }) {
                     }`}
                     whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
                   >
-                    {link.name}
+                    {NAV_TRANSLATIONS[lang]?.[link.name] || link.name}
                   </motion.a>
                 ))}
 
@@ -259,24 +294,58 @@ export default function Layout({ children }) {
                       <button
                         key={t.id}
                         onClick={() => setTheme(t.id)}
-                        className={`w-7 h-7 rounded-full border-2 transition-all duration-300 ${
-                          currentTheme.id === t.id ? 'border-white scale-110' : 'border-transparent opacity-50 hover:opacity-80'
-                        }`}
-                        style={{ backgroundColor: t.primary }}
+                        className="w-11 h-11 flex items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white"
                         aria-label={`Switch to ${t.label} theme`}
                         title={t.label}
-                      />
+                      >
+                        <span
+                          className={`w-7 h-7 rounded-full border-2 transition-all duration-300 block ${
+                            currentTheme.id === t.id ? 'border-white scale-110' : 'border-transparent opacity-50 hover:opacity-80'
+                          }`}
+                          style={{ backgroundColor: t.primary }}
+                        />
+                      </button>
                     ))}
                   </div>
                 </div>
 
+                {/* Language switcher — mobile */}
+                <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
+                  <span className="text-text-muted text-sm font-medium">
+                    {lang === 'id' ? 'Bahasa' : 'Language'}
+                  </span>
+                  <div className="flex items-center p-0.5 rounded-xl bg-white/5 border border-border-soft text-xs font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setLang('en')}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        lang === 'en'
+                          ? 'bg-accent-web text-accent-web-foreground font-bold'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      EN
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLang('id')}
+                      className={`px-3 py-1.5 rounded-lg transition-all ${
+                        lang === 'id'
+                          ? 'bg-accent-web text-accent-web-foreground font-bold'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      ID
+                    </button>
+                  </div>
+                </div>
                 <motion.a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}
                   className="block mt-2 px-4 py-4 bg-gradient-to-r from-accent-web to-accent-web/80 rounded-2xl text-base font-bold text-center text-white shadow-lg shadow-glow-web"
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
                 >
-                  Let's Talk
+                  {lang === 'id' ? 'Mari Bicara' : "Let's Talk"}
                 </motion.a>
               </div>
             </motion.div>
@@ -321,8 +390,9 @@ export default function Layout({ children }) {
       <CommandPalette />
 
       {/* Terminal Easter Egg — Ctrl+` / Cmd+` */}
-      <TerminalEasterEgg />
-
+      <Suspense fallback={null}>
+        <TerminalEasterEgg />
+      </Suspense>
       <footer className="relative border-t border-border-soft bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center text-center md:text-left">
@@ -335,7 +405,9 @@ export default function Layout({ children }) {
                 <p className="text-text-body text-sm font-medium tracking-wide">{profile.role}</p>
               </motion.div>
               <p className="text-text-muted text-sm max-w-xs mx-auto md:mx-0">
-                Building the next generation of intelligent web experiences.
+                {lang === 'id'
+                  ? 'Membangun aplikasi web end-to-end dan pengalaman digital yang cerdas.'
+                  : 'Building end-to-end web applications and intelligent digital experiences.'}
               </p>
             </div>
             
@@ -346,7 +418,7 @@ export default function Layout({ children }) {
                 ))}
               </div>
               <p className="text-text-muted text-xs font-medium uppercase tracking-widest">
-                © {new Date().getFullYear()} {profile.name}. All rights reserved.
+                © {new Date().getFullYear()} {profile.name}. {lang === 'id' ? 'Hak cipta dilindungi.' : 'All rights reserved.'}
               </p>
             </div>
             
@@ -390,24 +462,28 @@ export default function Layout({ children }) {
                       <motion.button
                         key={t.id}
                         onClick={() => setTheme(t.id)}
-                        className={`relative rounded-full transition-all duration-300 ${
-                          currentTheme.id === t.id
-                            ? 'w-7 h-7 shadow-lg'
-                            : 'w-5 h-5 opacity-40 hover:opacity-80'
-                        }`}
-                        style={{ backgroundColor: t.primary }}
-                        whileHover={shouldReduceMotion ? undefined : { scale: 1.2 }}
+                        className="w-11 h-11 flex items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        whileHover={shouldReduceMotion ? undefined : { scale: 1.15 }}
                         whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
                         aria-label={`Switch to ${t.label} theme`}
                         title={t.label}
                       >
-                        {currentTheme.id === t.id && (
-                          <motion.span
-                            layoutId="footerThemeDot"
-                            className="absolute inset-0 rounded-full border border-white/40"
-                            transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
-                          />
-                        )}
+                        <span
+                          className={`relative rounded-full transition-all duration-300 block ${
+                            currentTheme.id === t.id
+                              ? 'w-7 h-7 shadow-lg'
+                              : 'w-5 h-5 opacity-40 hover:opacity-80'
+                          }`}
+                          style={{ backgroundColor: t.primary }}
+                        >
+                          {currentTheme.id === t.id && (
+                            <motion.span
+                              layoutId="footerThemeDot"
+                              className="absolute inset-0 rounded-full border border-white/40"
+                              transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                            />
+                          )}
+                        </span>
                       </motion.button>
                     ))}
                   </div>

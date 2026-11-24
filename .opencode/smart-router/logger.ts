@@ -78,4 +78,5 @@ export const LOG = {
   routerLog: "logs/smart-router.log",
   permissionTextLog: "logs/permission-router.log",
   health: "verification/smart-router-health.json",
+  modelSwitchEvents: "telemetry/v22/model-switch-events.jsonl",
 }

@@ -15,7 +15,7 @@ const GitHubSection = lazy(() => import('@/components/portofolio/GitHubSection')
 // minHeight approximates the mounted section's real height so that anchor
 // offsets (navbar "Contact" etc.) and scroll-spy stay accurate before mount,
 // and the page doesn't shift when a section mounts mid-scroll.
-function SectionFallback({ minHeight = '100vh' }) {
+function SectionFallback({ minHeight = '100dvh' }) {
   return <div style={{ minHeight }} aria-hidden="true" />;
 }
 
@@ -42,8 +42,8 @@ export default function Home() {
         </Suspense>
       </LazySection>
 
-      <LazySection id="skills" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
-        <Suspense fallback={<SectionFallback minHeight="100vh" />}>
+      <LazySection id="skills" threshold={500} placeholder={<SectionFallback minHeight="100dvh" />}>
+        <Suspense fallback={<SectionFallback minHeight="100dvh" />}>
           <TechStackSection />
         </Suspense>
       </LazySection>
@@ -60,8 +60,8 @@ export default function Home() {
         </Suspense>
       </LazySection>
 
-      <LazySection id="contact" threshold={500} placeholder={<SectionFallback minHeight="100vh" />}>
-        <Suspense fallback={<SectionFallback minHeight="100vh" />}>
+      <LazySection id="contact" threshold={500} placeholder={<SectionFallback minHeight="100dvh" />}>
+        <Suspense fallback={<SectionFallback minHeight="100dvh" />}>
           <ContactSection />
         </Suspense>
       </LazySection>

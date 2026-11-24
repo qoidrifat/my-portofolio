@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { profile, projects, techCategories } from '@/lib/data';
+import { profile, techCategories } from '@/lib/data';
+import { projects } from '@/lib/projects-data';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TerminalEasterEgg — Interactive terminal hidden in the portfolio footer

@@ -26,7 +26,12 @@
 //   is preserved. All waits are event-driven with bounded timeouts.
 //
 // Safety contract:
-//   - modes: off | advisory | auto (auto requires the separate ISR flag file). No FORCE.
+//   - modes: off | advisory | confirm (confirm requires the separate ISR flag file AND an
+//     askConsent source; the legacy "auto" mode was removed 2026-09-02 — consent replaces
+//     it). No FORCE.
+//   - confirm mode: the chat.message hook awaits consentDone (the host awaits the hook
+//     before the agent loop starts — measured), so NO token is generated while the user
+//     decides. Deny/timeout => drop, turn continues on the current model.
 //   - decision boundary: the coordinator EXECUTES a V2.1 recommendation; it never picks models.
 //   - target must pass the registry validator (fail-closed when absent) — the host
 //     accepts invalid models at POST /model (measured), so HTTP success proves nothing.
@@ -40,9 +45,11 @@
 
 import { appendJsonl, LOG } from "../logger.ts"
 import { parseQualifiedModel } from "./evaluation-store.ts"
+import type { ConsentRequest } from "./consent.ts"
 
 export type IsrState =
   | "IDLE"
+  | "WAITING_CONSENT"
   | "WAITING_STEP"
   | "ABORTING"
   | "SWITCHING"
@@ -77,10 +84,18 @@ export interface IsrOps {
   abort(sessionId: string): Promise<void>
   /** Switch the model used by SUBSEQUENT provider turns (restart-on-switch). */
   switchModel(sessionId: string, model: IsrModelRef): Promise<void>
-  /** Durably submit the original logical prompt text. */
-  prompt(sessionId: string, text: string): Promise<void>
+  /** Durably submit the original logical prompt text, bound to the TARGET model
+   *  (turn-level binding — no session model mutation; measured host defects force this). */
+  prompt(sessionId: string, text: string, model: IsrModelRef): Promise<void>
   /** Current session model (authoritative host state), or null when unknown. */
   getSessionModel(sessionId: string): Promise<IsrModelRef | null>
+  /**
+   * Permanently delete a message and its parts (SDK v2 DELETE /session/:id/message/:id).
+   * Used by the interrupted-UI cleanup: after consent, the original user message and the
+   * interrupted assistant message would otherwise linger in the transcript with an
+   * "interrupted" marker. Optional — cleanup is fail-open; when absent, skip silently.
+   */
+  deleteMessage?(sessionId: string, messageId: string): Promise<void>
 }
 
 export interface IsrTimings {
@@ -101,19 +116,28 @@ export interface IsrTimings {
 export const DEFAULT_ISR_TIMINGS: IsrTimings = {
   waitingMs: 30_000,
   abortMs: 10_000,
-  replayMs: 10_000,
-  replayDoneMs: 30_000,
+  // Reasoning models (measured 2026-09-02: glm-5.3-flash/max) may take >10s before the
+  // first replay evidence reaches the plugin hook — 10s produced REPLAY_UNCONFIRMED on
+  // a replay that was actually starting. 60s: run 1 (2026-09-02 16:46) hit 30s timeout
+  // while the replay turn was still warming up; run 3 evidence arrived ~23s. 60s keeps
+  // the wait bounded and honest without false UNCONFIRMED on cold reasoning starts.
+  replayMs: 120_000,
+  // Reasoning turns run long before finish:"stop" (measured: minutes with tool calls).
+  replayDoneMs: 180_000,
 }
 
 export interface IsrDeps {
   ops: IsrOps
-  mode: () => "off" | "advisory" | "auto"
+  mode: () => "off" | "advisory" | "confirm"
   /** Registry membership check for the switch target (F-03). Fail-closed when absent. */
   validateTarget?: (model: IsrModelRef) => boolean
   log?: (record: Record<string, unknown>) => void
   now?: () => number
   uuid?: () => string
   timings?: Partial<IsrTimings>
+  /** Mode confirm: sumber keputusan consent (produksi = bridge file; test = fake).
+   *  Wajib ada saat mode confirm — tanpa ini registerIntent skip fail-closed. */
+  askConsent?: (req: ConsentRequest) => Promise<"approve" | "deny" | "timeout">
 }
 
 export interface IsrTriggerInput {
@@ -131,12 +155,17 @@ export interface IsrTriggerInput {
   hasNonTextParts?: boolean
   /** Original logical user prompt text (from chat.message output.parts). Never logged. */
   originalPrompt: string
+  /** Host id of the original user message — used by the interrupted-UI cleanup. */
+  userMessageId?: string | null
 }
 
 export interface IsrTriggerResult {
   action: "intent-registered" | "coalesced" | "advisory-noop" | "off" | "skipped"
   reason: string
   operationId?: string
+  /** Mode confirm: hook chat.message MENUNGGU promise ini (jeda pipeline sebelum
+   *  agent loop mulai — measured: hook di-await host sebelum ensureRunning). */
+  consentDone?: Promise<"approve" | "deny" | "timeout">
 }
 
 type IntentPhase = "WAITING_STEP" | "ABORTING" | "SWITCHING" | "REPLAYING"
@@ -172,6 +201,20 @@ interface IsrIntent {
   originalCompleted?: boolean
   /** The replay assistant's finish reason, latched when it completes. */
   replayFinished?: string
+  /** Mode confirm: consent sudah disetujui (beginRun diblokir sebelum ini). */
+  consentApproved?: boolean
+  /** Byte pertama sudah dialirkan (latch defensif saat consent masih pending). */
+  deltaSeen?: boolean
+  /** Assistant message id of the ORIGINAL turn (model FROM only) — deleted with the user message after REPLAY_COMPLETED. */
+  interruptedMessageId?: string | null
+  /** finish reason latched for the interrupted assistant — "stop" means it completed and must NOT be deleted. */
+  interruptedFinish?: string | null
+  /** Host id of the original user message (cleanup target together with interruptedMessageId). */
+  originalMessageId?: string | null
+  /** Rolling replayDone deadline handle — re-armed on every replay liveness evidence. */
+  replayDoneDeadline?: ReturnType<typeof setTimeout> | null
+  /** Fires the replayDone timeout (resolved false). Stored so touchReplayDone can re-arm. */
+  replayDoneFire?: (() => void) | null
 }
 
 const sameModel = (a: IsrModelRef, b: IsrModelRef): boolean =>
@@ -183,12 +226,13 @@ const sameProviderModel = (a: IsrModelRef, b: IsrModelRef): boolean =>
 
 export class IsrCoordinator {
   private readonly ops: IsrOps
-  private readonly mode: () => "off" | "advisory" | "auto"
+  private readonly mode: () => "off" | "advisory" | "confirm"
   private readonly validateTarget?: (model: IsrModelRef) => boolean
   private readonly logFn: (record: Record<string, unknown>) => void
   private readonly now: () => number
   private readonly uuid: () => string
   private readonly timings: IsrTimings
+  private readonly askConsent?: (req: ConsentRequest) => Promise<"approve" | "deny" | "timeout">
   /** sessionId -> pending intent (also the in-flight/coalescing tracker). */
   private readonly intents = new Map<string, IsrIntent>()
   /** sessionId -> messageId already handled this turn (one operation per turn). */
@@ -207,6 +251,7 @@ export class IsrCoordinator {
     this.now = deps.now ?? (() => Date.now())
     this.uuid = deps.uuid ?? (() => crypto.randomUUID())
     this.timings = { ...DEFAULT_ISR_TIMINGS, ...deps.timings }
+    this.askConsent = deps.askConsent
   }
 
   stateOf(sessionId: string): IsrState {
@@ -237,9 +282,10 @@ export class IsrCoordinator {
     const mode = this.mode()
     if (mode === "off") return { action: "off", reason: "isr mode off" }
     if (mode === "advisory") return { action: "advisory-noop", reason: "advisory mode never switches" }
-    // fail-closed: only the three known modes act; anything else (incl. a future
-    // "force") degrades to off semantics. There is no FORCE mode.
-    if (mode !== "auto") return { action: "off", reason: `unsupported isr mode "${mode}" (fail-closed)` }
+    // fail-closed: only the three known modes act; anything else (incl. the legacy
+    // "auto" mode, removed 2026-09-02 in favor of "confirm") degrades to off
+    // semantics. There is no FORCE mode.
+    if (mode !== "confirm") return { action: "off", reason: `unsupported isr mode "${mode}" (fail-closed)` }
     if (this.disposed) return { action: "skipped", reason: "coordinator disposed" }
 
     const target = this.resolveTarget(input.recommendedModel, input.recommendedVariant)
@@ -253,13 +299,17 @@ export class IsrCoordinator {
       modelID: input.currentModel.modelID,
       variant: input.currentVariant ?? null,
     }
-    if (sameModel(from, target)) return { action: "skipped", reason: "recommended model equals current" }
+    if (sameProviderModel(from, target)) return { action: "skipped", reason: "recommended model equals current (variant-insensitive: effort-only differences never trigger ISR consent)" }
 
     // F-03: the host accepts ANY model at POST /model (measured 204 on invalid ids),
     // so the target must be validated against the registry here. Fail-closed.
     if (!this.validateTarget) return { action: "skipped", reason: "target validation unavailable (fail-closed)" }
     if (!this.validateTarget(target)) {
       return { action: "skipped", reason: "target not in model registry (fail-closed)" }
+    }
+    // Mode confirm TANPA sumber consent: fail-closed (tidak pernah switch tanpa persetujuan).
+    if (mode === "confirm" && !this.askConsent) {
+      return { action: "skipped", reason: "consent unavailable (fail-closed)" }
     }
 
     // One operation per logical user turn (event identity: host messageId when present).
@@ -288,24 +338,83 @@ export class IsrCoordinator {
       to: target,
       reason: input.reason ?? "router recommendation",
       originalPrompt: input.originalPrompt,
+      originalMessageId: input.userMessageId ?? input.messageId ?? null,
       phase: "WAITING_STEP",
       timers: [],
     }
     this.intents.set(input.sessionId, intent)
-    this.states.set(input.sessionId, "WAITING_STEP")
+    const isConfirm = mode === "confirm"
+    this.states.set(input.sessionId, isConfirm ? "WAITING_CONSENT" : "WAITING_STEP")
     this.emit("model-switch-requested", input.sessionId, {
       operationId,
       from: `${from.providerID}/${from.modelID}`,
       to: `${target.providerID}/${target.modelID}`,
       variant: target.variant ?? null,
       reason: intent.reason,
-      status: "INTENT_REGISTERED:waiting-active-step",
-      state: "WAITING_STEP",
+      status: isConfirm ? "INTENT_REGISTERED:consent-required" : "INTENT_REGISTERED:waiting-active-step",
+      state: isConfirm ? "WAITING_CONSENT" : "WAITING_STEP",
     })
-    this.arm(intent, this.timings.waitingMs, () => {
-      this.dropIntent(intent, "no-interrupt-window (intent expired)")
+    if (!isConfirm) {
+      this.arm(intent, this.timings.waitingMs, () => {
+        this.dropIntent(intent, "no-interrupt-window (intent expired)")
+      })
+      return { action: "intent-registered", reason: "waiting for active step", operationId }
+    }
+    // Mode confirm: consent DULU. Timer waitingMs baru di-arm setelah approve —
+    // user think-time tidak boleh meng-expire intent. Hook chat.message meng-await
+    // consentDone: pipeline host terjeda (agent loop belum mulai, nol token dihasilkan).
+    this.emit("model-switch-requested", input.sessionId, {
+      operationId,
+      from: `${from.providerID}/${from.modelID}`,
+      to: `${target.providerID}/${target.modelID}`,
+      variant: target.variant ?? null,
+      reason: intent.reason,
+      status: "CONSENT_PROMPTED",
+      state: "WAITING_CONSENT",
     })
-    return { action: "intent-registered", reason: "waiting for active step", operationId }
+    const ask = this.askConsent!
+    const consentDone = ask({
+      operationId,
+      sessionId: input.sessionId,
+      from: `${from.providerID}/${from.modelID}`,
+      to: `${target.providerID}/${target.modelID}`,
+      variant: target.variant ?? null,
+      reason: intent.reason,
+      createdAt: this.now(),
+    })
+      .then((decision): "approve" | "deny" | "timeout" => {
+        const live = this.intents.get(input.sessionId)
+        if (!live || live.operationId !== operationId) return decision
+        if (decision === "approve") {
+          live.consentApproved = true
+          this.states.set(input.sessionId, "WAITING_STEP")
+          this.emit("model-switch-requested", input.sessionId, {
+            operationId,
+            from: `${from.providerID}/${from.modelID}`,
+            to: `${target.providerID}/${target.modelID}`,
+            variant: target.variant ?? null,
+            reason: live.reason,
+            status: "CONSENT_APPROVED",
+            state: "WAITING_STEP",
+          })
+          // run mungkin sudah bisa mulai (step+delta ter-latch saat consent pending)
+          this.maybeBeginRun(live)
+          if (this.intents.get(input.sessionId) === live) {
+            this.arm(live, this.timings.waitingMs, () => {
+              this.dropIntent(live, "no-interrupt-window (intent expired)")
+            })
+          }
+          return "approve"
+        }
+        this.dropIntent(live, decision === "timeout" ? "consent-timeout" : "consent-denied")
+        return decision
+      })
+      .catch((): "timeout" => {
+        const live = this.intents.get(input.sessionId)
+        if (live && live.operationId === operationId) this.dropIntent(live, "consent-error (fail-closed)")
+        return "timeout"
+      })
+    return { action: "intent-registered", reason: "waiting for consent", operationId, consentDone }
   }
 
   /**
@@ -327,10 +436,23 @@ export class IsrCoordinator {
         this.onMessageUpdated(sid, props)
         const info = props?.info as { finish?: string } | undefined
         if (info?.finish) this.onReplayFinished(sid, info.finish)
-      } else if (type === "message.part.delta" || type === "message.part.updated") this.onPartDelta(sid)
-      else if (type === "session.status") this.onSessionStatus(sid, props)
-      else if (type === "session.next.step.started") this.onStepStarted(sid, props)
-      else if (type === "session.next.step.ended" || type === "session.next.step.failed") this.onStepTerminated(sid)
+      } else if (type === "message.part.delta" || type === "message.part.updated" || type === "session.next.text.delta" || type === "session.next.reasoning.delta") {
+        // Streaming evidence reaches the plugin hook under BOTH vocabularies (measured
+        // 1.18.26: session.next.text.delta/reasoning.delta arrive on the hook bus).
+        this.onPartDelta(sid)
+      } else if (type === "session.status") {
+        this.onSessionStatus(sid, props)
+        // REPLAY evidence: session.next.step.started NEVER reaches the plugin hook
+        // (SSE-only — measured), but session.status busy does. During REPLAYING a busy
+        // transition is the replay turn going active: latch it as REPLAY_STARTED.
+        const st = (props?.status as { type?: string } | undefined)?.type
+        if (st === "busy") this.onPartDelta(sid)
+      } else if (type === "session.next.step.started") this.onStepStarted(sid, props)
+      else if (type === "session.next.step.ended" || type === "session.next.step.failed") {
+        const finish = props?.finish as string | undefined
+        this.onStepTerminated(sid, finish)
+        if (finish) this.onReplayFinished(sid, finish)
+      }
       else if (type === "session.idle") this.onSessionIdle(sid)
     } catch {
       // lifecycle observation must never break the host event pipeline
@@ -345,19 +467,58 @@ export class IsrCoordinator {
   private onPartDelta(sid: string): void {
     const intent = this.intents.get(sid)
     if (!intent) return
-    if (intent.phase === "WAITING_STEP" && intent.stepModelConfirmed) this.beginRun(intent)
-    else if (intent.phase === "REPLAYING") {
+    intent.deltaSeen = true
+    this.maybeBeginRun(intent)
+    if (intent.phase === "REPLAYING") {
       intent.replayStarted = true
       intent.resolveReplay?.()
     }
   }
 
+  /**
+   * Mulai run HANYA saat: step terkonfirmasi pada model asal + byte pertama mengalir +
+   * (mode confirm) consent sudah disetujui. Window abort yang terbukti aman; consent
+   * memblokir abort sampai user menyetujui pergantian model.
+   */
+  private maybeBeginRun(intent: IsrIntent): void {
+    if (intent.phase !== "WAITING_STEP") return
+    if (!intent.stepModelConfirmed || !intent.deltaSeen) return
+    if (this.mode() === "confirm" && !intent.consentApproved) return
+    this.beginRun(intent)
+  }
+
+  /**
+   * Interrupted-UI cleanup — DISABLED (measured three independent 2026-09-03 live runs):
+   * ANY deleteMessage call inside an ISR cycle (user-message delete, assistant delete,
+   * pre- or post-REPLAY_COMPLETED) corrupts host part persistence — the replay answer
+   * streams (reasoning+text deltas logged) and REPLAY_COMPLETED fires, but ZERO parts
+   * persist to storage. Message deletion is therefore NEVER automatic; the leftover
+   * "interrupted" marker + duplicate prompt are accepted cosmetic debt (honest state,
+   * zero data loss). The latched interruptedMessageId is kept for telemetry only.
+   * Upgrade path: host-side transcript pruning endpoint, or TUI-side display filter.
+   */
+  private async cleanupInterrupted(intent: IsrIntent): Promise<void> {
+    this.emit("model-switch-replayed", intent.sessionId, this.base(intent, "REPLAY_CLEANED", "REPLAYING"))
+  }
+
   /** Plugin-context step signals: assistant message.created/completed. */
   private onMessageUpdated(sid: string, props: Record<string, unknown> | undefined): void {
     const info = props?.info as
-      | { role?: string; finish?: string; providerID?: string; modelID?: string }
+      | { id?: string; role?: string; finish?: string; providerID?: string; modelID?: string }
       | undefined
     if (!info || info.role !== "assistant") return
+    // latch the interrupted assistant's own id — ONLY for an assistant on the FROM model
+    // (measured 2026-09-03: an id-only latch could grab the replay assistant itself, and
+    // the cleanup then deleted the answer it was meant to keep). finish is remembered:
+    // an assistant that finished "stop" completed normally and must NEVER be a target.
+    const intent0 = this.intents.get(sid)
+    if (intent0 && info.id && info.providerID && info.modelID && intent0.phase !== "REPLAYING") {
+      const fromKey = `${intent0.from.providerID}/${intent0.from.modelID}`
+      if (`${info.providerID}/${info.modelID}` === fromKey) {
+        intent0.interruptedMessageId = info.id
+        intent0.interruptedFinish = info.finish ?? null
+      }
+    }
     if (info.finish) {
       // termination evidence with finish reason (stop = completed, error = aborted/failed)
       this.onStepTerminated(sid, info.finish)
@@ -461,12 +622,36 @@ export class IsrCoordinator {
    * Replay-finish evidence: the replay assistant must finish with finish:"stop".
    * A replay finishing with finish:"error" FAILS the operation (measured live: a
    * replay can be admitted and stream yet still error).
+   *
+   * Multi-step replay (defect fix 2026-09-02): finish:"tool-calls"/"unknown" means a
+   * STEP ended but the agent loop CONTINUES (measured: loop exit requires finish not in
+   * [tool-calls, unknown]). Counting tool-calls as completion produced a premature
+   * REPLAY_FAILED on every replay that called a tool. Emit step evidence, keep the
+   * wait open for the next step.
    */
   private onReplayFinished(sid: string, finish: string): void {
     const intent = this.intents.get(sid)
     if (!intent || intent.phase !== "REPLAYING") return
+    if (finish === "tool-calls" || finish === "unknown") {
+      this.emit("model-switch-replayed", sid, this.base(intent, "REPLAY_STEP_TOOL_CALLS", "REPLAYING"))
+      this.touchReplayDone(intent)
+      return
+    }
     intent.replayFinished = finish
     intent.resolveReplayDone?.()
+  }
+
+  /**
+   * REPLAY liveness: setiap bukti replay masih jalan (step selesai tool-calls / part
+   * delta / step baru) ME-RESET deadline replayDone — bukan deadlinenya statis 180s.
+   * Measured 2026-09-03: turn tool-heavy melewati 180s dengan step tool-calls terus
+   * mengalir (REPLAY_STEP_TOOL_CALLS tiap beberapa detik) lalu timeout → FAILED
+   * padahal replay sehat; intent-then-deadline membuat turn TUI tampak "tanpa jawaban".
+   */
+  private touchReplayDone(intent: IsrIntent): void {
+    if (!intent.replayDoneFire) return
+    if (intent.replayDoneDeadline) clearTimeout(intent.replayDoneDeadline)
+    intent.replayDoneDeadline = setTimeout(intent.replayDoneFire, this.timings.replayDoneMs)
   }
 
   private onSessionIdle(sid: string): void {
@@ -486,11 +671,17 @@ export class IsrCoordinator {
   // ---------- the run (only reachable with an ACTIVE step) ----------
 
   private beginRun(intent: IsrIntent): void {
+    // PHASE TIMER RULE: the waitingMs deadline guards ONLY the WAITING_STEP phase.
+    // Once the run begins, clear it so it can never fire dropIntent mid-ABORTING/
+    // SWITCHING/REPLAYING (measured live, D-08: a stale waiting timer killed an
+    // in-flight run and cascaded clearTimers over the replay timers). Each later
+    // phase re-arms its own timer; its wait closure is settled-guarded anyway.
+    this.clearTimers(intent)
     intent.phase = "ABORTING"
     this.states.set(intent.sessionId, "ABORTING")
     this.emit("model-switch-requested", intent.sessionId, this.base(intent, "ABORT_REQUESTED", "ABORTING"))
     void this.run(intent).catch((e) => {
-      this.failIntent(intent, `run-error:${String(e).slice(0, 120)}`, false)
+      this.failIntent(intent, `run-error:${String(e).slice(0, 120)}`)
     })
   }
 
@@ -501,7 +692,7 @@ export class IsrCoordinator {
     try {
       await this.ops.abort(sid)
     } catch (e) {
-      this.failIntent(intent, `abort-failed:${String(e).slice(0, 120)}`, false)
+      this.failIntent(intent, `abort-failed:${String(e).slice(0, 120)}`)
       return
     }
     // 2) abort-confirmation evidence — 200 "true" alone proves nothing (idle no-op also
@@ -516,7 +707,7 @@ export class IsrCoordinator {
       return
     }
     if (!aborted) {
-      this.failIntent(intent, "ABORT_UNCONFIRMED:no-termination-evidence", false)
+      this.failIntent(intent, "ABORT_UNCONFIRMED:no-termination-evidence")
       return
     }
     this.emit("model-switch-aborted", sid, this.base(intent, "ABORT_CONFIRMED", "ABORTING"))
@@ -533,34 +724,22 @@ export class IsrCoordinator {
       return
     }
 
-    // 4) switch + authoritative confirmation.
+    // 4) NO session-model switch (measured 2026-09-03: POST /api/session/:id/model
+    //    poisons persistence of subsequent turns). The replay prompt itself carries the
+    //    TARGET model in its body — turn-level binding.
+    this.clearTimers(intent) // abort-phase deadline no longer relevant
     intent.phase = "SWITCHING"
     this.states.set(sid, "SWITCHING")
-    try {
-      await this.ops.switchModel(sid, intent.to)
-    } catch (e) {
-      this.failIntent(intent, `switch-failed:${String(e).slice(0, 120)}`, true)
-      return
-    }
-    let nowModel: IsrModelRef | null = null
-    try {
-      nowModel = await this.ops.getSessionModel(sid)
-    } catch {
-      nowModel = null
-    }
-    if (!nowModel || !sameModel(nowModel, intent.to)) {
-      this.failIntent(intent, "switch-not-confirmed", true)
-      return
-    }
     this.emit("model-switched", sid, this.base(intent, "SWITCH_CONFIRMED", "REPLAYING"))
 
     // 5) replay the original logical prompt text.
+    this.clearTimers(intent) // switch-phase deadline no longer relevant
     intent.phase = "REPLAYING"
     this.states.set(sid, "REPLAYING")
     try {
-      await this.ops.prompt(sid, intent.originalPrompt)
+      await this.ops.prompt(sid, intent.originalPrompt, intent.to)
     } catch (e) {
-      this.failIntent(intent, `replay-admission-failed:${String(e).slice(0, 120)}`, true)
+      this.failIntent(intent, `replay-admission-failed:${String(e).slice(0, 120)}`)
       return
     }
     this.emit("model-switch-replayed", sid, this.base(intent, "REPLAY_ADMITTED", "REPLAYING"))
@@ -568,7 +747,7 @@ export class IsrCoordinator {
     // 6) REPLAY_STARTED requires the replay's own step.started — admission proves nothing.
     const started = await this.waitFor(intent, "replay", this.timings.replayMs)
     if (!started) {
-      this.failIntent(intent, "REPLAY_UNCONFIRMED:no-step-started", false)
+      this.failIntent(intent, "REPLAY_UNCONFIRMED:no-step-started")
       return
     }
     this.emit("model-switch-replayed", sid, this.base(intent, "REPLAY_STARTED", "REPLAYING"))
@@ -577,45 +756,31 @@ export class IsrCoordinator {
     //    (measured live: a replay can start and still error — HTTP 401 case).
     const done = await this.waitFor(intent, "replayDone", this.timings.replayDoneMs)
     if (!done) {
-      this.failIntent(intent, "REPLAY_UNCONFIRMED:no-stop-finish", false)
+      this.failIntent(intent, "REPLAY_UNCONFIRMED:no-stop-finish")
       return
     }
     if (intent.replayFinished !== "stop") {
-      this.failIntent(intent, `REPLAY_FAILED:finish=${intent.replayFinished ?? "unknown"}`, true)
+      this.failIntent(intent, `REPLAY_FAILED:finish=${intent.replayFinished ?? "unknown"}`)
       return
     }
     this.emit("model-switch-replayed", sid, this.base(intent, "REPLAY_COMPLETED", "REPLAY_COMPLETED"))
     this.states.set(sid, "REPLAY_COMPLETED")
     this.finishIntent(intent)
+    // Interrupted-UI cleanup AFTER verified completion (finish=stop on the target): the
+    // original user message + interrupted assistant message are deleted so the transcript
+    // shows exactly one clean turn on the new model. Fail-open; never before this point
+    // (measured 2026-09-03: pre-completion delete removed the replay assistant itself).
+    await this.cleanupInterrupted(intent)
   }
 
   // ---------- failure / cleanup ----------
 
-  private failIntent(intent: IsrIntent, status: string, restore: boolean): void {
+  private failIntent(intent: IsrIntent, status: string): void {
     this.states.set(intent.sessionId, "FAILED")
     this.emit("model-switch-failed", intent.sessionId, this.base(intent, status, "FAILED"))
     this.finishIntent(intent)
-    if (!restore) return
-    // Single restore attempt, verified — no retry loops (F-08/F-16).
-    void this.restore(intent).catch(() => {})
-  }
-
-  private async restore(intent: IsrIntent): Promise<void> {
-    try {
-      this.states.set(intent.sessionId, "SWITCHING")
-      await this.ops.switchModel(intent.sessionId, intent.from)
-      const model = await this.ops.getSessionModel(intent.sessionId)
-      if (model && sameModel(model, intent.from)) {
-        this.states.set(intent.sessionId, "RESTORED")
-        this.emit("model-switch-restored", intent.sessionId, this.base(intent, "restored-verified", "RESTORED"))
-      } else {
-        this.states.set(intent.sessionId, "RESTORE_FAILED")
-        this.emit("model-switch-failed", intent.sessionId, this.base(intent, "restore-unconfirmed", "RESTORE_FAILED"))
-      }
-    } catch (e) {
-      this.states.set(intent.sessionId, "RESTORE_FAILED")
-      this.emit("model-switch-failed", intent.sessionId, this.base(intent, `restore-failed:${String(e).slice(0, 120)}`, "RESTORE_FAILED"))
-    }
+    // NO restore: 2026-09-03 turn-level binding performs ZERO session-model mutation,
+    // so there is nothing to restore. (The old switchModel+restore path is gone.)
   }
 
   private dropIntent(intent: IsrIntent, reason: string): void {
@@ -655,6 +820,8 @@ export class IsrCoordinator {
   private clearTimers(intent: IsrIntent): void {
     for (const t of intent.timers) clearTimeout(t)
     intent.timers = []
+    if (intent.replayDoneDeadline) clearTimeout(intent.replayDoneDeadline)
+    intent.replayDoneDeadline = null
   }
 
   /**
@@ -678,12 +845,26 @@ export class IsrCoordinator {
         settled = true
         if (which === "abort") intent.resolveAbort = undefined
         else if (which === "replay") intent.resolveReplay = undefined
-        else intent.resolveReplayDone = undefined
+        else {
+          intent.resolveReplayDone = undefined
+          if (intent.replayDoneDeadline) clearTimeout(intent.replayDoneDeadline)
+          intent.replayDoneDeadline = null
+          intent.replayDoneFire = null
+        }
         resolve(v)
       }
       if (which === "abort") intent.resolveAbort = () => done(true)
       else if (which === "replay") intent.resolveReplay = () => done(true)
-      else intent.resolveReplayDone = () => done(true)
+      else {
+        intent.resolveReplayDone = () => done(true)
+        // Rolling inactivity deadline (NOT a fixed start+ms window): re-armed by
+        // touchReplayDone on every step/delta evidence. A tool-heavy replay can
+        // legally run far past any fixed window — failure requires replayDoneMs
+        // of SILENCE after the last liveness evidence.
+        intent.replayDoneFire = () => done(false)
+        intent.replayDoneDeadline = setTimeout(intent.replayDoneFire, ms)
+        return
+      }
       this.arm(intent, ms, () => done(false))
     })
   }

@@ -168,10 +168,16 @@ export default function PerformanceSection() {
 
         {/* ── Lighthouse Scores ── */}
         <FadeIn delay={0.35}>
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Gauge className="w-4 h-4 text-emerald-400" />
-            Lighthouse Audit
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <Gauge className="w-4 h-4 text-emerald-400" />
+              Lighthouse Audit
+            </h3>
+            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Enforced by automated budget thresholds
+            </span>
+          </div>
           <div className="p-8 rounded-[2rem] bg-white/[0.02] border border-white/[0.06] mb-16">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <ScoreGauge label="Performance" score={scores.performance} delay={0.1} />

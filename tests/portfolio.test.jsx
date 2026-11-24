@@ -7,7 +7,8 @@ import { ThemeProvider } from '@/lib/ThemeContext';
 import ProjectVisual from '@/components/portofolio/ProjectVisual';
 import TechGroups from '@/components/portofolio/TechGroups';
 import ArchitectureViewer from '@/components/portofolio/ArchitectureViewer';
-import { projects, techCategories } from '@/lib/data';
+import { techCategories } from '@/lib/data';
+import { projects } from '@/lib/projects-data';
 
 function Wrapper({ children }) {
   return (

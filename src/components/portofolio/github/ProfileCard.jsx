@@ -3,8 +3,22 @@ import { ExternalLink, MapPin, Calendar, Link as LinkIcon } from 'lucide-react';
 import OptimizedImage from '@/components/OptimizedImage';
 import { SkeletonLine } from './Skeleton';
 import { formatDate } from './utils';
+import { useCopy } from '@/lib/LanguageContext';
+
+const COPY = {
+  en: {
+    joined: 'Joined',
+    browseGitHub: 'Browse on GitHub',
+  },
+  id: {
+    joined: 'Bergabung',
+    browseGitHub: 'Lihat di GitHub',
+  },
+};
 
 export default function ProfileCard({ profile, isLoading, isInView, shouldReduceMotion }) {
+  const t = useCopy(COPY);
+
   if (isLoading) {
     return (
       <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
@@ -72,7 +86,7 @@ export default function ProfileCard({ profile, isLoading, isInView, shouldReduce
             {profile.createdAt && (
               <span className="flex items-center gap-1">
                 <Calendar className="w-3 h-3" aria-hidden="true" />
-                Joined {formatDate(profile.createdAt)}
+                {t.joined} {formatDate(profile.createdAt)}
               </span>
             )}
             <span className="flex items-center gap-1">

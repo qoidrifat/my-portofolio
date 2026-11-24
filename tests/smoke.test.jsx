@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/lib/ThemeContext';
 import Home from '@/pages/Home';
 import ProjectCaseStudy from '@/pages/ProjectCaseStudy';
 import Layout from '@/Layout';
-import { projects } from '@/lib/data';
+import { projects } from '@/lib/projects-data';
 
 function Wrapper({ children, initialEntries }) {
   return (

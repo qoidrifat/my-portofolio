@@ -36,6 +36,7 @@ import {
   type Row,
   type Tone,
 } from "../smart-router/v22/tui/view-model.ts"
+import { listConsentRequests, writeConsentAnswer } from "../smart-router/v22/consent.ts"
 import {
   candidateLines,
   capabilityLines,
@@ -226,6 +227,8 @@ export const SmartRouterTuiPlugin: TuiPlugin = async (api) => {
     "session.next.tool.called",
     "session.next.tool.success",
     "session.next.tool.failed",
+    // ISR (V2.2, opt-in): authoritative host event — the session model actually changed.
+    "session.next.model.switched",
   ] as const) {
     try {
       unsubs.push(api.event.on(type, () => refresh()))
@@ -233,6 +236,106 @@ export const SmartRouterTuiPlugin: TuiPlugin = async (api) => {
       // single subscription failure never breaks the others
     }
   }
+
+  // ISR toast (Phase 15/18): fired ONLY from the authoritative host event
+  // session.next.model.switched (never from refresh() state diffs), deduplicated
+  // by the event identity (sessionID + messageID) so a duplicate delivery toasts once.
+  // Live model map (2026-09-02): footer menampilkan model sesi LIVE per session —
+  // routing-decisions.jsonl hanya mencatat rekomendasi, bukan model dispatch aktual.
+  const [liveModels, setLiveModels] = createSignal<Record<string, string>>({})
+  let lastSwitchToastId: string | null = null
+  try {
+    unsubs.push(
+      api.event.on("session.next.model.switched", (event) => {
+        // TUI bus event shape (SDK v2): { type, properties } — the legacy .data path
+        // never carried the payload, so the live footer line and toast stayed silent.
+        const props = (event as { properties?: { sessionID?: string; messageID?: string; model?: { providerID?: string; id?: string; variant?: string } } }).properties
+          ?? (event as { data?: { sessionID?: string; messageID?: string; model?: { providerID?: string; id?: string; variant?: string } } }).data
+          ?? {}
+        const d = props
+        if (!d?.sessionID || !d?.messageID) return
+        const target = `${d.model?.providerID ?? "?"}/${d.model?.id ?? "?"}${d.model?.variant ? ` · ${d.model.variant}` : ""}`
+        setLiveModels((m) => ({ ...m, [d.sessionID as string]: target }))
+        const id = `${d.sessionID}:${d.messageID}`
+        if (lastSwitchToastId === id) return
+        lastSwitchToastId = id
+        try {
+          api.ui.toast({ variant: "success", title: "Model switched", message: `Session model switched to ${target} (restart-on-switch)`, duration: 5000 })
+        } catch {}
+      }),
+    )
+  } catch {
+    // toast path unavailable — footer refresh above still reflects the new model
+  }
+
+  // ---- ISR consent popup (mode confirm) ----
+  // Server plugin menulis request file; TUI plugin mem-poll (250ms) dan menggambar
+  // dialog native (api.ui.DialogSelect). Keputusan ditulis ke answers.jsonl; server
+  // membersihkan request file setelah resolve → poll berikutnya menutup dialog.
+  // answeredOps mencegah popup dobel pada window race sebelum cleanup server.
+  // Timeout server 120s = deny (fail-closed: turn lanjut model lama).
+  let consentOpenFor: string | null = null
+  const answeredOps = new Set<string>()
+  const rememberAnswered = (opId: string): void => {
+    answeredOps.add(opId)
+    if (answeredOps.size > 50) {
+      const first = answeredOps.values().next().value
+      if (first) answeredOps.delete(first)
+    }
+  }
+  const consentTimer = setInterval(() => {
+    try {
+      const req = listConsentRequests(root).find((r) => !answeredOps.has(r.operationId))
+      if (!req) {
+        if (consentOpenFor !== null) {
+          consentOpenFor = null
+          api.ui.dialog.clear()
+        }
+        return
+      }
+      if (consentOpenFor === req.operationId) return
+      consentOpenFor = req.operationId
+      logTui(root, { kind: "tui-consent-prompted", operationId: req.operationId, from: req.from, to: req.to })
+      const answer = (ans: "approve" | "deny", always?: boolean): void => {
+        logTui(root, { kind: "tui-consent-answered", operationId: req.operationId, answer: ans, always: always ?? false })
+        writeConsentAnswer(root, { operationId: req.operationId, answer: ans, ...(always ? { always: true } : {}) })
+        rememberAnswered(req.operationId)
+        consentOpenFor = null
+        api.ui.dialog.clear()
+      }
+      api.ui.dialog.setSize("medium")
+      api.ui.dialog.replace(() => (
+        <api.ui.DialogSelect
+          title=" Smart Router — Model Switch "
+          skipFilter
+          placeholder="Pilih keputusan"
+          options={[
+            {
+              title: `Approve — switch ke ${req.to}${req.variant ? ` (${req.variant})` : ""}`,
+              description: `${req.from} → ${req.to} · ${req.reason}`,
+              value: "approve",
+              onSelect: () => answer("approve"),
+            },
+            {
+              title: "Approve & selalu izinkan pasangan ini",
+              description: `${req.from} → ${req.to} tidak akan ditanya lagi`,
+              value: "always",
+              onSelect: () => answer("approve", true),
+            },
+            {
+              title: `Deny — lanjut ${req.from}`,
+              description: "Turn berjalan normal di model saat ini",
+              value: "deny",
+              onSelect: () => answer("deny"),
+            },
+          ]}
+        />
+      ))
+    } catch {
+      // fail-open: dialog gagal = server timeout → turn lanjut model lama
+    }
+  }, 250)
+  unsubs.push(() => clearInterval(consentTimer))
 
   // R2-MED-02: ONE logical permissions watcher per host lifecycle, with bounded re-arm.
   // If the permissions directory is absent at init (or the watcher errors), a single
@@ -332,7 +435,13 @@ export const SmartRouterTuiPlugin: TuiPlugin = async (api) => {
         if (!v) return <text fg={T().textMuted}>Smart Router · …</text>
         const width = Math.min(64, Math.max(24, widthSig() - 40))
         logFooterRender("session_prompt_right", width)
-        return <box flexDirection="column">{renderLines(footerLines(v, width))}</box>
+        const live = liveModels()[props.session_id]
+        return (
+          <box flexDirection="column">
+            {renderLines(footerLines(v, width))}
+            {live ? <text fg={T().accent}>{`Model sesi (live): ${live}`}</text> : null}
+          </box>
+        )
       },
       home_footer: () => {
         const v = vm()

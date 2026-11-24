@@ -4,8 +4,23 @@ import { Activity, ExternalLink } from 'lucide-react';
 import { LangDot } from './badges';
 import { SkeletonLine } from './Skeleton';
 import { timeAgo } from './utils';
+import { useCopy } from '@/lib/LanguageContext';
+
+const COPY = {
+  en: {
+    recentActivity: 'Recent Activity',
+    latestUpdates: 'Latest repository updates',
+    latest: 'Latest',
+  },
+  id: {
+    recentActivity: 'Aktivitas Terbaru',
+    latestUpdates: 'Perbaruan repositori terbaru',
+    latest: 'Terbaru',
+  },
+};
 
 export default function ContributionActivity({ repos, isLoading, isInView, shouldReduceMotion }) {
+  const t = useCopy(COPY);
   const recentActivity = useMemo(() => {
     if (!repos || repos.length === 0) return [];
     return [...repos]
@@ -34,9 +49,9 @@ export default function ContributionActivity({ repos, isLoading, isInView, shoul
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 20}}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1]}}
       className="p-5 md:p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]"
     >
       <div className="flex items-center gap-2.5 mb-5">
@@ -44,14 +59,13 @@ export default function ContributionActivity({ repos, isLoading, isInView, shoul
           <Activity className="w-4 h-4 text-emerald-400" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white">Recent Activity</h3>
-          <p className="text-[10px] text-zinc-500 font-medium">Latest repository updates</p>
+          <h3 className="text-sm font-bold text-white">{t.recentActivity}</h3>
+          <p className="text-[10px] text-zinc-500 font-medium">{t.latestUpdates}</p>
         </div>
       </div>
 
       <div className="relative">
         <div className="absolute left-[11px] top-2 bottom-0 w-px bg-white/[0.06]" />
-
         <div className="space-y-0">
           {recentActivity.map((repo, i) => (
             <motion.a
@@ -59,9 +73,9 @@ export default function ContributionActivity({ repos, isLoading, isInView, shoul
               href={repo.htmlUrl}
               target="_blank"
               rel="noopener noreferrer"
-              initial={shouldReduceMotion ? false : { opacity: 0, x: -10 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, x: -10}}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.35, delay: 0.4 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.35, delay: 0.4 + i * 0.06, ease: [0.16, 1, 0.3, 1]}}
               className="flex items-start gap-3 py-2.5 group relative hover:bg-white/[0.02] rounded-lg px-2 -mx-2 transition-colors duration-200"
             >
               <div className="w-[22px] shrink-0 flex items-center justify-center relative z-10">
@@ -78,7 +92,7 @@ export default function ContributionActivity({ repos, isLoading, isInView, shoul
                   </span>
                   {i === 0 && (
                     <span className="shrink-0 px-1.5 py-0.5 rounded bg-emerald-500/10 text-[8px] font-semibold text-emerald-400 uppercase tracking-wider">
-                      Latest
+                      {t.latest}
                     </span>
                   )}
                 </div>

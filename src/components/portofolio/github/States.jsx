@@ -2,9 +2,33 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, RefreshCw, FolderOpen, Github, Flame } from 'lucide-react';
 import { SkeletonLine } from './Skeleton';
+import { useCopy } from '@/lib/LanguageContext';
 
-// ── Error state ─────────────────────────────────────────────────────────────
+const COPY = {
+  en: {
+    unableToLoad: 'Unable to load GitHub data',
+    rateLimit: 'The GitHub API rate limit may have been exceeded. Data will be available again shortly.',
+    retry: 'Retry',
+    noRepos: 'No repositories to show',
+    noOriginalRepos: 'No original public repositories are currently available. Check back later for new projects.',
+    browseGitHub: 'Browse on GitHub',
+    currentStreak: 'Current Streak',
+    days: 'days',
+  },
+  id: {
+    unableToLoad: 'Gagal memuat data GitHub',
+    rateLimit: 'Batas API GitHub mungkin telah exceeded. Data akan segera kembali.',
+    retry: 'Coba lagi',
+    noRepos: 'Tidak ada repositori untuk ditampilkan',
+    noOriginalRepos: 'Tidak ada repositori publik asli yang tersedia. Cek lagi nanti untuk proyek baru.',
+    browseGitHub: 'Lihat di GitHub',
+    currentStreak: 'Streak Saat Ini',
+    days: 'hari',
+  },
+};
+
 export function ErrorState({ onRetry }) {
+  const t = useCopy(COPY);
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -14,9 +38,9 @@ export function ErrorState({ onRetry }) {
       <div className="w-16 h-16 rounded-2xl bg-red-500/5 border border-red-500/10 flex items-center justify-center mx-auto mb-5">
         <AlertCircle className="w-6 h-6 text-red-400" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-bold text-white mb-2">Unable to load GitHub data</h3>
+      <h3 className="text-lg font-bold text-white mb-2">{t.unableToLoad}</h3>
       <p className="text-zinc-500 text-sm max-w-md mx-auto mb-8 leading-relaxed">
-        The GitHub API rate limit may have been exceeded. Data will be available again shortly.
+        {t.rateLimit}
       </p>
       <motion.button
         onClick={onRetry}
@@ -25,22 +49,22 @@ export function ErrorState({ onRetry }) {
         className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-300"
       >
         <RefreshCw className="w-4 h-4" aria-hidden="true" />
-        Retry
+        {t.retry}
       </motion.button>
     </motion.div>
   );
 }
 
-// ── Empty state ─────────────────────────────────────────────────────────────
 export function EmptyState() {
+  const t = useCopy(COPY);
   return (
     <div className="text-center py-16">
       <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center mx-auto mb-5">
         <FolderOpen className="w-6 h-6 text-zinc-500" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-bold text-white mb-2">No repositories to show</h3>
+      <h3 className="text-lg font-bold text-white mb-2">{t.noRepos}</h3>
       <p className="text-zinc-500 text-sm max-w-md mx-auto mb-6 leading-relaxed">
-        No original public repositories are currently available. Check back later for new projects.
+        {t.noOriginalRepos}
       </p>
       <a
         href="https://github.com/qoidrifat"
@@ -49,14 +73,14 @@ export function EmptyState() {
         className="inline-flex items-center gap-2 px-6 py-3 bg-[hsl(var(--accent-web-btn))] rounded-xl text-sm font-bold text-white hover:brightness-110 transition-all duration-300 shadow-lg shadow-accent-web/20"
       >
         <Github className="w-4 h-4" aria-hidden="true" />
-        Browse on GitHub
+        {t.browseGitHub}
       </a>
     </div>
   );
 }
 
-// ── Streak counter ─────────────────────────────────────────────────────────
 export function StreakBadge({ eventsCount, isLoading }) {
+  const t = useCopy(COPY);
   const streak = useMemo(() => {
     if (eventsCount == null) return '\u2014';
     if (eventsCount > 80) return '15+';
@@ -87,10 +111,10 @@ export function StreakBadge({ eventsCount, isLoading }) {
       </div>
       <div className="text-2xl font-black text-white mb-0.5 tabular-nums tracking-tight">
         {streak}
-        <span className="text-base font-bold text-zinc-500 ml-0.5">days</span>
+        <span className="text-base font-bold text-zinc-500 ml-0.5">{t.days}</span>
       </div>
       <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
-        Current Streak
+        {t.currentStreak}
       </span>
     </motion.div>
   );

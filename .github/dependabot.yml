@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # Application and tooling dependencies. Security updates are never grouped
+  # away — they arrive as their own PR so they can be reviewed individually.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      dev-minor-patch:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      prod-patch:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - patch
+
+  # Keeps the SHA pins in .github/workflows/*.yml current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3

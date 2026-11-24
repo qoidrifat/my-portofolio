@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import {
-  GraduationCap, Code, Brain, FlaskConical, Rocket, Target, Wallet,
+  GraduationCap, Code, Brain, FlaskConical, Rocket, Target, Wallet, Briefcase,
   ChevronDown, Calendar,
 } from 'lucide-react';
 import { journey } from '@/lib/data';
+import { useLanguage } from '@/lib/LanguageContext';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────────
 const iconMap = {
-  GraduationCap, Code, Brain, FlaskConical, Rocket, Target, Wallet,
+  GraduationCap, Code, Brain, FlaskConical, Rocket, Target, Wallet, Briefcase,
 };
 
 // ── Static Tailwind class maps (avoids JIT dead-class problem) ──────────────
@@ -97,20 +98,46 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 {/* Year badge */}
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg ${badgeStyles[colorKey] || badgeStyles.blue} text-[10px] font-bold uppercase tracking-wider mb-3`}>
-                  <Calendar className="w-3 h-3" aria-hidden="true" />
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg ${badgeStyles[colorKey] || badgeStyles.blue} text-xs font-bold uppercase tracking-wider mb-3`}>
+                  <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
                   {item.year}
                 </span>
 
                 {/* Category badge */}
-                <span className={`ml-2 inline-flex px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-[9px] font-medium text-zinc-500 uppercase tracking-wider`}>
+                <span className={`ml-2 inline-flex px-2.5 py-1 rounded-md bg-white/[0.06] border border-white/[0.1] text-xs font-semibold text-zinc-300 uppercase tracking-wider`}>
                   {cat.label}
-                </span>                  <h3 className="text-sm md:text-lg font-bold text-white mt-2 leading-snug">
+                </span>
+
+                <h3 className="text-base md:text-xl font-bold text-white mt-2 leading-snug">
                   {item.title}
                 </h3>
-                <p className="text-xs md:text-sm text-zinc-400 mt-1.5 md:mt-2 leading-relaxed line-clamp-2">
+                {item.organization && (
+                  <p className="text-xs font-semibold text-accent-web mt-0.5">
+                    @ {item.organization}
+                  </p>
+                )}
+                <p className="text-sm md:text-base text-zinc-300 mt-2 leading-relaxed">
                   {item.description}
                 </p>
+
+                {/* Key Skills Chip preview by default (visible without expand) */}
+                {item.technologies && item.technologies.length > 0 && !isExpanded && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-white/[0.04]">
+                    {item.technologies.slice(0, 4).map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-medium text-zinc-400"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {item.technologies.length > 4 && (
+                      <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-medium text-zinc-500">
+                        +{item.technologies.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Expand icon */}
@@ -182,10 +209,10 @@ function TimelineCard({ item, isLeft, isExpanded, onToggle }) {
 
 // ── Section ─────────────────────────────────────────────────────────────────
 export default function CareerTimelineSection() {
+  const { lang } = useLanguage();
   const [expandedItems, setExpandedItems] = useState(new Set());
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, margin: '-100px' });
-
   const toggleExpand = (key) => {
     setExpandedItems((prev) => {
       const next = new Set(prev);
@@ -211,9 +238,9 @@ export default function CareerTimelineSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={isSectionInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block"
+            className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block"
           >
-            Timeline
+            {lang === 'id' ? 'Jejak Rekayasa' : 'Career Path'}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -221,7 +248,7 @@ export default function CareerTimelineSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl md:text-6xl font-black text-white mb-6"
           >
-            Career <span className="text-zinc-500">Journey</span>
+            {lang === 'id' ? 'Perjalanan' : 'Career'} <span className="text-zinc-500">{lang === 'id' ? 'Karier' : 'Journey'}</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -229,7 +256,9 @@ export default function CareerTimelineSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-zinc-400 max-w-2xl mx-auto text-lg"
           >
-            From first lines of code to AI research — tracing the path that shaped my craft.
+            {lang === 'id'
+              ? 'Dari fondasi akademis hingga rekayasa sistem full-stack & AI terapan.'
+              : 'From foundational academic roots to full-stack systems engineering & applied AI.'}
           </motion.p>
         </div>
 

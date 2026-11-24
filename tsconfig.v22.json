@@ -13,10 +13,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "jsx": "preserve",
+    "jsxImportSource": "@opentui/solid",
+    "verbatimModuleSyntax": true
   },
   "include": [
     ".opencode/smart-router/**/*.ts",
+    ".opencode/plugins/*.ts",
+    ".opencode/plugins/*.tsx",
     "tests/smart-router/**/*.ts"
   ],
   "exclude": [

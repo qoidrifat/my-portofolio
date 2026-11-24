@@ -14,7 +14,8 @@ import {
   MessageCircle,
   Brain,
 } from 'lucide-react';
-import { profile, navLinks, projects, socials } from '@/lib/data';
+import { profile, navLinks, socials } from '@/lib/data';
+import { projects } from '@/lib/projects-data';
 
 // ── Section actions ──────────────────────────────────
 const sectionActions = navLinks.map(link => {

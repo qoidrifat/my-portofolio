@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,7 +8,7 @@ import NavigationTracker from '@/lib/NavigationTracker';
 import { pagesConfig } from './pages.config';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import ProjectCaseStudy from './pages/ProjectCaseStudy';
+const ProjectCaseStudy = lazy(() => import('./pages/ProjectCaseStudy'));
 import PortfolioIntro, {
   hasIntroPlayed,
   INTRO_MAX_MS,
@@ -16,6 +16,7 @@ import PortfolioIntro, {
 import IntroErrorBoundary from './components/IntroErrorBoundary';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { LanguageProvider } from '@/lib/LanguageContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -63,7 +64,14 @@ function AnimatedRoutes() {
               </LayoutWrapper>
             }
           />
-          <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
+          <Route
+            path="/projects/:slug"
+            element={
+              <Suspense fallback={null}>
+                <ProjectCaseStudy />
+              </Suspense>
+            }
+          />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </motion.div>
@@ -172,6 +180,7 @@ function App() {
     <QueryClientProvider client={queryClientInstance}>
       <MotionConfig reducedMotion="user">
         <ThemeProvider>
+          <LanguageProvider>
           {/* Intro overlay */}
           {!introDone && (
             <IntroErrorBoundary onError={handleIntroError}>
@@ -208,6 +217,7 @@ function App() {
           </div>
 
           <Toaster />
+          </LanguageProvider>
         </ThemeProvider>
       </MotionConfig>
     </QueryClientProvider>

@@ -9,9 +9,9 @@ import { join, resolve } from "node:path"
 
 export const ISR_FLAGS_FILE = ".opencode/smart-router/v22-isr-flags.json"
 
-export type IsrMode = "off" | "advisory" | "auto"
+export type IsrMode = "off" | "advisory" | "confirm"
 
-const MODES: IsrMode[] = ["off", "advisory", "auto"]
+const MODES: IsrMode[] = ["off", "advisory", "confirm"]
 
 export interface IsrFlags {
   mode: IsrMode

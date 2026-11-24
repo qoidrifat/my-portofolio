@@ -73,8 +73,8 @@ TECHNICAL_DOC.md
 ASSET_SYNC_DEEP_ANALYSIS_REPORT.md
 PORTFOLIO_*_REPORT.md
 
-# Vercel deployment (handled via dashboard)
-vercel.json
+# Vercel deployment — tracked so security headers ship with the code.
+# Hand-maintained dashboard headers cannot be reviewed, diffed, or rolled back.
 
 # AI tooling runtime state + one-off audit artifacts (not app source)
 .opencode/ai/permissions/
@@ -105,3 +105,33 @@ opencode-skill-audit-before.json
 opencode-skill-install-report.md
 opencode-skill-manifest.json
 opencode-skill-verify.json
+
+# Internal operational artifacts — kept on disk, never published.
+.opencode/ai/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/node_modules/
+.opencode/isr-e2e*.mjs
+.opencode/isr-isolate.mjs
+.opencode/tmp-*.mjs
+# Internal reports (git history only)
+SMART_ROUTER_*.md
+OPENCODE_EFFORT_MATRIX_*.md
+CHANGELOG_SESSION.md
+.security-audit/
+audit-tmp.json
+
+# Root scratch / one-off artifacts (never part of the app)
+/-w
+/.child-server.pid
+/foo.py
+/nul
+/__pycache__/
+/report-stack-ecosystem.html
+/*.bak
+/src/**/*.bak
+/MASCOT-INTERACTION-ENGINE-REPORT.md
+/PORTFOLIO-UX-MASCOT-REPORT.md
+/MIGRATION_AUDIT_OPENCODE_TO_PI.md
+/RESEARCH_PI_OMP_9ROUTER_MIGRATION.md
+/AUDIT-REPORT.md

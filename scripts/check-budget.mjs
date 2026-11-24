@@ -14,7 +14,7 @@
  * message (run `npm run build` first).
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -37,6 +37,45 @@ function readMetrics() {
   return JSON.parse(readFileSync(metricsPath, 'utf-8'));
 }
 
+/**
+ * Measure dist/assets directly instead of trusting the generated JSON.
+ *
+ * generate-stats.mjs derives the committed metrics from dist/, so the two
+ * normally agree — but when dist/ is rebuilt without regenerating, or a stale
+ * metrics file is committed, the budget check would validate an old number and
+ * pass while the shipped bundle is over budget. Measuring the real output makes
+ * that class of false PASS impossible.
+ */
+function measureDist() {
+  const assetsDir = join(root, 'dist', 'assets');
+  if (!existsSync(assetsDir)) {
+    console.error('❌ dist/assets not found. Run `npm run build` before `npm run check:budget`.');
+    process.exit(1);
+  }
+
+  let totalJs = 0;
+  let totalCss = 0;
+  let largestJs = 0;
+  let largestCss = 0;
+  let count = 0;
+
+  for (const name of readdirSync(assetsDir)) {
+    const ext = name.split('.').pop();
+    if (ext !== 'js' && ext !== 'css') continue;
+    const size = statSync(join(assetsDir, name)).size;
+    count++;
+    if (ext === 'js') {
+      totalJs += size;
+      if (size > largestJs) largestJs = size;
+    } else {
+      totalCss += size;
+      if (size > largestCss) largestCss = size;
+    }
+  }
+
+  return { totalJs, totalCss, largestJs, largestCss, count };
+}
+
 function readBudget() {
   const budgetPath = join(root, 'performance-budget.json');
   if (!existsSync(budgetPath)) {
@@ -49,9 +88,9 @@ function readBudget() {
 function checkBudget() {
   const metrics = readMetrics();
   const budget = readBudget();
+  const measured = measureDist();
 
   const summary = metrics.summary;
-  const bundles = metrics.bundles || [];
   let hasViolation = false;
 
   console.log('📊 Performance Budget Check');
@@ -59,6 +98,7 @@ function checkBudget() {
   if (budget.baseline?.capturedAt) {
     console.log(`Budget baseline: ${budget.baseline.capturedAt}`);
   }
+  console.log('Source: measured from dist/assets (not the committed metrics file)');
   console.log();
 
   for (const item of budget.budget) {
@@ -67,23 +107,19 @@ function checkBudget() {
 
     switch (item.resource) {
       case 'total-js':
-        actual = summary.totalJsSize;
+        actual = measured.totalJs;
         break;
       case 'total-css':
-        actual = summary.totalCssSize;
+        actual = measured.totalCss;
         break;
-      case 'largest-js-chunk': {
-        const jsBundles = bundles.filter((b) => b.type === 'js');
-        actual = jsBundles.length ? jsBundles[0].size : 0;
+      case 'largest-js-chunk':
+        actual = measured.largestJs;
         break;
-      }
-      case 'largest-css-chunk': {
-        const cssBundles = bundles.filter((b) => b.type === 'css');
-        actual = cssBundles.length ? cssBundles[0].size : 0;
+      case 'largest-css-chunk':
+        actual = measured.largestCss;
         break;
-      }
       case 'bundle-count':
-        actual = summary.totalBundles;
+        actual = measured.count;
         break;
       default:
         console.warn(`⚠️  Unknown budget resource: ${item.resource} — skipping`);
@@ -91,6 +127,17 @@ function checkBudget() {
     }
 
     if (skip) continue;
+
+    const drift =
+      item.resource === 'total-js' ? summary.totalJsSize - measured.totalJs :
+      item.resource === 'total-css' ? summary.totalCssSize - measured.totalCss : 0;
+    if (drift !== 0) {
+      console.warn(
+        `⚠️  ${item.resource}: committed metrics (${fmtBytes(item.resource === 'total-js' ? summary.totalJsSize : summary.totalCssSize)}) ` +
+        `differ from dist (${fmtBytes(item.resource === 'total-js' ? measured.totalJs : measured.totalCss)}). ` +
+        'Using the measured value.'
+      );
+    }
 
     const pass = actual <= item.budget;
     const status = pass ? '✅' : '❌';

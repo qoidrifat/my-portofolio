@@ -1,42 +1,104 @@
-import React from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Download, Briefcase, Code2, Layers } from 'lucide-react';
-import { profile, techCategories } from '@/lib/data';
+import { ArrowRight, Download, Briefcase, Code2, CheckCircle2, FileText } from 'lucide-react';
+import { profile } from '@/lib/data';
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
+
+const PortfolioMascot = lazy(() => import('@/components/mascot/PortfolioMascot'));
+import { useLanguage } from '@/lib/LanguageContext';
 
 function AnimatedStat({ value, suffix = '', label, icon: Icon, delay = 0 }) {
   const { displayValue, ref } = useAnimatedCounter(value, {
-    duration: 2000,
+    duration: 1800,
     delay: delay * 100,
     once: true,
   });
 
   return (
-    <div ref={ref} className="text-center group">
-      <div className="flex items-center justify-center gap-1.5 text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300">
-        {Icon && <Icon className="w-5 h-5 text-accent-web/60" aria-hidden="true" />}
-        <span>{displayValue}{suffix}</span>
+    <div ref={ref} className="text-center lg:text-left group" aria-label={`${value}${suffix} ${label}`}>
+      <div
+        className="flex items-center justify-center lg:justify-start gap-1.5 text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300 font-mono tracking-tight"
+        aria-hidden="true"
+      >
+        {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-web" aria-hidden="true" />}
+        <span>
+          {displayValue}
+          {suffix}
+        </span>
       </div>
-      <div className="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">{label}</div>
+      <div className="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+        {label}
+      </div>
     </div>
   );
 }
 
-/** Static stat — visually matches AnimatedStat but renders fixed text instead of an animated counter */
 function StaticStat({ display, label, icon: Icon }) {
   return (
-    <div className="text-center group">
-      <div className="flex items-center justify-center gap-1.5 text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300">
-        {Icon && <Icon className="w-5 h-5 text-accent-web/60" aria-hidden="true" />}
+    <div className="text-center lg:text-left group" aria-label={`${display} ${label}`}>
+      <div
+        className="flex items-center justify-center lg:justify-start gap-1.5 text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-1 group-hover:-translate-y-0.5 transition-transform duration-300 font-mono tracking-tight"
+        aria-hidden="true"
+      >
+        {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-web" aria-hidden="true" />}
         <span>{display}</span>
       </div>
-      <div className="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">{label}</div>
+      <div className="text-[11px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+        {label}
+      </div>
     </div>
   );
 }
 
 export default function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
+  const { lang } = useLanguage();
+  const [mascotMood, setMascotMood] = useState(null);
+
+  const t = {
+    en: {
+      status: profile.status,
+      greeting: "Hi, I'm",
+      role: profile.role,
+      tagline: profile.tagline,
+      location: `Based in ${profile.location}. Available for remote & hybrid roles.`,
+      explore: 'Explore My Work',
+      viewCv: 'View CV',
+      downloadCv: 'Download CV',
+      capabilities: [
+        'Full-Stack Web Apps',
+        'Backend & REST APIs',
+        'Database Architecture',
+        'Applied AI Integration',
+      ],
+      stats: {
+        experience: { display: '4+ Yrs', label: 'Engineering Experience' },
+        projects: { value: 8, suffix: '+', label: 'Showcased Projects' },
+        tests: { value: 260, suffix: '+', label: 'Automated Tests' },
+      },
+    },
+    id: {
+      status: 'Terbuka untuk Pekerjaan Full-Time & Kontrak',
+      greeting: 'Halo, Saya',
+      role: 'Full-Stack Developer',
+      tagline: 'Membangun aplikasi web end-to-end, arsitektur backend yang tangguh, dan pengalaman digital cerdas.',
+      location: `Berbasis di ${profile.location}. Terbuka untuk posisi remote & hybrid.`,
+      explore: 'Jelajahi Proyek',
+      viewCv: 'Lihat CV',
+      downloadCv: 'Unduh CV',
+      capabilities: [
+        'Aplikasi Web Full-Stack',
+        'Backend & REST API',
+        'Arsitektur Database',
+        'Integrasi AI Terapan',
+      ],
+      stats: {
+        experience: { display: '4+ Yrs', label: 'Engineering Experience' },
+        projects: { value: 8, suffix: '+', label: 'Proyek Portofolio' },
+        tests: { value: 260, suffix: '+', label: 'Automated Tests' },
+      },
+    },
+  }[lang] || t.en;
 
   const scrollToProjects = () => {
     const element = document.getElementById('projects');
@@ -46,159 +108,200 @@ export default function HeroSection() {
     }
   };
 
-  // Concrete, verifiable stats synchronised with actual portfolio data
-  const techStackCount = techCategories.length; // 6 categories: Frontend, Backend, Database, AI/ML, Tools, Mobile
-  const stats = [
-    { type: 'animated', value: 5, suffix: '+', label: 'Projects Built', icon: Briefcase, delay: 0 },
-    { type: 'static',   display: '<1', label: 'Years Coding', icon: Code2 },
-    { type: 'animated', value: techStackCount, suffix: '', label: 'Tech Stacks', icon: Layers, delay: 1 },
-  ];
-
   return (
-    <section id="hero" className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-20" aria-label="Hero">
-      {/* Background — subtle glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-[hsl(var(--accent-web))]/8 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-[hsl(var(--accent-ai))]/8 rounded-full blur-[150px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.04)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+    <section
+      id="hero"
+      className="min-h-screen flex flex-col justify-center relative overflow-x-clip pt-24 pb-16 lg:py-28"
+      aria-label="Hero"
+    >
+      {/* Background — Atmospheric glow & subtle grid */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-1/4 -left-32 w-[520px] h-[520px] bg-accent-web/8 rounded-full blur-[140px]" />
+        <div className="absolute bottom-1/4 -right-32 w-[520px] h-[520px] bg-accent-ai/8 rounded-full blur-[140px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_45%,#000_65%,transparent_100%)]" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10 w-full text-center flex flex-col items-center">
-        {/* Badge */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[hsl(var(--accent-web))] text-xs sm:text-sm font-medium mb-8 md:mb-10"
-        >
-          <span className="relative flex h-2 w-2">
-            {!shouldReduceMotion && (
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[hsl(var(--accent-web))] opacity-75" />
-            )}
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[hsl(var(--accent-web))]" />
-          </span>
-          {profile.status}
-        </motion.div>
-
-        {/* Main Heading — clean, centered */}
-        <motion.h1
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl sm:text-5xl md:text-7xl font-black leading-[1.1] mb-4 md:mb-6 tracking-tight"
-        >
-          <span className="text-white">Hi, I'm</span>
-          <br />
-          {/* #hero-name — FLIP anchor for the intro's shared-element exit */}
-          <span id="hero-name" className="text-gradient">{profile.name}</span>
-        </motion.h1>
-
-        {/* Role subtitle */}
-        <motion.p
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-          className="text-lg sm:text-2xl text-zinc-400 font-medium mb-3 md:mb-4"
-        >
-          {profile.role}
-        </motion.p>
-
-        {/* Tagline */}
-        <motion.p
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-          className="text-sm sm:text-base md:text-lg text-zinc-500 max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed"
-        >
-          {profile.tagline}
-          <br />
-          <span className="italic">Based in {profile.location}.</span>
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 md:mb-12"
-        >
-          <motion.button
-            onClick={scrollToProjects}
-            className="group relative px-8 py-4 bg-[hsl(var(--accent-web-btn))] rounded-2xl text-white font-bold flex items-center justify-center gap-2 overflow-hidden hover:brightness-110 transition-all duration-300"
-            whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
-            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-          >
-            <span>View Work</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-          </motion.button>
-
-          <motion.a
-            href={profile.resumeUrl}
-            download
-            className="group px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold flex items-center justify-center gap-2 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
-            whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
-            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-          >
-            <span>Download CV</span>
-            <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform text-[hsl(var(--accent-web))]" aria-hidden="true" />
-          </motion.a>
-        </motion.div>
-
-        {/* Stats — animated counters, concrete metrics */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
-          className="flex items-center justify-center gap-8 sm:gap-16 md:gap-20 border-t border-white/10 pt-6 md:pt-10 max-w-lg mx-auto"
-        >
-          {stats.map((stat) =>
-            stat.type === 'static' ? (
-              <StaticStat
-                key={stat.label}
-                display={stat.display}
-                label={stat.label}
-                icon={stat.icon}
-              />
-            ) : (
-              <AnimatedStat
-                key={stat.label}
-                value={stat.value}
-                suffix={stat.suffix}
-                label={stat.label}
-                icon={stat.icon}
-                delay={stat.delay}
-              />
-            )
-          )}
-        </motion.div>
-
-        {/* Scroll indicator — tepat di bawah stats, centered, animasi kontinu */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className="mt-8 md:mt-12 flex justify-center w-full"
-        >
-          {shouldReduceMotion ? (
-            <div className="flex flex-col items-center gap-3 text-zinc-500">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Explore</span>
-              <div className="w-px h-12 bg-gradient-to-b from-[hsl(var(--accent-web))]/50 to-transparent" />
-            </div>
-          ) : (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        {/* Asymmetric Split Layout: Left Content, Right Mascot */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          {/* Left Column: Identity, Editorial Copy & Actions */}
+          <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1">
+            {/* Status Pill Badge */}
             <motion.div
-              animate={{ y: [-28, 28, -28] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-              className="flex flex-col items-center gap-3 text-zinc-500"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              onMouseEnter={() => setMascotMood('greeting')}
+              onMouseLeave={() => setMascotMood(null)}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-accent-web text-xs font-medium mb-6 backdrop-blur-sm cursor-default hover:border-accent-web/30 transition-colors"
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Explore</span>
-              <motion.div
-                className="w-px h-14 bg-gradient-to-b from-[hsl(var(--accent-web))] to-transparent"
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              <span className="relative flex h-2 w-2">
+                {!shouldReduceMotion && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                )}
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <span>{t.status}</span>
+            </motion.div>
+
+            {/* Primary Heading with FLIP Anchor */}
+            <motion.h1
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.08] tracking-tight mb-4"
+            >
+              <span className="text-zinc-400 text-2xl sm:text-3xl lg:text-4xl font-bold block mb-1">
+                {t.greeting}
+              </span>
+              {/* #hero-name — FLIP anchor for the intro's shared-element exit */}
+              <span id="hero-name" className="text-gradient">
+                {profile.name}
+              </span>
+            </motion.h1>
+
+            {/* Role Eyebrow / Subtitle */}
+            <motion.p
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+              className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white mb-4"
+            >
+              {t.role}
+            </motion.p>
+
+            {/* Tagline & Evidence Statement */}
+            <motion.p
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.25, ease: 'easeOut' }}
+              className="text-sm sm:text-base text-zinc-300 max-w-xl mb-6 leading-relaxed"
+            >
+              {t.tagline}{' '}
+              <span className="text-zinc-500 block sm:inline mt-1 sm:mt-0 font-medium">
+                {t.location}
+              </span>
+            </motion.p>
+
+            {/* Engineering Capability Tags */}
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-8 max-w-lg"
+            >
+              {t.capabilities.map((cap) => (
+                <span
+                  key={cap}
+                  className="px-2.5 py-1 rounded-md text-[11px] font-medium text-zinc-300 bg-white/[0.03] border border-white/[0.07]"
+                >
+                  {cap}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* Primary & Secondary CTAs */}
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45, ease: 'easeOut' }}
+              className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-10"
+            >
+              {/* Primary: Explore My Work */}
+              <motion.button
+                onClick={scrollToProjects}
+                onMouseEnter={() => setMascotMood('curious')}
+                onMouseLeave={() => setMascotMood(null)}
+                className="group relative w-full sm:w-auto px-7 py-3.5 bg-accent-web text-accent-web-foreground shadow-lg shadow-accent-web/20 rounded-xl font-bold flex items-center justify-center gap-2 hover:brightness-110 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-web focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+              >
+                <span>{t.explore}</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+              </motion.button>
+
+              {/* Secondary: View CV & Direct Download */}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <motion.a
+                  href={profile.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onMouseEnter={() => setMascotMood('happy')}
+                  onMouseLeave={() => setMascotMood(null)}
+                  className="group flex-1 sm:flex-initial px-5 py-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-zinc-200 font-semibold flex items-center justify-center gap-2 hover:bg-white/[0.08] hover:text-white hover:border-white/20 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-web"
+                  whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+                  aria-label="Preview CV in new tab"
+                >
+                  <FileText className="w-4 h-4 text-accent-web" aria-hidden="true" />
+                  <span>{t.viewCv}</span>
+                </motion.a>
+
+                <motion.a
+                  href={profile.resumeUrl}
+                  download
+                  onMouseEnter={() => setMascotMood('happy')}
+                  onMouseLeave={() => setMascotMood(null)}
+                  className="p-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.08] hover:border-accent-web/30 transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-web"
+                  whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+                  aria-label="Download CV directly"
+                  title="Download CV (PDF)"
+                >
+                  <Download className="w-4 h-4 text-accent-web" aria-hidden="true" />
+                </motion.a>
+              </div>
+            </motion.div>
+
+            {/* Credibility Stats: Verifiable metrics */}
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
+              className="grid grid-cols-3 gap-4 sm:gap-8 pt-6 border-t border-white/10 w-full max-w-lg"
+            >
+              <StaticStat
+                display={t.stats.experience.display}
+                label={t.stats.experience.label}
+                icon={Code2}
+              />
+              <AnimatedStat
+                value={t.stats.projects.value}
+                suffix={t.stats.projects.suffix}
+                label={t.stats.projects.label}
+                icon={Briefcase}
+                delay={0}
+              />
+              <AnimatedStat
+                value={t.stats.tests.value}
+                suffix={t.stats.tests.suffix}
+                label={t.stats.tests.label}
+                icon={CheckCircle2}
+                delay={1}
               />
             </motion.div>
-          )}
-        </motion.div>
+          </div>
+
+          {/* Right Column: Signature Animated Mascot */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center order-1 lg:order-2">
+            <div className="relative">
+              {/* Decorative aura behind mascot */}
+              <div
+                className="absolute inset-0 -m-8 rounded-full bg-gradient-to-tr from-accent-web/15 to-accent-ai/10 blur-3xl pointer-events-none"
+                aria-hidden="true"
+              />
+
+              {/* The Mascot — code-split to keep index chunk strictly within performance budget */}
+              <Suspense fallback={<div className="w-[240px] h-[240px]" aria-hidden="true" />}>
+                <PortfolioMascot
+                  externalExpression={mascotMood}
+                  size={240}
+                  className="relative z-10"
+                />
+              </Suspense>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 # Deployment
 
 ## Portfolio Website
-- **Live:** https://qoidrifat.vercel.app
+- **Live:** https://qoidlab.my.id
 - **Platforms:** Vercel + Cloudflare Pages (`wrangler.toml` `pages_build_output_dir="dist"`)
 - **Build:** `npm run build` → `dist/` + `generate-stats.mjs` → `src/data/performance-metrics.json`
 - **PWA:** `VitePWA` generates `sw.js` + `workbox-*`

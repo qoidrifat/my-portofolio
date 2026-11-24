@@ -1,20 +1,19 @@
 import React, { useState, useRef, useMemo } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-
-import { techCategories, projects } from "@/lib/data";
+import { motion, useInView, AnimatePresence, useReducedMotion } from "framer-motion";
+import { techCategories } from "@/lib/data";
+import { projects } from "@/lib/projects-data";
+import { useLanguage } from "@/lib/LanguageContext";
 
 function getLevelLabel(v) {
-  if (v >= 80) return "Expert";
-  if (v >= 60) return "Advanced";
-  if (v >= 40) return "Intermediate";
-  return "Beginner";
+  if (v >= 75) return "Production Core";
+  if (v >= 55) return "Applied Full-Stack";
+  return "Active Integration";
 }
 
 function getLevelColor(v) {
-  if (v >= 80) return "hsl(var(--accent-web))";
-  if (v >= 60) return "rgb(52, 211, 153)";
-  if (v >= 40) return "rgb(251, 191, 36)";
-  return "rgb(161, 161, 170)";
+  if (v >= 75) return "hsl(var(--accent-web))";
+  if (v >= 55) return "rgb(52, 211, 153)";
+  return "rgb(96, 165, 250)";
 }
 
 const allTech = techCategories.flatMap(cat =>
@@ -25,14 +24,14 @@ function getProjectsForTech(ids) {
   return projects.filter(p => ids.includes(p.id));
 }
 
-function MarqueeRow({ items, direction, speed }) {
+function MarqueeRow({ items, direction, speed, shouldReduceMotion }) {
   const dir = direction || "left";
   const spd = speed || 40;
   return (
     <div className="flex overflow-hidden py-4 select-none group">
       <motion.div
-        animate={{ x: dir === "left" ? ["0%", "-50%"] : ["-50%", "0%"] }}
-        transition={{ duration: spd, repeat: Infinity, ease: "linear" }}
+        animate={shouldReduceMotion ? { x: 0 } : { x: dir === "left" ? ["0%", "-50%"] : ["-50%", "0%"] }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: spd, repeat: Infinity, ease: "linear" }}
         className="flex flex-nowrap gap-4 min-w-full"
       >
         {[...items, ...items].map((t, i) => (
@@ -61,11 +60,14 @@ const TechCard = React.forwardRef(({ item, index, isExpanded, onToggle }, ref) =
               <span className="text-sm font-semibold text-white truncate">{item.name}</span>
               <span className="shrink-0 px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-[9px] font-medium text-zinc-500 uppercase tracking-wider">{item.categoryLabel}</span>
             </div>
-            <div className="mt-2 flex items-center gap-3">
-              <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                <motion.div className="h-full rounded-full" style={{ backgroundColor: lc }} initial={{ width: 0 }} animate={{ width: item.experience_level + "%" }} transition={{ duration: 0.8, delay: 0.1 + index * 0.02, ease: [0.16, 1, 0.3, 1] }} />
-              </div>
-              <span className="shrink-0 text-[10px] font-semibold" style={{ color: lc }}>{getLevelLabel(item.experience_level)}</span>
+            <div className="mt-2 flex items-center gap-2.5 text-xs">
+              <span className="text-zinc-400 font-medium">
+                {item.years} {item.years === 1 ? "year" : "years"}
+              </span>
+              <span className="text-zinc-700 font-bold" aria-hidden="true">•</span>
+              <span className="text-xs font-semibold" style={{ color: lc }}>
+                {lp.length > 0 ? `${lp.length} ${lp.length === 1 ? "project" : "projects"}` : getLevelLabel(item.experience_level)}
+              </span>
             </div>
           </div>
           <div className={"shrink-0 w-6 h-6 rounded-full border border-white/[0.08] flex items-center justify-center transition-transform duration-300 " + (isExpanded ? "rotate-180" : "")}>
@@ -83,8 +85,8 @@ const TechCard = React.forwardRef(({ item, index, isExpanded, onToggle }, ref) =
                   <span className="text-zinc-300 font-medium">{item.years} {item.years === 1 ? "year" : "years"}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-500">Proficiency</span>
-                  <span className="text-zinc-300 font-medium">{item.experience_level}%</span>
+                  <span className="text-zinc-400">Verification</span>
+                  <span className="text-zinc-200 font-semibold" style={{ color: lc }}>{getLevelLabel(item.experience_level)}</span>
                 </div>
                 {lp.length > 0 && (
                   <div>
@@ -109,6 +111,8 @@ const TechCard = React.forwardRef(({ item, index, isExpanded, onToggle }, ref) =
 });
 
 export default function TechStackSection() {
+  const { lang } = useLanguage();
+  const shouldReduceMotion = useReducedMotion();
   const [activeFilter, setActiveFilter] = useState("All");
   const [expandedItems, setExpandedItems] = useState(new Set());
   const ref = useRef(null);
@@ -141,9 +145,17 @@ export default function TechStackSection() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_50%,hsl(var(--accent-web)/0.08),transparent_70%)] pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <motion.span initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block">Capabilities</motion.span>
-          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl md:text-6xl font-black text-white mb-6">Tech Stack <span className="text-zinc-500">&amp;</span> Tools</motion.h2>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.2 }} className="text-zinc-400 max-w-2xl mx-auto text-lg">The specialized tools and frameworks I use to architect robust, scalable, and intelligent digital products.</motion.p>
+          <motion.span initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="px-4 py-1.5 rounded-full bg-accent-web/10 border border-accent-web/20 text-accent-web text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block">
+            {lang === 'id' ? 'Kapabilitas' : 'Capabilities'}
+          </motion.span>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl md:text-6xl font-black text-white mb-6">
+            {lang === 'id' ? 'Keahlian' : 'Tech Stack'} <span className="text-zinc-500">{lang === 'id' ? '& Alat' : '& Tools'}</span>
+          </motion.h2>
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.2 }} className="text-zinc-400 max-w-2xl mx-auto text-lg">
+            {lang === 'id'
+              ? 'Alat dan framework khusus yang saya gunakan untuk merancang sistem digital yang tangguh dan cerdas.'
+              : 'The specialized tools and frameworks I use to architect robust, scalable, and intelligent digital products.'}
+          </motion.p>
         </div>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.25 }} className="flex flex-wrap items-center justify-center gap-2 mb-12">
@@ -166,8 +178,8 @@ export default function TechStackSection() {
         <motion.div initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ duration: 1, delay: 0.4 }} className="relative space-y-4">
           <div className="absolute left-0 top-0 bottom-0 w-40 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
-          <MarqueeRow items={marqueeRow1} direction="left" speed={55} />
-          <MarqueeRow items={marqueeRow2} direction="right" speed={50} />
+          <MarqueeRow items={marqueeRow1} direction="left" speed={55} shouldReduceMotion={shouldReduceMotion} />
+          <MarqueeRow items={marqueeRow2} direction="right" speed={50} shouldReduceMotion={shouldReduceMotion} />
         </motion.div>
       </div>
     </section>

@@ -1,1 +1,0 @@
-Investigate a non-trivial runtime failure involving multiple modules, identify the root cause, implement the safest fix, and verify the regression.

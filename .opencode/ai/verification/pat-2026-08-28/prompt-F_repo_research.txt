@@ -1,1 +1,0 @@
-Analyze the repository architecture, dependency relationships, major design patterns, and technical debt without modifying files.

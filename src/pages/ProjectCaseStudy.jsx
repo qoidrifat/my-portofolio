@@ -7,7 +7,7 @@ import {
   Gauge, ShieldCheck, BookOpen, FileText, Image as ImageIcon,
   Network, Lightbulb, Compass,
 } from 'lucide-react';
-import { projects } from '@/lib/data';
+import { projects } from '@/lib/projects-data';
 import ProjectVisual from '@/components/portofolio/ProjectVisual';
 import ArchitectureViewer from '@/components/portofolio/ArchitectureViewer';
 import TechGroups from '@/components/portofolio/TechGroups';
@@ -48,7 +48,7 @@ export default function ProjectCaseStudy() {
   useEffect(() => {
     if (!project) return;
     document.title = `${project.title} — Qoid Rif'at`;
-    return () => { document.title = "Qoid Rif'at — AI & Web Developer Portfolio"; };
+    return () => { document.title = "Qoid Rif'at — Full-Stack Developer Portfolio"; };
   }, [project]);
 
   // Scroll to top on mount

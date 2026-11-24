@@ -4,67 +4,117 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
   <url>
-    <loc>https://qoidrifat.vercel.app/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <loc>https://qoidlab.my.id/</loc>
+    <lastmod>2026-11-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
 
     <!-- Profile & brand images -->
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/profile.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/profile.webp</image:loc>
       <image:title>Qoid Rif'at — Web Developer &amp; AI Enthusiast</image:title>
       <image:caption>Profile photo of Qoid Rif'at from Surabaya, Indonesia</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/logo.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/logo.webp</image:loc>
       <image:title>Qoid Rif'at Logo</image:title>
     </image:image>
 
     <!-- Project images -->
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/project1.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/project1.webp</image:loc>
       <image:title>Facial Expression Recognition with VGG16 &amp; SE-Block</image:title>
       <image:caption>AI-powered facial expression classification system using deep learning</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/projects/payrollpro/cover.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/projects/payrollpro/cover.webp</image:loc>
       <image:title>PayrollPro — HR, Attendance &amp; Payroll Management System</image:title>
-      <image:caption>Modern HR, attendance &amp; payroll platform for Indonesian companies built with Laravel 12, Vue 3 and Inertia.js</image:caption>
+      <image:caption>Modern HR, attendance &amp; payroll platform for Indonesian companies built with Laravel 12 and Inertia.js</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/projects/explore-bali/cover.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/projects/explore-bali/cover.webp</image:loc>
       <image:title>Explore Bali — Travel &amp; Tour Booking Platform</image:title>
       <image:caption>PHP-native Bali travel &amp; tour booking platform — 6 destinations, flight/hotel/bus/car search flows and tiket.com deep-links</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/project-qoid-ra-psd.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/project-qoid-ra-psd.webp</image:loc>
       <image:title>Data Mining Jupyter Book</image:title>
     </image:image>
 
     <!-- Gallery images -->
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/gedung-perkantoran.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/gedung-perkantoran.webp</image:loc>
       <image:title>Modern Office Building</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/menara-kembar-my3.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/menara-kembar-my3.webp</image:loc>
       <image:title>Petronas Twin Towers, Kuala Lumpur</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/cafe.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/cafe.webp</image:loc>
       <image:title>Cafe Interior</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/changi-airport.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/changi-airport.webp</image:loc>
       <image:title>Changi Airport, Singapore</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/masjid-my.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/masjid-my.webp</image:loc>
       <image:title>Mosque, Malaysia</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://qoidrifat.vercel.app/gallery/original/gedung-pencakar-langit-sg.webp</image:loc>
+      <image:loc>https://qoidlab.my.id/gallery/original/gedung-pencakar-langit-sg.webp</image:loc>
       <image:title>Skyscraper, Singapore</image:title>
     </image:image>
+  </url>
+
+  <!-- Project Case Studies -->
+  <url>
+    <loc>https://qoidlab.my.id/projects/facial-expression-recognition</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/agent-status</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/aurex</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/cashflow</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/payrollpro</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/explore-bali</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/superfood</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://qoidlab.my.id/projects/jupyter-book</loc>
+    <lastmod>2026-11-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

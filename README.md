@@ -4,7 +4,7 @@ Personal portfolio website showcasing projects, skills, and experience in AI & w
 
 [![CI](https://github.com/qoidrifat/my-portofolio/actions/workflows/ci.yml/badge.svg)](https://github.com/qoidrifat/my-portofolio/actions/workflows/ci.yml)
 
-Live: **https://qoidrifat.vercel.app** · GitHub: **https://github.com/qoidrifat**
+Live: **https://qoidlab.my.id** · GitHub: **https://github.com/qoidrifat**
 
 ## Why This Portfolio Exists
 Demonstrates ability to build maintainable, performant, accessible web experiences and to document architectural decisions — not just "project thumbnails."
@@ -91,7 +91,7 @@ docs/adr/                   # Architecture Decision Records
 
 | Target | Status |
 |--------|--------|
-| Portfolio (Vercel/Cloudflare Pages) | Live — https://qoidrifat.vercel.app |
+| Portfolio (Vercel/Cloudflare Pages) | Live — https://qoidlab.my.id |
 | PayrollPro flagship | Staging pending — see `docs/DEPLOYMENT.md` |
 | SuperFood | Staging pending — see `docs/DEPLOYMENT.md` |
 | FER | Live — https://huggingface.co/spaces/qoidrifat/demo-sidang |

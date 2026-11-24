@@ -4,9 +4,10 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-clients';
 import { ThemeProvider, THEMES, useTheme } from '@/lib/ThemeContext';
+import { LanguageProvider } from '@/lib/LanguageContext';
 import ProjectCaseStudy from '@/pages/ProjectCaseStudy';
 import ProjectVisual from '@/components/portofolio/ProjectVisual';
-import { projects, featuredProjectId } from '@/lib/data';
+import { featuredProjectId, projects } from '@/lib/projects-data';
 import performanceMetrics from '@/data/performance-metrics.json';
 import { renderHook } from '@testing-library/react';
 
@@ -14,12 +15,14 @@ function Wrapper({ children, initialEntries = ['/'] }) {
   return (
     <QueryClientProvider client={queryClientInstance}>
       <ThemeProvider>
-        <MemoryRouter initialEntries={initialEntries}>
-          <Routes>
-            <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
-            <Route path="*" element={children} />
-          </Routes>
-        </MemoryRouter>
+        <LanguageProvider>
+          <MemoryRouter initialEntries={initialEntries}>
+            <Routes>
+              <Route path="/projects/:slug" element={<ProjectCaseStudy />} />
+              <Route path="*" element={children} />
+            </Routes>
+          </MemoryRouter>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

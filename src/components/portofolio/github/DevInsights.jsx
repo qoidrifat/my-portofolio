@@ -3,8 +3,25 @@ import { motion } from 'framer-motion';
 import { Code2, Star, TrendingUp, GitBranch } from 'lucide-react';
 import { SkeletonLine } from './Skeleton';
 import { fmt, timeAgo } from './utils';
+import { useCopy } from '@/lib/LanguageContext';
+
+const COPY = {
+  en: {
+    topLanguage: 'Top Language',
+    mostStarred: 'Most Starred',
+    openSourceImpact: 'Open Source Impact',
+    recentlyUpdated: 'Recently Updated',
+  },
+  id: {
+    topLanguage: 'Bahasa Teratas',
+    mostStarred: 'Bintang Terbanyak',
+    openSourceImpact: 'Dampak Open Source',
+    recentlyUpdated: 'Baru Diupt',
+  },
+};
 
 export default function DevInsights({ repos, profile, isLoading, isInView, shouldReduceMotion }) {
+  const t = useCopy(COPY);
   const insights = useMemo(() => {
     if (!repos || repos.length === 0 || !profile) return [];
 
@@ -25,7 +42,7 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
     return [
       {
         icon: Code2,
-        label: 'Top Language',
+        label: t.topLanguage,
         value: mostActiveLang ? mostActiveLang[0] : '\u2014',
         sub: mostActiveLang
           ? `${Math.round((mostActiveLang[1] / totalLangRepos) * 100)}% of repos`
@@ -37,7 +54,7 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
       },
       {
         icon: Star,
-        label: 'Most Starred',
+        label: t.mostStarred,
         value: mostStarred ? mostStarred.name : '\u2014',
         sub: mostStarred ? `${fmt(mostStarred.stars)} stars` : '',
         accent: 'amber',
@@ -48,7 +65,7 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
       },
       {
         icon: TrendingUp,
-        label: 'Open Source Impact',
+        label: t.openSourceImpact,
         value: `${fmt(totalStars)} stars`,
         sub: `${repos.length} repos \u00b7 ${fmt(totalForks)} forks`,
         accent: 'emerald',
@@ -56,7 +73,7 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
       },
       {
         icon: GitBranch,
-        label: 'Recently Updated',
+        label: t.recentlyUpdated,
         value: recentlyUpdated ? recentlyUpdated.name : '\u2014',
         sub: recentlyUpdated ? timeAgo(recentlyUpdated.updatedAt) : '',
         accent: 'violet',
@@ -64,16 +81,15 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
         progress: 100,
       },
     ];
-  }, [repos, profile]);
+  }, [repos, profile, t]);
 
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-            <SkeletonLine width="20px" height="20px" className="mb-3" />
-            <SkeletonLine width="50%" height="16px" className="mb-1" />
-            <SkeletonLine width="70%" height="12px" />
+            <SkeletonLine width="60%" height="24px" className="mb-1" />
+            <SkeletonLine width="80%" height="10px" />
           </div>
         ))}
       </div>
@@ -87,61 +103,21 @@ export default function DevInsights({ repos, profile, isLoading, isInView, shoul
       transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {insights.map((item, i) => {
-          const accentMap = {
-            blue: 'text-accent-web bg-accent-web/10 border-accent-web/20',
-            amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-            emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-            violet: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
-          };
-          const accentClass = accentMap[item.accent] || accentMap.blue;
-
-          const content = (
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="p-4 md:p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-300 h-full"
-            >
-              <div className={`w-9 h-9 rounded-xl ${accentClass} flex items-center justify-center mb-3`}>
-                <item.icon className="w-4 h-4" aria-hidden="true" />
-              </div>
-              <div className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1">
-                {item.label}
-              </div>
-              <div className="text-sm font-bold text-white truncate mb-0.5">
-                {item.value}
-              </div>
-              {item.sub && (
-                <div className="text-[11px] text-zinc-500 mb-2">{item.sub}</div>
-              )}
-
-              {/* Progress bar */}
-              {item.progress != null && (
-                <div className="w-full h-1 rounded-full bg-white/[0.04] overflow-hidden mt-1">
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={isInView ? { scaleX: 1 } : {}}
-                    transition={{ duration: 0.8, delay: 0.6 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                    className="h-full rounded-full origin-left"
-                    style={{
-                      width: `${item.progress}%`,
-                      backgroundColor: item.link ? undefined : 'currentColor',
-                    }}
-                  />
-                </div>
-              )}
-            </motion.div>
-          );
-
-          if (item.link) {
-            return (
-              <a key={i} href={item.link} target="_blank" rel="noopener noreferrer" className="block group outline-none">
-                {content}
-              </a>
-            );
-          }
-          return <div key={i}>{content}</div>;
-        })}
+        {insights.map((item, i) => (
+          <div
+            key={i}
+            className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.03] transition-all duration-300"
+          >
+            <div className={`w-8 h-8 rounded-xl ${item.accentClass} flex items-center justify-center mb-3`}>
+              <item.icon className="w-4 h-4" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">{item.label}</p>
+              <p className="text-sm font-bold text-white">{item.value}</p>
+              {item.sub && <p className="text-[10px] text-zinc-500">{item.sub}</p>}
+            </div>
+          </div>
+        ))}
       </div>
     </motion.div>
   );
