@@ -1,0 +1,560 @@
+{
+  "provider": {
+    "9router": {
+      "models": {
+        "zenmux/z-ai/glm-5.3-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "infron/qwen/qwen3.8-flash:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "infron/qwen/qwen3.8-27b-abliterated-cyber:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "infron/qwen/qwen3.8-27b:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "infron/deepseek/deepseek-v4.1-flash:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "infron/deepseek/deepseek-v4-flash-0731:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "infron/deepseek/deepseek-v4-flash:free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "nvidia/deepseek-ai/deepseek-v4.1-flash": {
+          "variants": {
+            "none": {
+              "reasoningEffort": "none"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "nvidia/z-ai/glm-5.3-flash": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "nvidia/moonshotai/kimi-k3": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/crouton-alpha-free": {
+          "variants": {
+            "minimal": {
+              "reasoningEffort": "minimal"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/pulse-alpha-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/flint-40b-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/nemotron-3.5-super-vl-free": {
+          "variants": {
+            "none": {
+              "reasoningEffort": "none"
+            },
+            "minimal": {
+              "reasoningEffort": "minimal"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "oc/beam-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "xhigh": {
+              "reasoningEffort": "xhigh"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/nemotron-3.5-lightning-free": {
+          "variants": {}
+        },
+        "oc/big-pickle": {
+          "variants": {}
+        },
+        "oc/glm-5.3-flash-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/deepseek-v4.1-flash-free": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "oc/mimo-v2.6-flash-free": {
+          "variants": {}
+        },
+        "freepi/particle": {
+          "variants": {}
+        },
+        "freepi/deepseek-v4.1-flash": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "freepi/glm-5.3-flash": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "freepi/deepseek-v4-flash": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "dl/gpt-6-luna": {
+          "variants": {
+            "minimal": {
+              "reasoningEffort": "minimal"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "dl/gpt-6.1-sol": {
+          "variants": {
+            "minimal": {
+              "reasoningEffort": "minimal"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "dl/gpt-6-astra": {
+          "variants": {
+            "minimal": {
+              "reasoningEffort": "minimal"
+            },
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "medium": {
+              "reasoningEffort": "medium"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "dl/deepseek/deepseek-v4.1-flash-1017": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deploy/deepseek-ai/deepseek-v4.1-flash-1017": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deploy/zai-org/glm-5.3-flash": {
+          "variants": {
+            "low": {
+              "reasoningEffort": "low"
+            },
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "openrouter/z-ai/glm-5.2:free": {
+          "variants": {}
+        },
+        "openrouter/minimax/minimax-m3:free": {
+          "variants": {}
+        },
+        "openrouter/thinkingmachines/inkling-small:free": {
+          "variants": {}
+        },
+        "openrouter/poolside/laguna-s-2.1:free": {
+          "variants": {}
+        },
+        "openrouter/nvidia/nemotron-3.5-lightning:free": {
+          "variants": {}
+        }
+      }
+    },
+    "mygmicloud": {
+      "models": {
+        "MiniMaxAI/MiniMax-M3": {
+          "variants": {
+            "fast": {
+              "reasoningEffort": "low"
+            },
+            "balanced": {
+              "reasoningEffort": "medium"
+            },
+            "deep": {
+              "reasoningEffort": "high"
+            }
+          }
+        }
+      }
+    },
+    "minimaxm3new": {
+      "models": {
+        "MiniMaxAI/MiniMax-M3": {
+          "variants": {
+            "fast": {
+              "reasoningEffort": "low"
+            },
+            "balanced": {
+              "reasoningEffort": "medium"
+            },
+            "deep": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        }
+      }
+    },
+    "open-router": {
+      "models": {
+        "z-ai/glm-5.2:free": {
+          "variants": {
+            "balanced": {
+              "reasoningEffort": "high"
+            },
+            "deep": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "minimax/minimax-m3:free": {
+          "variants": {
+            "fast": {
+              "reasoningEffort": "low"
+            },
+            "balanced": {
+              "reasoningEffort": "medium"
+            },
+            "deep": {
+              "reasoningEffort": "high"
+            },
+            "xdeep": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        },
+        "minimax/minimax-m2.7:free": {
+          "variants": {
+            "fast": {
+              "reasoningEffort": "low"
+            },
+            "balanced": {
+              "reasoningEffort": "medium"
+            },
+            "deep": {
+              "reasoningEffort": "high"
+            },
+            "xdeep": {
+              "reasoningEffort": "xhigh"
+            }
+          }
+        }
+      }
+    },
+    "b-ai": {
+      "models": {
+        "glm-5.3-flash": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deepseek-v4-flash": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "deepseek-v4-flash-vision-exp": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        },
+        "hy3": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "mimo-v2.5": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            }
+          }
+        },
+        "qwen3.8-flash": {
+          "variants": {
+            "high": {
+              "reasoningEffort": "high"
+            },
+            "max": {
+              "reasoningEffort": "max"
+            }
+          }
+        }
+      }
+    },
+    "antseed": {
+      "models": {
+        "antseed": {
+          "variants": {}
+        }
+      }
+    }
+  }
+}

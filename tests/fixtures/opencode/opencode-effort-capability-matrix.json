@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "models": [
+    {
+      "model": "glm-5.3-flash",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 10398,
+        "latency_ms_reasoning": 13766,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 9858,
+        "latency_ms_reasoning": 15731,
+        "error": null
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": true,
+        "result": "UNSUPPORTED",
+        "error": "Backend returned: 该模型始终思考，不支持关闭思考；请使用 low、high 或 max。 — xhigh is not a valid value; backend accepts {low, high, max} for this provider"
+      },
+      "native_reasoning": "ALWAYS_ON",
+      "vision": false,
+      "max_verified": "max"
+    },
+    {
+      "model": "deepseek-v4-flash",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 10511,
+        "latency_ms_reasoning": 11237,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 8863,
+        "latency_ms_reasoning": 10523,
+        "error": null
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": true,
+        "result": "UNSUPPORTED",
+        "error": "xhigh is not in the b.ai accepted set for this model; max is the deepest verified value"
+      },
+      "native_reasoning": "VERIFIED",
+      "vision": false,
+      "max_verified": "max"
+    },
+    {
+      "model": "deepseek-v4-flash-vision-exp",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 9007,
+        "latency_ms_reasoning": 8819,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 9586,
+        "latency_ms_reasoning": 9099,
+        "error": null
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": false,
+        "result": "UNSUPPORTED",
+        "error": "xhigh rejected by backend (same as glm-5.3-flash). max is the deepest verified value."
+      },
+      "native_reasoning": "VERIFIED",
+      "vision": false,
+      "max_verified": "max"
+    },
+    {
+      "model": "hy3",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": null,
+        "latency_ms_smoke": 12901,
+        "latency_ms_reasoning": null,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "UNSUPPORTED",
+        "error": "Backend returned 400: 'reasoning_effort must be one of: no_think, low, high' — max is not in the accepted set for hy3."
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": false,
+        "result": "UNSUPPORTED",
+        "error": "xhigh is not in the accepted set for hy3."
+      },
+      "native_reasoning": "VERIFIED",
+      "vision": false,
+      "max_verified": "high"
+    },
+    {
+      "model": "mimo-v2.5",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 12260,
+        "latency_ms_reasoning": 13402,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "BLOCKED",
+        "error": "Provider returned 'Upstream service temporarily unavailable' (timeout 443s) and 'Upstream rate limit exceeded' (timeout 428s) on multiple attempts. max effort appears to trigger upstream rate limiting on b.ai's side.",
+        "attempts": 3
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": false,
+        "result": "UNSUPPORTED",
+        "error": "xhigh is not in the b.ai accepted set."
+      },
+      "native_reasoning": "VERIFIED",
+      "vision": false,
+      "max_verified": "high"
+    },
+    {
+      "model": "qwen3.8-flash",
+      "provider": "b-ai",
+      "variant_high": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 10039,
+        "latency_ms_reasoning": 9982,
+        "error": null
+      },
+      "variant_max": {
+        "configurable": true,
+        "runtime_test": true,
+        "result": "PASS",
+        "smoke": "EFFORT_TEST_OK returned",
+        "reasoning": "D=92 returned correctly",
+        "latency_ms_smoke": 10862,
+        "latency_ms_reasoning": 9891,
+        "error": null
+      },
+      "variant_xhigh": {
+        "configurable": false,
+        "runtime_test": false,
+        "result": "UNSUPPORTED",
+        "error": "xhigh is not in the b.ai accepted set."
+      },
+      "native_reasoning": "VERIFIED",
+      "vision": false,
+      "max_verified": "max"
+    }
+  ]
+}
