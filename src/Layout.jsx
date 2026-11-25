@@ -376,7 +376,9 @@ export default function Layout({ children }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
             onClick={() => window.scrollTo({ top: 0, behavior: shouldReduceMotion ? 'auto' : 'smooth' })}
-            className="fixed bottom-8 right-8 z-40 p-4 rounded-2xl bg-accent-web text-white shadow-glow-web hover:brightness-110 transition-colors group"
+            // Positioned above the NARA avatar bubble (bottom-5 right-5, h-16/20) so
+            // the two never overlap on mobile — the avatar sits at the same corner.
+            className="fixed bottom-[8.5rem] right-4 z-40 p-4 rounded-2xl bg-accent-web text-white shadow-glow-web hover:brightness-110 transition-colors group sm:bottom-28 sm:right-7"
             aria-label="Scroll to top"
             whileHover={shouldReduceMotion ? undefined : { y: -5 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}

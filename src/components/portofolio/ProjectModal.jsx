@@ -154,12 +154,15 @@ const ProjectModal = ({ project, onClose }) => {
     };
   }, []);
 
-  // Lock body scroll while the modal is open. Safe because the parent only
-  // mounts this component when a project is selected — the cleanup always runs.
+  // Lock body scroll while the modal is open. The effect depends on `project`
+  // so the lock engages only when a project is actually selected — ProjectModal
+  // is mounted permanently inside ProjectSection, and an unconditional lock
+  // here froze page scrolling on mobile the moment this section lazy-loaded.
   useEffect(() => {
+    if (!project) return undefined;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
-  }, []);
+  }, [project]);
 
   if (!project) return null;
 

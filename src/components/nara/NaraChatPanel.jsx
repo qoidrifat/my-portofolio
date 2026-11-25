@@ -41,6 +41,10 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
   const reduced = useReducedMotion();
   const [messages, setMessages] = useState(/** @type {Msg[]} */ ([]));
   const [busy, setBusy] = useState(false);
+  // Real-time thinking feedback: steps advance on a timer while the provider
+  // works, so the visitor sees genuine progress instead of a static spinner.
+  const [thinkingStep, setThinkingStep] = useState(0);
+  const [thinkingSeconds, setThinkingSeconds] = useState(0);
   const [input, setInput] = useState('');
   const listRef = useRef(/** @type {HTMLDivElement|null} */ (null));
   const inputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
@@ -68,6 +72,24 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
       abortRef.current?.abort();
     };
   }, [open, onClose]);
+
+  // Real-time thinking progression. The interval advances through the step
+  // list every ~1.6 s and keeps a live elapsed-seconds counter. Cleared on
+  // unmount and whenever busy flips false, so nothing ticks in the background.
+  useEffect(() => {
+    if (!busy) {
+      setThinkingStep(0);
+      setThinkingSeconds(0);
+      return undefined;
+    }
+    setThinkingStep(0);
+    setThinkingSeconds(0);
+    const stepId = setInterval(() => {
+      setThinkingStep((prev) => Math.min(prev + 1, (t.thinkingSteps?.length ?? 1) - 1));
+    }, 1600);
+    const secId = setInterval(() => setThinkingSeconds((prev) => prev + 1), 1000);
+    return () => { clearInterval(stepId); clearInterval(secId); };
+  }, [busy, t]);
 
   // Keep the newest message visible.
   useEffect(() => {
@@ -221,14 +243,34 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
 
             {busy && (
               <div className="flex justify-start">
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[13px] text-zinc-500">
-                  <span className="flex items-center gap-1.5">
-                    {t.thinking.split('…')[0]}
-                    <span className="flex gap-0.5">
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-zinc-500 [animation-delay:0ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-zinc-500 [animation-delay:150ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-zinc-500 [animation-delay:300ms]" />
+                <div
+                  className="max-w-[85%] rounded-xl border border-accent-web/25 bg-accent-web/[0.07] px-3 py-2.5 text-[13px]"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <span className="flex items-center gap-2 text-accent-web">
+                    <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-web opacity-60" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-web" />
                     </span>
+                    <span className="font-medium">
+                      {t.thinkingSteps?.[thinkingStep] ?? t.thinking}
+                    </span>
+                    <span className="ml-auto text-[11px] tabular-nums text-zinc-500">
+                      {t.thinkingElapsed(thinkingSeconds)}
+                    </span>
+                  </span>
+                  {/* progress dots — one per remaining step */}
+                  <span className="mt-1.5 flex gap-1" aria-hidden="true">
+                    {(t.thinkingSteps ?? []).map((_, i) => (
+                      <span
+                        key={i}
+                        className={
+                          'h-1 flex-1 rounded-full transition-colors duration-500 ' +
+                          (i <= thinkingStep ? 'bg-accent-web' : 'bg-zinc-700')
+                        }
+                      />
+                    ))}
                   </span>
                 </div>
               </div>
