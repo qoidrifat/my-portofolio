@@ -60,18 +60,23 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
     return undefined;
   }, [open, reduced]);
 
-  // Escape closes (F-15), and unmount never leaves a dangling request (F-14).
+  // Escape closes (F-15).
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      abortRef.current?.abort();
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  // In-flight request is aborted only when the panel unmounts (F-14). It must
+  // NOT live in an effect keyed on /: every parent re-render
+  // (e.g. the thinking-state change) creates a new onClose reference, which
+  // would re-run the cleanup and abort the very request that just started.
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
 
   // Real-time thinking progression. The interval advances through the step
   // list every ~1.6 s and keeps a live elapsed-seconds counter. Cleared on

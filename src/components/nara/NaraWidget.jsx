@@ -94,20 +94,22 @@ export default function NaraWidget() {
     writeSessionCount(BUBBLE_SESSION_KEY, bubbleCountRef.current);
   }, []);
 
-  function openChat() {
+  const openChat = useCallback(() => {
     setChatOpen(true);
     setBubbleVisible(false);
-  }
+  }, []);
 
-  function closeChat() {
+  // Stable identities: these flow into NaraChatPanel effect deps. Without
+  // useCallback the functions are re-created on every render, which re-runs
+  // the panel's escape-key effect and could abort an in-flight chat request.
+  const closeChat = useCallback(() => {
     setChatOpen(false);
     setNaraState('idle');
-  }
+  }, []);
 
-  /** @param {string} s */
-  function handleChatState(s) {
+  const handleChatState = useCallback(/** @param {string} s */ (s) => {
     setNaraState(s === 'thinking' ? 'thinking' : 'idle');
-  }
+  }, []);
 
   const isThinking = naraState === 'thinking';
 
