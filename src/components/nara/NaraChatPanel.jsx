@@ -8,6 +8,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { copyFor } from '@/lib/nara/nara-copy';
+import NaraAvatar from './NaraAvatar.jsx';
 import { sendChat } from '@/lib/nara/chat-client';
 
 /** @typedef {{ role: 'user'|'assistant', content: string, kind?: 'normal'|'rate_limited'|'budget'|'error'|'out_of_scope' }} Msg */
@@ -151,9 +152,9 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))] p-[2px]">
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-zinc-950">
-                  <span className="text-xs font-black text-white">N</span>
+              <div className="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))] p-[2.5px]">
+                <div className="h-full w-full overflow-hidden rounded-full bg-zinc-100">
+                  <NaraAvatar className="h-full w-full" />
                 </div>
               </div>
               <div>

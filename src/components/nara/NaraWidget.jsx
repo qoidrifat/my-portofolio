@@ -1,15 +1,15 @@
 // @ts-check
-// NARA floating widget — avatar + bubble + chat host. Mounted from Layout.
-// Entrance is driven by the real intro completion flag (FR-3D-007), greeting
-// runs once per session (F-01), and the 3D runtime is fetched only when the
-// character is revealed (NFR-PERF-002/003).
+// NARA floating widget — avatar bubble + speech bubble + chat host.
+// Entrance driven by the real intro completion flag (FR-3D-007 / F-01);
+// greeting once per session; avatar is the approved NARA face, always visible
+// and clearly displayed (no WebGL, no 3D runtime, no model loading).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { copyFor } from '@/lib/nara/nara-copy';
-import NaraScene from './NaraScene.jsx';
+import NaraAvatar from './NaraAvatar.jsx';
 import NaraChatPanel from './NaraChatPanel.jsx';
 
 const BUBBLE_SESSION_KEY = 'nara-bubbles-shown';
@@ -39,7 +39,7 @@ function hasGreeted() {
 
 export default function NaraWidget() {
   const { lang } = useLanguage();
-  const t = copyFor(/** @type {'en'|'id'} */ (lang));
+  const t = copyFor(lang);
   const reduced = useReducedMotion();
 
   const [introDone, setIntroDone] = useState(
@@ -47,13 +47,12 @@ export default function NaraWidget() {
   );
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [naraState, setNaraState] = useState(/** @type {string} */ ('hidden'));
+  const [naraState, setNaraState] = useState('hidden');
   const greetedRef = useRef(hasGreeted());
   const bubbleCountRef = useRef(readSessionCount(BUBBLE_SESSION_KEY));
 
   // The portfolio intro flips sessionStorage['qr-intro-played'] right before
-  // the app reveals (App.jsx). Polling is avoided; a storage event plus the
-  // initial read covers the two mount orders (intro vs revisit).
+  // the app reveals. Poll the flag — cheap, and covers both mount orders.
   useEffect(() => {
     if (introDone) return undefined;
     const id = setInterval(() => {
@@ -64,38 +63,31 @@ export default function NaraWidget() {
     return () => clearInterval(id);
   }, [introDone]);
 
-  // Entrance chain driven by introDone — never by a guessed timeout.
+  // Entrance chain (F-01): appear → greeting bubble → idle. Once per session.
   useEffect(() => {
     if (!introDone) return undefined;
     setNaraState(reduced ? 'idle' : 'appearing');
     const id = setTimeout(() => {
-      if (greetedRef.current) {
-        setNaraState('idle');
-        return undefined;
+      if (!greetedRef.current) {
+        greetedRef.current = true;
+        try { sessionStorage.setItem(GREETING_SESSION_KEY, '1'); } catch { /* ignore */ }
+        setBubbleVisible(bubbleCountRef.current < 2);
       }
-      greetedRef.current = true;
-      try { sessionStorage.setItem(GREETING_SESSION_KEY, '1'); } catch { /* ignore */ }
-      setNaraState('greeting');
-      setBubbleVisible(bubbleCountRef.current < 2);
+      setNaraState('idle');
       return undefined;
-    }, reduced ? 0 : 1400);
+    }, reduced ? 0 : 900);
     return () => clearTimeout(id);
   }, [introDone, reduced]);
 
-  // Greeting finishes -> idle, and the bubble auto-dismisses.
+  // Bubble auto-dismiss (F-06).
   useEffect(() => {
-    if (naraState === 'greeting') {
-      const id = setTimeout(() => setNaraState('idle'), reduced ? 600 : 3600);
-      return () => clearTimeout(id);
-    }
     if (bubbleVisible) {
       const id = setTimeout(() => setBubbleVisible(false), 8000);
       return () => clearTimeout(id);
     }
     return undefined;
-  }, [naraState, bubbleVisible, reduced]);
+  }, [bubbleVisible]);
 
-  /** Dismissed bubbles never reappear this session (F-06). */
   const dismissBubble = useCallback(() => {
     setBubbleVisible(false);
     bubbleCountRef.current += 1;
@@ -105,7 +97,6 @@ export default function NaraWidget() {
   function openChat() {
     setChatOpen(true);
     setBubbleVisible(false);
-    if (naraState === 'idle' || naraState === 'looking') setNaraState('listening');
   }
 
   function closeChat() {
@@ -115,9 +106,10 @@ export default function NaraWidget() {
 
   /** @param {string} s */
   function handleChatState(s) {
-    if (s === 'thinking') setNaraState('thinking');
-    else if (s === 'success' || s === 'out_of_scope') setNaraState('speaking');
+    setNaraState(s === 'thinking' ? 'thinking' : 'idle');
   }
+
+  const isThinking = naraState === 'thinking';
 
   return (
     <>
@@ -130,7 +122,7 @@ export default function NaraWidget() {
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 6 }}
             role="status"
             className={
-              'fixed bottom-[13.5rem] right-4 z-[55] max-w-[240px] sm:bottom-40 sm:right-40 ' +
+              'fixed bottom-[7.5rem] right-4 z-[55] max-w-[250px] sm:bottom-24 sm:right-24 ' +
               'rounded-2xl border border-white/10 bg-zinc-900/95 px-4 py-3 shadow-xl backdrop-blur-md'
             }
           >
@@ -147,21 +139,33 @@ export default function NaraWidget() {
         )}
       </AnimatePresence>
 
-      {/* Avatar (F-07: opens chat only on intentional interaction) */}
+      {/* Avatar button — NARA's face, always clearly visible (F-07) */}
       <motion.button
         type="button"
         onClick={openChat}
         aria-label={t.chatTitle + ' — ' + t.chatSubtitle}
         aria-expanded={chatOpen}
-        initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
-        animate={introDone ? (reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }) : { opacity: 0, scale: 0.6 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.5 }}
+        animate={introDone ? (reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }) : { opacity: 0, scale: 0.5 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         className={
-          'fixed bottom-5 right-5 z-[55] block h-32 w-32 sm:bottom-6 sm:right-6 sm:h-44 sm:w-44 ' +
-          'rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-web focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950'
+          'fixed bottom-5 right-5 z-[55] block h-16 w-16 sm:h-20 sm:w-20 ' +
+          'rounded-full focus-visible:outline-none focus-visible:ring-2 ' +
+          'focus-visible:ring-accent-web focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950'
         }
       >
-        <NaraScene state={naraState} />
+        {/* Gradient ring — the approved NARA face sits inside, fully visible */}
+        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))]" aria-hidden="true" />
+        <span className="absolute inset-[3px] overflow-hidden rounded-full bg-zinc-100">
+          <NaraAvatar className="h-full w-full" />
+        </span>
+        {/* Thinking indicator */}
+        {isThinking && (
+          <span className="absolute -top-1 -right-1 flex h-4 w-4" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-web opacity-60" />
+            <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-zinc-950 bg-accent-web" />
+          </span>
+        )}
       </motion.button>
 
       <NaraChatPanel open={chatOpen} onClose={closeChat} onStateChange={handleChatState} />

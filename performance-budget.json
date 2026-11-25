@@ -23,9 +23,9 @@
     },
     {
       "resource": "total-js",
-      "budget": 2700000,
+      "budget": 950000,
       "unit": "bytes",
-      "description": "All JS emitted to dist/assets, lazy chunks included. Raised 2026-11-25 (second pass) to 2700000 after wiring the Draco decoder: draco_decoder.js adds ~719 KB as its own lazy chunk, fetched only when the GLB is parsed. Every chunk is still counted; nothing is hidden from this gate."
+      "description": "All JS emitted to dist/assets, lazy chunks included. Tightened 2026-11-25 back to 950000 after NARA switched from a 3D runtime (~2.49 MB) to an inline-SVG avatar: the 3D dependency was removed entirely, so the old inflated ceiling is no longer justified."
     },
     {
       "resource": "total-css",
@@ -35,9 +35,9 @@
     },
     {
       "resource": "largest-js-chunk",
-      "budget": 1000000,
+      "budget": 420000,
       "unit": "bytes",
-      "description": "Largest single JS chunk. Raised 2026-11-25 from 420000 (then 878900 same day) after measuring the NARA 3D chunk at 943.7 KB: Three.js runtime + drei animation helpers + Draco/WebP loaders. The chunk is fetched only when the character is revealed and never affects LCP; the eager entry chunk remains governed by initial-js."
+      "description": "Largest single JS chunk. Tightened 2026-11-25 back to 420000 after NARA dropped the 3D runtime; the eager entry chunk remains the main thing this gate protects."
     },
     {
       "resource": "largest-css-chunk",
@@ -47,9 +47,9 @@
     },
     {
       "resource": "bundle-count",
-      "budget": 24,
+      "budget": 18,
       "unit": "count",
-      "description": "Maximum number of distinct bundles. Raised from 18 (2026-11-25) to admit the NARA 3D engine and model chunks; the headroom above 24 still flags accidental over-splitting."
+      "description": "Maximum number of distinct bundles. Tightened 2026-11-25 back to 18 after the NARA 3D engine and model chunks were removed."
     }
   ]
 }
