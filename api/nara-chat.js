@@ -15,7 +15,9 @@ import { validateResponse } from '../../server/nara/response-validator.js';
 import { chatCompletion } from '../../server/nara/deploy-provider.js';
 import { checkAndReserve, reconcileUsage, releaseReservation } from '../../server/nara/rate-limiter.js';
 
-export const config = { runtime: 'nodejs18.x' };
+// Vercel rejects 'nodejs18.x' — the current accepted values are 'nodejs',
+// 'edge' and 'experimental-edge'. 'nodejs' pins the platform default (20+).
+export const config = { runtime: 'nodejs' };
 
 const MAX_BODY_BYTES = 8 * 1024;
 
