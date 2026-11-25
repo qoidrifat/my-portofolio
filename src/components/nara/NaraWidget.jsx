@@ -37,14 +37,22 @@ function hasGreeted() {
   }
 }
 
+/** Storage can be blocked outright (private mode, hardened Android browsers).
+ *  An uncaught throw here killed the whole widget on mount. */
+function readIntroDone() {
+  try {
+    return sessionStorage.getItem('qr-intro-played') === '1';
+  } catch {
+    return true;
+  }
+}
+
 export default function NaraWidget() {
   const { lang } = useLanguage();
   const t = copyFor(lang);
   const reduced = useReducedMotion();
 
-  const [introDone, setIntroDone] = useState(
-    () => sessionStorage.getItem('qr-intro-played') === '1'
-  );
+  const [introDone, setIntroDone] = useState(readIntroDone);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [naraState, setNaraState] = useState('hidden');

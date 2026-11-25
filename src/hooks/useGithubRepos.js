@@ -1,5 +1,6 @@
 // @ts-check
 import { useQuery } from '@tanstack/react-query';
+import { logError } from '@/lib/errors';
 
 const GITHUB_USERNAME = 'qoidrifat';
 
@@ -43,7 +44,10 @@ export function getLanguageColor(lang) {
 // ── Fetch profile ───────────────────────────────────────────────────────────
 async function fetchProfile() {
   const res = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
-  if (!res.ok) throw new Error('Failed to fetch GitHub profile');
+  if (!res.ok) {
+    logError('GitHub', 'profile request failed', { status: res.status, extra: { step: 'profile' } });
+    throw new Error(`Failed to fetch GitHub profile (HTTP ${res.status})`);
+  }
   const data = await res.json();
   return {
     login: data.login,
@@ -76,7 +80,10 @@ async function fetchRepos() {
   const res = await fetch(
     `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=20&type=public`
   );
-  if (!res.ok) throw new Error('Failed to fetch GitHub repos');
+  if (!res.ok) {
+    logError('GitHub', 'repos request failed', { status: res.status, extra: { step: 'repos' } });
+    throw new Error(`Failed to fetch GitHub repos (HTTP ${res.status})`);
+  }
   const data = await res.json();
   return data
     .filter(repo => !repo.fork && !repo.archived)
@@ -102,7 +109,10 @@ async function fetchSearchCount(query) {
     `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=1`
   );
   // null, not 0: a failed lookup must render as "unavailable", not a real count.
-  if (!res.ok) return null;
+  if (!res.ok) {
+    logError('GitHub', 'search request failed', { status: res.status, extra: { step: 'search', query } });
+    return null;
+  }
   const data = await res.json();
   return data.total_count ?? null;
 }
@@ -122,7 +132,10 @@ async function fetchEvents() {
   const res = await fetch(
     `https://api.github.com/users/${GITHUB_USERNAME}/events?per_page=100`
   );
-  if (!res.ok) return null;
+  if (!res.ok) {
+    logError('GitHub', 'events request failed', { status: res.status, extra: { step: 'events' } });
+    return null;
+  }
   const data = await res.json();
   if (!Array.isArray(data)) return null;
   return data.filter(e => e.type === 'PushEvent').length;

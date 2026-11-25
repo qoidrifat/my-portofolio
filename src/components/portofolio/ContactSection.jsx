@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, Mail, Phone, MapPin, CheckCircle2, AlertCircle, Loader2, Copy, Check, MessageCircle } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useCopy } from '@/lib/LanguageContext';
+import { logError } from '@/lib/errors';
 
 // Formspree form id is a public identifier, not a secret — it ships in the
 // client bundle by design. Abuse is handled by the honeypot below plus the
@@ -77,7 +78,8 @@ export default function ContactSection() {
         duration: 3500,
       });
       setTimeout(() => setCopied(false), 3000);
-    } catch {
+    } catch (e) {
+      logError('Contact', e, { extra: { step: 'clipboard-write' } });
       toast({
         title: "Clipboard unavailable",
         description: "Please manually copy: qoidrifat23@gmail.com",
@@ -135,7 +137,8 @@ export default function ContactSection() {
         description: "Thanks for reaching out — I'll get back to you as soon as possible.",
         duration: 5000,
       });
-    } catch {
+    } catch (e) {
+      logError('Contact', e, { extra: { step: 'formspree-submit' } });
       setStatus('error');
       toast({
         title: "Something went wrong",

@@ -1,10 +1,12 @@
 // @ts-check
 // Same-origin chat client — F-12 states, F-14 error handling.
-// Never imports provider config: the browser talks only to /api/nara/chat.
+// Never imports provider config: the browser talks only to /api/nara-chat.
+
+import { logError } from '@/lib/errors';
 
 /** @typedef {'idle'|'opening'|'ready'|'thinking'|'answering'|'error'|'rate_limited'|'budget_exhausted'|'out_of_scope'|'closed'} ChatState */
 
-const ENDPOINT = '/api/nara/chat';
+const ENDPOINT = '/api/nara-chat';
 
 /** Anonymous opaque session id — regenerated per browser session (SR-007). */
 function getSessionId() {
@@ -40,7 +42,7 @@ export async function sendChat(message, language = 'en', conversation = [], sign
   try {
     res = await fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-nara-lang': language },
       signal,
       body: JSON.stringify({
         sessionId: getSessionId(),
@@ -52,6 +54,9 @@ export async function sendChat(message, language = 'en', conversation = [], sign
     });
   } catch (e) {
     if (e?.name === 'AbortError') throw e;
+    // Log the exact reason so a broken endpoint or CORS block is immediately
+    // visible in the browser console instead of silently showing 'unavailable'.
+    logError('NARA', e, { extra: { step: 'fetch', endpoint: ENDPOINT } });
     return { status: 'error', message: '' };
   }
 
@@ -66,11 +71,19 @@ export async function sendChat(message, language = 'en', conversation = [], sign
   let data;
   try {
     data = await res.json();
-  } catch {
+  } catch (e) {
+    logError('NARA', e, { status: res.status, extra: { step: 'parse', endpoint: ENDPOINT } });
     return { status: 'error', message: '' };
   }
 
-  if (!res.ok) return { status: 'error', message: '' };
+  if (!res.ok) {
+    // Surface the exact HTTP status + server status field for debugging.
+    logError('NARA', data?.status || `HTTP ${res.status}`, {
+      status: res.status,
+      extra: { step: 'api', endpoint: ENDPOINT },
+    });
+    return { status: 'error', message: '' };
+  }
 
   return {
     status: data.scope === 'portfolio' ? 'success' : data.status === 'out_of_scope' ? 'out_of_scope' : 'success',

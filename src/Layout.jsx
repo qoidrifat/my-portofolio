@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 const TerminalEasterEgg = lazy(() => import('@/components/TerminalEasterEgg'));
 const NaraWidget = lazy(() => import('@/components/nara/NaraWidget'));
 import { useTheme, THEMES } from '@/lib/ThemeContext';
@@ -392,11 +393,14 @@ export default function Layout({ children }) {
       {/* Command Palette */}
       <CommandPalette />
 
-      {/* NARA — floating portfolio guide. Lazy: the 3D runtime is fetched only
-          after the intro completes and the widget is actually revealed. */}
-      <Suspense fallback={null}>
-        <NaraWidget />
-      </Suspense>
+      {/* NARA — floating portfolio guide. Lazy: the widget chunk is fetched
+          only after the intro completes and the widget is actually revealed.
+          A failed chunk load degrades to nothing, never a white screen. */}
+      <SectionErrorBoundary scope="NARA" fallback={null}>
+        <Suspense fallback={null}>
+          <NaraWidget />
+        </Suspense>
+      </SectionErrorBoundary>
 
       {/* Terminal Easter Egg — Ctrl+` / Cmd+` */}
       <Suspense fallback={null}>

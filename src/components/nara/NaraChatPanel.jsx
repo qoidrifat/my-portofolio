@@ -15,6 +15,7 @@ import { X, Send } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { copyFor } from '@/lib/nara/nara-copy';
 import { sendChat } from '@/lib/nara/chat-client';
+import { logError } from '@/lib/errors';
 import NaraAvatar from './NaraAvatar.jsx';
 
 /** @typedef {{ role: 'user'|'assistant', content: string, kind?: 'normal'|'rate_limited'|'budget'|'error'|'out_of_scope' }} Msg */
@@ -136,6 +137,12 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
           reply = { role: 'assistant', content: t.errorGeneric, kind: 'error' };
       }
       setMessages((prev) => [...prev, reply]);
+    } catch (e) {
+      // A thrown client (abort, storage, unexpected parse) must still end with
+      // a visible reply — silence reads as "NARA never answered".
+      logError('NARA', e, { extra: { step: 'submit' } });
+      reportState('error');
+      setMessages((prev) => [...prev, { role: 'assistant', content: t.errorGeneric, kind: 'error' }]);
     } finally {
       setBusy(false);
     }
