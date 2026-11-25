@@ -45,14 +45,27 @@ describe('vercel.json SPA rewrite', () => {
     }
   });
 
-  it('never rewrites files under projects/ and gallery/', () => {
+  it('never rewrites files under media/ and gallery/', () => {
     for (const file of [
-      '/projects/payrollpro/cover.webp',
-      '/projects/explore-bali/about.avif',
+      '/media/payrollpro/cover.webp',
+      '/media/explore-bali/about.avif',
       '/gallery/thumb-cafe.webp',
     ]) {
       expect(isExcluded(file), `${file} must not be rewritten`).toBe(true);
     }
+  });
+
+  it('keeps project screenshot assets out of the /projects/:slug path', () => {
+    // A directory public/projects/payrollpro/ shadows the SPA route
+    // /projects/payrollpro once cleanUrls is on: Vercel treats it as a
+    // filesystem resource and 404s because there is no index.html inside.
+    // Assets therefore live under /media/.
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'));
+    expect(pkg).toBeTruthy();
+    const data = readFileSync(join(process.cwd(), 'src', 'lib', 'projects-data.js'), 'utf8');
+    const stale = data.match(/'\/projects\/[^']*'/g) || [];
+    expect(stale, 'project assets must not be referenced from /projects/').toEqual([]);
+    expect(data).toMatch(/'\/media\//);
   });
 
   it('never rewrites PWA and metadata files', () => {
@@ -73,12 +86,14 @@ describe('vercel.json SPA rewrite', () => {
     }
   });
 
-  it('keeps the projects/ exclusion scoped to file paths, not the whole prefix', () => {
-    // The exact regression: a bare `projects/` alternative swallowed every
-    // /projects/:slug deep link.
-    expect(alternatives).not.toContain('projects/');
-    expect(alternatives).not.toContain('gallery/');
-    expect(alternatives.some((a) => a.startsWith('projects/'))).toBe(true);
+  it('does not exclude the /projects/ prefix at all', () => {
+    // Two separate causes of the same 404, both pinned here:
+    //  1. a bare `projects/` lookahead swallowed every /projects/:slug link;
+    //  2. a real dist/projects/<slug>/ directory made Vercel treat the path as
+    //     a filesystem resource under cleanUrls.
+    // Assets moved to /media/, so nothing may reference the route prefix.
+    expect(alternatives.some((a) => a.startsWith('projects'))).toBe(false);
+    expect(alternatives.some((a) => a.startsWith('media/'))).toBe(true);
     expect(alternatives.some((a) => a.startsWith('gallery/'))).toBe(true);
   });
 
