@@ -5,6 +5,7 @@ import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
 const TerminalEasterEgg = lazy(() => import('@/components/TerminalEasterEgg'));
+const NaraWidget = lazy(() => import('@/components/nara/NaraWidget'));
 import { useTheme, THEMES } from '@/lib/ThemeContext';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -388,6 +389,12 @@ export default function Layout({ children }) {
       {/* Footer */}
       {/* Command Palette */}
       <CommandPalette />
+
+      {/* NARA — floating portfolio guide. Lazy: the 3D runtime is fetched only
+          after the intro completes and the widget is actually revealed. */}
+      <Suspense fallback={null}>
+        <NaraWidget />
+      </Suspense>
 
       {/* Terminal Easter Egg — Ctrl+` / Cmd+` */}
       <Suspense fallback={null}>

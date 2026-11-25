@@ -87,4 +87,14 @@ export default [
       "react/display-name": "warn",
     },
   },
+  {
+    // React Three Fiber maps non-DOM props (geometry, material) onto three.js
+    // objects. Standard JSX property validation does not know them, so R3F
+    // files get an explicit, scoped allowance instead of disabling the rule
+    // globally.
+    files: ["src/components/nara/**/*.{js,jsx}"],
+    rules: {
+      "react/no-unknown-property": "off",
+    },
+  },
 ];

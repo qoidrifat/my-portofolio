@@ -73,7 +73,22 @@ function measureDist() {
     }
   }
 
-  return { totalJs, totalCss, largestJs, largestCss, count };
+  // initial-js = exactly what dist/index.html makes the browser download
+  // before the page is interactive. Everything else is a lazy chunk fetched on
+  // demand and is irrelevant to LCP, so it is governed by total-js instead.
+  const indexPath = join(root, 'dist', 'index.html');
+  if (!existsSync(indexPath)) {
+    console.error('❌ dist/index.html not found. Run `npm run build` first.');
+    process.exit(1);
+  }
+  const html = readFileSync(indexPath, 'utf-8');
+  let initialJs = 0;
+  for (const m of html.matchAll(/(?:src|href)="(\/assets\/[^"]+\.(?:js|css))"/g)) {
+    const size = statSync(join(root, 'dist', m[1])).size;
+    if (m[1].endsWith('.js')) initialJs += size;
+  }
+
+  return { totalJs, totalCss, largestJs, largestCss, count, initialJs };
 }
 
 function readBudget() {
@@ -108,6 +123,9 @@ function checkBudget() {
     switch (item.resource) {
       case 'total-js':
         actual = measured.totalJs;
+        break;
+      case 'initial-js':
+        actual = measured.initialJs;
         break;
       case 'total-css':
         actual = measured.totalCss;
