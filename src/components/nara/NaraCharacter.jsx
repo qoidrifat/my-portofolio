@@ -13,9 +13,21 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import * as THREE from 'three';
 
 const MODEL_URL = '/models/nara-character.glb';
+
+// The GLB is Draco-compressed (1.69 MB vs 6.9 MB raw). drei's useGLTF accepts
+// a loader extension, and drei already ships the Draco decoder files via its
+// CDN default — but same-origin is safer under our CSP, so we point it at the
+// decoder copied into public/three/draco/.
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/three/draco/');
+useGLTF.loader = (loader) => {
+  loader.setDRACOLoader(dracoLoader);
+  return loader;
+};
 
 /** Clip-name mapping — GLB names come from Ara 3D Gen, ours are PRD states. */
 const CLIP_MAP = {
