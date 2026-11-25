@@ -72,6 +72,7 @@ export default function NaraWidget({ activeSection = 'hero' }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [naraState, setNaraState] = useState('hidden');
   const [wiggle, setWiggle] = useState(false);
+  const [hintDone, setHintDone] = useState(false);
   const greetedRef = useRef(hasGreeted());
   const bubbleCountRef = useRef(readSessionCount(BUBBLE_SESSION_KEY));
   const sectionPromptCountRef = useRef(readSessionCount(SECTION_PROMPT_KEY));
@@ -153,10 +154,19 @@ export default function NaraWidget({ activeSection = 'hero' }) {
     return () => clearInterval(check);
   }, [introDone, chatOpen, reduced]);
 
+  // First-run hint: "Ask NARA" beside the face, then it steps aside. A
+  // permanent label crowded the mobile corner (it sat over the hero CTA).
+  useEffect(() => {
+    if (!introDone || chatOpen) return undefined;
+    const id = setTimeout(() => setHintDone(true), 9000);
+    return () => clearTimeout(id);
+  }, [introDone, chatOpen]);
+
   const markInteraction = useCallback(() => {
     lastInteractionRef.current = Date.now();
     wiggleDoneRef.current = true;
     setWiggle(false);
+    setHintDone(true);
   }, []);
 
   const dismissBubble = useCallback(() => {
@@ -208,7 +218,7 @@ export default function NaraWidget({ activeSection = 'hero' }) {
   const isThinking = naraState === 'thinking';
   // A visitor who already dismissed the bubble or opened the chat knows what
   // the face is — the hint only helps on the very first visit.
-  const showHint = introDone && !chatOpen && bubbleCountRef.current === 0;
+  const showHint = introDone && !chatOpen && !hintDone && bubbleCountRef.current === 0;
 
   // Idle bob, lift on hover, wobble once — all skipped under reduced motion.
   const bob = reduced
