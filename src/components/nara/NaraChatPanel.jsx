@@ -10,13 +10,14 @@
 // - The model output is rendered as text only (SR-006) — never as HTML.
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { copyFor } from '@/lib/nara/nara-copy';
 import { sendChat } from '@/lib/nara/chat-client';
 import { logError } from '@/lib/errors';
 import NaraAvatar from './NaraAvatar.jsx';
+import WordReveal from './WordReveal.jsx';
 
 /** @typedef {{ role: 'user'|'assistant', content: string, kind?: 'normal'|'rate_limited'|'budget'|'error'|'out_of_scope' }} Msg */
 
@@ -235,7 +236,12 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
               </div>
             )}
 
-            {messages.map((m, i) => (
+            {messages.map((m, i) => {
+              // Only the newest assistant reply animates. Older messages are
+              // already read; replaying the reveal on every re-render would
+              // re-run the whole stagger whenever the parent state changed.
+              const isFresh = m.role === 'assistant' && i === messages.length - 1 && m.kind === 'normal';
+              return (
               <div key={i} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                 <div
                   className={
@@ -251,10 +257,21 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
                             : 'border border-white/10 bg-white/[0.05] text-zinc-200')
                   }
                 >
-                  {m.content}
+                  {/* The bubble itself fades in as it grows, so the answer never
+                      waits inside a fully-painted empty box. */}
+                  {isFresh ? (
+                    <motion.div
+                      initial={{ opacity: 0.4, scale: 0.985 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.24, ease: 'easeOut' }}
+                    >
+                      <WordReveal text={m.content} />
+                    </motion.div>
+                  ) : m.content}
                 </div>
               </div>
-            ))}
+              );
+            })}
 
             {/* Real-time thinking — high-contrast, avatar visible, live progress */}
             {busy && (
