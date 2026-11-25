@@ -34,6 +34,13 @@ describe('vercel.json SPA rewrite', () => {
   it('declares exactly one rewrite so behaviour cannot drift per route', () => {
     expect(cfg.rewrites).toHaveLength(1);
   });
+
+  it('never sets cleanUrls', () => {
+    // cleanUrls makes Vercel 308-redirect /index.html to /, which breaks a
+    // rewrite whose destination is /index.html. Symptom on the deployed edge:
+    // / returned 200 while every other path returned 404.
+    expect(cfg.cleanUrls).toBeUndefined();
+  });
 });
 
 describe('project assets no longer collide with the route prefix', () => {
