@@ -56,7 +56,7 @@ export async function chatCompletion(req) {
         temperature: 0.3,
         stream: false,
       }),
-      signal: AbortSignal.timeout(Number(process.env.NARA_PROVIDER_TIMEOUT_MS ?? 15000)),
+      signal: AbortSignal.timeout(Number(process.env.NARA_PROVIDER_TIMEOUT_MS ?? 30000)),
     });
   } catch (e) {
     if (e?.name === 'TimeoutError' || e?.name === 'AbortError') throw new Error('provider_timeout');
