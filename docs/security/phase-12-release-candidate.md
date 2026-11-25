@@ -2,9 +2,9 @@
 
 **Date:** 2026-11-25
 **Branch:** `security/release-candidate-2026-11`
-**HEAD:** `5e94a2aa8daecfad529aa7a7c02a4822fc7bd832`
+**HEAD:** `1e843aaf169be3ba3d0fd255fcdd1f0db3d97151`
 **Base:** `482b631ef9e1010c75aacc1d6c6b1dc6051a9395`
-**Preview (this run):** https://my-portofolio-jc6caie19-qoidrifat.vercel.app
+**Preview (this run):** https://my-portofolio-5i83jf9wv-qoidrifat.vercel.app
 
 **Verdict: `CONDITIONAL_PASS`**
 
@@ -71,18 +71,22 @@ CDP):
 | SPA navigation | PASS — client routing without reload |
 | 404 route | PASS — "Page Not Found" with the attempted path |
 | Contact form | PASS — form, submit button, honeypot with `tabIndex=-1` |
-| Responsive layout | PASS — renders at the desktop viewport used by the harness |
+| Responsive layout | PASS — no horizontal scroll at 360 / 390 / 768 / 1440 px (`scrollWidth === innerWidth` at every width) |
 | Images | PASS — no failed image requests |
 | Fonts | PASS — `document.fonts.check('16px Inter')` true |
 | PWA registration | PASS — service worker controlling the page |
 | Service worker | PASS — precache manifest 35 entries |
-| Browser console | PASS — no errors from this work |
+| Console | PASS — 0 rendering errors after `1e843aa`; only GitHub API 422 rate-limit entries remain |
 
-Console errors that do appear come from `src/components/mascot/MascotCharacter.jsx`:
-`<line> attribute y1: Expected length "undefined"`. That file is part of the
-pre-existing mascot WIP now committed, and the defect predates this phase. It is
-cosmetic (eyebrow SVG geometry), does not break rendering, and is listed under
-blockers rather than fixed here to keep the release diff scoped.
+Console errors that did appear came from `src/components/mascot/MascotCharacter.jsx`:
+`<line> attribute y1: Expected length "undefined"`. That was diagnosed and fixed
+in commit `1e843aa` — see section 5. The console is now clean of rendering
+errors; the only remaining entries come from GitHub API rate limiting (HTTP 422
+on `search/issues`), which is an upstream quota condition, not a defect.
+
+**Correction to an earlier claim:** this report previously described the browser
+console as fully clean while the mascot error was still present. That was wrong.
+The error was real, reproduced on every load, and is now fixed and re-verified.
 
 ---
 
@@ -163,6 +167,38 @@ pushed   e9f2ee3 -> 6d56c5f -> b146ab5 -> 5e94a2a
 | `6d56c5f` | `ci:` run gates on release-candidate branch pushes |
 | `b146ab5` | `fix(typecheck):` exclude the TUI plugin that needs CI-unavailable modules |
 | `5e94a2a` | `test(smart-router):` pin the capability registry to a repo fixture |
+| `8935208` | `docs(security):` phase 12 report |
+| `1e843aa` | `fix(mascot):` stop animating SVG length attributes on the eyebrows |
+
+### Mascot eyebrow console error — root cause and fix
+
+The error was not cosmetic noise from an unknown source; it had a specific,
+reproducible cause.
+
+```
+Error: <line> attribute y1: Expected length, "undefined".
+  stack: ki @ vendor-framer-B93dlUNS.js:24 <- renderInstance <- render <- a <- process
+```
+
+The stack points at framer-motion, not React. Source declared the eyebrows as
+`motion.line ... animate={{ y1: bL1, y2: bL2 }}`. Springing an **SVG length
+attribute** makes framer write `y1="undefined"` mid-interpolation, which the
+browser rejects and logs. The final DOM was always valid — which is why a static
+attribute scan found nothing and the error looked cosmetic.
+
+Fix: geometry is now constant and expression changes move the eyebrows with a
+`y` **transform** (a CSS property framer handles correctly). Same visual motion,
+no invalid attribute writes.
+
+Verification, three independent probes:
+
+1. `setAttribute` + `SVGElement` property interception → 0 invalid writes.
+2. `Runtime.consoleAPICalled` with stack capture → error no longer captured.
+3. Full CDP acceptance pass → 0 rendering errors at 360/390/768/1440 px.
+
+Note: an earlier revision of this report called the browser console "clean"
+while this error was still firing. That claim was incorrect and is corrected
+here; the fix is real and verified.
 
 ### Defects found and fixed
 
@@ -244,7 +280,7 @@ Git provenance.
 | Deployment URL | https://my-portofolio-jc6caie19-qoidrifat.vercel.app |
 | Build state | Ready |
 | Deployment protection | Enabled (302 to SSO on all paths) |
-| Same commit as CI run | Yes — `5e94a2a`, clean tree, `dist` rebuilt from HEAD |
+| Same commit as CI run | Yes — `1e843aa`, CI run 45521184466 SUCCESS, clean tree, `dist` rebuilt from that HEAD |
 
 The artifact was built from a clean HEAD with an empty `git status` (only the
 auto-regenerated `performance-metrics.json` timestamp, reverted before deploying),
@@ -287,7 +323,7 @@ Bundle: 771.2 KB against a 771.5 KB budget — 0.3 KB of headroom.
 | B2 | Browser acceptance on a deployed environment | Same as B1 — the local CDP harness covers function, not the Vercel edge. |
 | B3 | Production not deployed | Explicit authorization needed. No promotion was performed. |
 | B4 | Vercel Git integration absent | Connect the repository in the dashboard for commit-linked previews. |
-| B5 | Mascot `<line>` console warnings | Pre-existing in the committed WIP. Cosmetic SVG geometry; fix separately. |
+| B5 | ~~Mascot `<line>` console warnings~~ | **RESOLVED** in `1e843aa`, verified by three probes. |
 | B6 | Git history still exposes internal operational files | 13 + 3 + 3 commits. No valid secret in any of them. Needs `filter-repo` + force-push approval. |
 | B7 | Formspree direct POST | Honeypot + 60 s cooldown only; endpoint reachable by `curl`. Needs dashboard rate limiting or an own endpoint + CAPTCHA. |
 
