@@ -1,9 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import MascotCharacter from './MascotCharacter';
-import MascotSpeechBubble from './MascotSpeechBubble';
-import { MASCOT_EXPRESSIONS, MASCOT_COPY, MASCOT_TIMINGS } from './mascot.constants';
-import { useLanguage } from '@/lib/LanguageContext';
 import { useMascotEngine } from './useMascotEngine';
 
 const floatVariants = {
@@ -16,70 +13,31 @@ const floatVariants = {
 };
 
 /**
- * PortfolioMascot — Cubie-style subterranean emergence + non-stop autonomous character.
+ * PortfolioMascot — Cubie-style hero decoration.
+ *
+ * NARA (bottom-right) is the single interactive guide, so this character no
+ * longer opens its own dialog: it keeps the eyes, blinking and the autonomous
+ * expression scheduler as personality, and forwards a tap to NARA. Two
+ * competing chat launchers confused visitors about who the guide was.
  */
 export default function PortfolioMascot({
   externalExpression = null,
+  onAskNara,
   size = 230,
   className = '',
 }) {
   const isReduced = useReducedMotion();
-  const { lang } = useLanguage();
-  const copy = MASCOT_COPY[lang] || MASCOT_COPY.en;
   const containerRef = useRef(null);
 
-  const [overrideExpression, setOverrideExpression] = useState(null);
-  const [isBubbleOpen, setIsBubbleOpen] = useState(false);
-  const revertTimerRef = useRef(null);
-
-  useEffect(() => {
-    return () => clearTimeout(revertTimerRef.current);
-  }, []);
-
-  const triggerTemporaryExpression = useCallback((exp, durationMs = 2600) => {
-    clearTimeout(revertTimerRef.current);
-    setOverrideExpression(exp);
-    revertTimerRef.current = setTimeout(() => {
-      setOverrideExpression(null);
-    }, durationMs);
-  }, []);
-
-  // Initial welcome greeting on emergence
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      triggerTemporaryExpression(
-        MASCOT_EXPRESSIONS.GREETING,
-        MASCOT_TIMINGS.WELCOME_DURATION_MS
-      );
-    }, 1400);
-    return () => clearTimeout(timer);
-  }, [triggerTemporaryExpression]);
-
-  // Unified engine: cursor tracking + non-stop autonomous expression scheduler + organic blinking
   const { lookX, lookY, headTilt, autonomousExpression, isBlinking } = useMascotEngine(
     containerRef,
     { isReduced }
   );
 
-  // Expression runs continuously without pause
-  const currentExpression = isBubbleOpen
-    ? MASCOT_EXPRESSIONS.GUIDE
-    : overrideExpression || externalExpression || autonomousExpression;
+  const currentExpression = externalExpression || autonomousExpression;
 
-  const handleToggleBubble = () => {
-    setIsBubbleOpen((prev) => {
-      const next = !prev;
-      if (next) triggerTemporaryExpression(MASCOT_EXPRESSIONS.HAPPY, 1200);
-      return next;
-    });
-  };
-
-  const handleActionSelect = () => {
-    triggerTemporaryExpression(
-      MASCOT_EXPRESSIONS.CELEBRATING,
-      MASCOT_TIMINGS.CELEBRATION_DURATION_MS
-    );
-  };
+  // A tap hands the conversation to NARA instead of opening a second dialog.
+  const handleActivate = () => onAskNara?.();
 
   return (
     <div
@@ -132,10 +90,8 @@ export default function PortfolioMascot({
         >
           <button
             type="button"
-            onClick={handleToggleBubble}
-            aria-haspopup="dialog"
-            aria-expanded={isBubbleOpen}
-            aria-label={copy.ariaLabel}
+            onClick={handleActivate}
+            aria-label="Ask NARA, the portfolio guide"
             className="group relative block rounded-full p-2 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-web focus-visible:ring-offset-4 focus-visible:ring-offset-zinc-950"
           >
             <div
@@ -153,30 +109,16 @@ export default function PortfolioMascot({
               headTilt={headTilt}
             />
           </button>
-
-          <MascotSpeechBubble
-            isOpen={isBubbleOpen}
-            onClose={() => {
-              setIsBubbleOpen(false);
-              setOverrideExpression(null);
-            }}
-            onActionSelect={handleActionSelect}
-            isReduced={isReduced}
-          />
         </motion.div>
       </motion.div>
 
-      {/* Permanent status slot — keeps container dimensions 100% constant regardless of open/close */}
+      {/* Status slot keeps the container height constant; the label points at NARA. */}
       <div className="h-7 mt-3 flex items-center justify-center select-none z-10 pointer-events-none">
-        <div
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900/80 border border-white/5 text-[11px] font-mono text-zinc-400 backdrop-blur-sm transition-opacity duration-150 ${
-            isBubbleOpen ? 'opacity-0' : 'opacity-100'
-          }`}
-        >
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900/80 border border-white/5 text-[11px] font-mono text-zinc-400 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="capitalize">{currentExpression}</span>
           <span className="text-zinc-600">•</span>
-          <span className="text-zinc-500">Tap to chat</span>
+          <span className="text-zinc-500">NARA guides below</span>
         </div>
       </div>
     </div>

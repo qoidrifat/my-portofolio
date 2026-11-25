@@ -14,6 +14,10 @@ const CONFIG = {
   beardProbability: 0,
   radius: 50,
   scale: 110,
+  // Flat teal disc: the avatar ships on zinc-950, where a transparent
+  // black-and-white portrait disappeared into the background. One solid
+  // colour (no gradient) keeps the CC0 art intact and reads at 64 px.
+  backgroundColor: ['134e4a'],
 };
 
 const svg = createAvatar(notionists, CONFIG)

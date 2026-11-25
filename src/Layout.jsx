@@ -398,7 +398,7 @@ export default function Layout({ children }) {
           A failed chunk load degrades to nothing, never a white screen. */}
       <SectionErrorBoundary scope="NARA" fallback={null}>
         <Suspense fallback={null}>
-          <NaraWidget />
+          <NaraWidget activeSection={activeSection} />
         </Suspense>
       </SectionErrorBoundary>
 

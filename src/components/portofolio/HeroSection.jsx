@@ -295,6 +295,7 @@ export default function HeroSection() {
               <Suspense fallback={<div className="w-[240px] h-[240px]" aria-hidden="true" />}>
                 <PortfolioMascot
                   externalExpression={mascotMood}
+                  onAskNara={() => window.dispatchEvent(new CustomEvent('nara:open'))}
                   size={240}
                   className="relative z-10"
                 />

@@ -45,28 +45,3 @@ export const MASCOT_TIMINGS = {
   MAX_PUPIL_OFFSET_Y: 5.5,
   MAX_HEAD_TILT_DEG: 4.5,
 };
-
-export const MASCOT_COPY = {
-  en: {
-    greeting: "Hey there! I'm Qoid's digital companion.",
-    prompt: 'Curious about what we build?',
-    actions: {
-      projects: 'Explore Projects',
-      about: 'Meet the Developer',
-      contact: 'Get in Touch',
-    },
-    ariaLabel: 'Interactive companion mascot. Click or press Enter to chat.',
-    closeLabel: 'Close dialog',
-  },
-  id: {
-    greeting: 'Halo! Saya pendamping digital Qoid.',
-    prompt: 'Ingin menjelajahi karya yang kami bangun?',
-    actions: {
-      projects: 'Jelajahi Proyek',
-      about: 'Profil Pengembang',
-      contact: 'Hubungi Qoid',
-    },
-    ariaLabel: 'Maskot pendamping interaktif. Klik atau tekan Enter untuk berinteraksi.',
-    closeLabel: 'Tutup dialog',
-  },
-};

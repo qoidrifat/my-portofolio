@@ -26,6 +26,8 @@ export const AVATAR_CONFIG = Object.freeze({
   beardProbability: 0,
   radius: 50,
   scale: 110,
+  // Flat teal disc so the face reads on the zinc-950 background at 64 px.
+  backgroundColor: ['134e4a'],
   license: 'CC0 (Noto avatar by Felix Wong) via DiceBear notionists',
   approvedAt: '2026-11-25',
 });

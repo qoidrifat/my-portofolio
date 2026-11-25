@@ -39,9 +39,15 @@ const SUGGESTIONS = Object.freeze({
 const THINKING_INTERVAL_MS = 2400;
 
 /**
- * @param {{ open: boolean, onClose: () => void, onStateChange?: (s: string) => void }} props
+ * @param {{
+ *   open: boolean,
+ *   onClose: () => void,
+ *   onStateChange?: (s: string) => void,
+ *   seed?: { text: string, nonce: number } | null,
+ *   onSeedConsumed?: () => void,
+ * }} props
  */
-export default function NaraChatPanel({ open, onClose, onStateChange }) {
+export default function NaraChatPanel({ open, onClose, onStateChange, seed = null, onSeedConsumed }) {
   const { lang } = useLanguage();
   /** @type {any} */
   const langT = lang;
@@ -153,6 +159,16 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
     e.preventDefault();
     submit(input);
   }
+
+  // A bubble chip or section nudge already knows the question — send it as if
+  // the visitor had typed it. nonce makes each seed fire exactly once.
+  const consumedSeedRef = useRef(-1);
+  useEffect(() => {
+    if (!open || !seed || seed.nonce === consumedSeedRef.current) return;
+    consumedSeedRef.current = seed.nonce;
+    onSeedConsumed?.();
+    submit(seed.text);
+  }, [open, seed]);
 
   const showSuggestions = messages.length === 0;
   const suggestions = SUGGESTIONS[langT] ?? SUGGESTIONS.en;

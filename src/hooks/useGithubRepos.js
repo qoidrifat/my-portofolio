@@ -104,6 +104,9 @@ async function fetchRepos() {
 }
 
 // ── Search API helper ────────────────────────────────────────────────────────
+// GitHub search treats `+` as a literal character, so encoding it as %2B turns
+// `author:x+type:pr` into one nonsense term and the API answers 422. Use a
+// real space between qualifiers and let encodeURIComponent turn it into %20.
 async function fetchSearchCount(query) {
   const res = await fetch(
     `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=1`
@@ -119,12 +122,12 @@ async function fetchSearchCount(query) {
 
 // ── Fetch PR count ──────────────────────────────────────────────────────────
 async function fetchPRs() {
-  return fetchSearchCount(`author:${GITHUB_USERNAME}+type:pr`);
+  return fetchSearchCount(`author:${GITHUB_USERNAME} type:pr`);
 }
 
 // ── Fetch issue count ───────────────────────────────────────────────────────
 async function fetchIssues() {
-  return fetchSearchCount(`author:${GITHUB_USERNAME}+type:issue`);
+  return fetchSearchCount(`author:${GITHUB_USERNAME} type:issue`);
 }
 
 // ── Fetch recent push events (proxy for contributions) ───────────────────────

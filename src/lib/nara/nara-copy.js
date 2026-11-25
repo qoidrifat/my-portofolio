@@ -7,10 +7,33 @@ export const COPY = Object.freeze({
   en: Object.freeze({
     bubbleGreeting: "Hey! I'm NARA, your guide to this portfolio. Want to look at the projects and tech?",
     bubbleSuggestions: [
-      'Curious about the projects? I can show you around.',
-      'Looking for a Full-Stack Developer? Let me walk you through the work.',
-      'Want to know more about the technical stack?',
+      'What are the strongest projects?',
+      'What tech does Qoid use daily?',
     ],
+    bubbleLabel: 'Ask NARA',
+    // Proactive nudges, one per section, shown at most a few times a session.
+    sectionPrompts: {
+      journey: {
+        text: "I can walk you through the timeline — roles, years, and what changed.",
+        question: "What is Qoid's experience timeline?",
+      },
+      projects: {
+        text: 'Curious about a project? I know the stack and the numbers behind it.',
+        question: 'Tell me about the most interesting project.',
+      },
+      skills: {
+        text: 'Want the skills broken down by years and depth?',
+        question: "What are Qoid's strongest technical skills?",
+      },
+      github: {
+        text: 'These cards update live. Ask me which repo to open first.',
+        question: 'Which repositories should I look at first?',
+      },
+      contact: {
+        text: 'Want to reach Qoid? I can tell you the fastest way.',
+        question: 'How can I contact Qoid?',
+      },
+    },
     chatTitle: 'NARA',
     chatSubtitle: 'Portfolio Guide',
     chatIntro: "Hi! I'm NARA. I can answer questions about Qoid's skills, experience, and projects — that's my whole scope.",
@@ -36,10 +59,32 @@ export const COPY = Object.freeze({
   id: Object.freeze({
     bubbleGreeting: 'Hai! Aku NARA, pemandu portfolio ini. Mau mengenal proyek dan teknologi yang digunakan di sini?',
     bubbleSuggestions: [
-      'Sedang mencari tahu proyek yang pernah dikembangkan?',
-      'Aku bisa bantu menjelaskan teknologi yang digunakan di sini.',
-      'Mau tahu bagaimana salah satu project ini dibangun?',
+      'Apa proyek paling menarik di sini?',
+      'Teknologi apa yang dipakai sehari-hari?',
     ],
+    bubbleLabel: 'Tanya NARA',
+    sectionPrompts: {
+      journey: {
+        text: 'Aku bisa jelaskan garis waktu kariernya — peran, tahun, dan perubahannya.',
+        question: 'Bagaimana garis waktu pengalaman Qoid?',
+      },
+      projects: {
+        text: 'Mau bahas sebuah proyek? Aku tahu teknologinya dan angka di belakangnya.',
+        question: 'Ceritakan proyek yang paling menarik.',
+      },
+      skills: {
+        text: 'Mau rincian keahlian berdasarkan tahun dan kedalamannya?',
+        question: 'Apa keahlian teknis terkuat Qoid?',
+      },
+      github: {
+        text: 'Kartu di sini diperbarui langsung. Tanya aku repo mana yang dibuka dulu.',
+        question: 'Repo mana yang sebaiknya aku lihat dulu?',
+      },
+      contact: {
+        text: 'Mau menghubungi Qoid? Aku tahu jalur tercepatnya.',
+        question: 'Bagaimana cara menghubungi Qoid?',
+      },
+    },
     chatTitle: 'NARA',
     chatSubtitle: 'Pemandu Portfolio',
     chatIntro: 'Hai! Aku NARA. Aku bisa menjawab pertanyaan soal keahlian, pengalaman, dan proyek Qoid — itu saja cakupanku.',
