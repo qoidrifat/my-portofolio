@@ -90,3 +90,14 @@ describe('NARA knowledge base ↔ portfolio source', () => {
     }
   });
 });
+
+describe('placeholder projects never dominate the context', () => {
+  it('a general projects question returns real projects, not Coming Soon', () => {
+    const sel = selectContext('What projects has Qoid built?');
+    expect(sel.focused).toBe(true);
+    expect(sel.projects.length).toBeGreaterThan(0);
+    for (const p of sel.projects) {
+      expect(p.isPlaceholder, p.slug + ' is a placeholder').toBe(false);
+    }
+  });
+});

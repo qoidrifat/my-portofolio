@@ -214,8 +214,19 @@ export function selectContext(question) {
       .slice(0, limit)
       .map((x) => x[key]);
 
+  let projects = top(scoredProjects, 'p', 3);
+
+  // Placeholder entries ("coming soon") must never be the only project facts
+  // shown: a question like "what projects has Qoid built?" otherwise matches
+  // the placeholder's description hardest and the model answers with nothing
+  // real. If every selected project is a placeholder, widen to all non-
+  // placeholder projects.
+  if (projects.length && projects.every((p) => p.isPlaceholder)) {
+    projects = PROJECTS.filter((p) => !p.isPlaceholder).slice(0, 3);
+  }
+
   return {
-    projects: top(scoredProjects, 'p', 3),
+    projects,
     skills: top(scoredSkills, 'k', 8),
     experience: top(scoredExp, 'e', 3),
     focused: true,
