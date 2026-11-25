@@ -8,12 +8,12 @@
 // take precedence, so /api/nara-chat is served by this file. Verified against
 // the deployed routing table in the release-candidate phases.
 
-import { renderContextForPrompt, selectContext, KNOWLEDGE } from '../../src/lib/nara/knowledge.js';
-import { checkTopic } from '../../src/lib/nara/topic-guard.js';
-import { systemPrompt } from '../../server/nara/prompt-policy.js';
-import { validateResponse } from '../../server/nara/response-validator.js';
-import { chatCompletion } from '../../server/nara/deploy-provider.js';
-import { checkAndReserve, reconcileUsage, releaseReservation } from '../../server/nara/rate-limiter.js';
+import { renderContextForPrompt, selectContext, KNOWLEDGE } from '../src/lib/nara/knowledge.js';
+import { checkTopic } from '../src/lib/nara/topic-guard.js';
+import { systemPrompt } from '../server/nara/prompt-policy.js';
+import { validateResponse } from '../server/nara/response-validator.js';
+import { chatCompletion } from '../server/nara/deploy-provider.js';
+import { checkAndReserve, reconcileUsage, releaseReservation } from '../server/nara/rate-limiter.js';
 
 // Vercel rejects 'nodejs18.x' — the current accepted values are 'nodejs',
 // 'edge' and 'experimental-edge'. 'nodejs' pins the platform default (20+).
