@@ -71,12 +71,12 @@ CDP):
 | SPA navigation | PASS — client routing without reload |
 | 404 route | PASS — "Page Not Found" with the attempted path |
 | Contact form | PASS — form, submit button, honeypot with `tabIndex=-1` |
-| Responsive layout | PASS — no horizontal scroll at 360 / 390 / 768 / 1440 px (`scrollWidth === innerWidth` at every width) |
+| Responsive layout | PASS — no horizontal overflow at 360 / 390 / 768 / 1440 px. Measured with `documentElement.scrollWidth > clientWidth`, which is the correct comparison: `window.innerWidth` includes the vertical scrollbar, so scrollWidth can legitimately be smaller (1440 viewport → scrollWidth 1432 = clientWidth 1432, overflow false). |
 | Images | PASS — no failed image requests |
 | Fonts | PASS — `document.fonts.check('16px Inter')` true |
 | PWA registration | PASS — service worker controlling the page |
 | Service worker | PASS — precache manifest 35 entries |
-| Console | PASS — 0 rendering errors after `1e843aa`; only GitHub API 422 rate-limit entries remain |
+| Console | PASS — 0 rendering errors after `1e843aa`; 0 JavaScript exceptions. Remaining entries are GitHub API HTTP 422 from the search endpoint. |
 
 Console errors that did appear came from `src/components/mascot/MascotCharacter.jsx`:
 `<line> attribute y1: Expected length "undefined"`. That was diagnosed and fixed
@@ -322,8 +322,10 @@ Bundle: 771.2 KB against a 771.5 KB budget — 0.3 KB of headroom.
 | B1 | Deployed security headers unverified | Open a preview signed in and read response headers, or disable Deployment Protection temporarily, or promote to production and verify. |
 | B2 | Browser acceptance on a deployed environment | Same as B1 — the local CDP harness covers function, not the Vercel edge. |
 | B3 | Production not deployed | Explicit authorization needed. No promotion was performed. |
-| B4 | Vercel Git integration absent | Connect the repository in the dashboard for commit-linked previews. |
+| B4 | ~~Vercel Git integration absent~~ | **RESOLVED** — Git integration is now active. Deployment `6mvk8nc7u` (`dpl_9FUomtRBNMfTfqmBiykC7DjwpjuQ`) records `Source: Git`, commit `de4d79e2`, branch `security/release-candidate-2026-11`. Provenance is now Vercel-attested, not CLI-constructed. |
 | B5 | ~~Mascot `<line>` console warnings~~ | **RESOLVED** in `1e843aa`, verified by three probes. |
+| B8 | `main` has no required status checks | `GET /branches/main/protection` → 404 "Branch not protected"; `GET /rulesets` → `[]`. CI runs and passes, but nothing forces it to pass before merge. Recommended ruleset before any merge to `main`: require the `quality` job, block force pushes, block deletion. Not applied — owner action. |
+| B9 | GitHub search API returns 422 under anonymous rate limiting | `fetchSearchCount()` returns `0` on non-2xx, so the UI stays up (verified: 0 JS exceptions, section renders) but displays "0 Pull Requests / 0 Issues" rather than "unavailable". Graceful in the sense of non-crashing; not self-describing. Classified external API limitation, not a CSP or application defect. |
 | B6 | Git history still exposes internal operational files | 13 + 3 + 3 commits. No valid secret in any of them. Needs `filter-repo` + force-push approval. |
 | B7 | Formspree direct POST | Honeypot + 60 s cooldown only; endpoint reachable by `curl`. Needs dashboard rate limiting or an own endpoint + CAPTCHA. |
 
@@ -359,3 +361,56 @@ Recommended sequence:
 
 No production deployment, no promotion, no DNS change, no force push and no
 history rewrite was performed in this phase.
+
+---
+
+## 11. Phase 12-C — Vercel Edge acceptance (awaiting owner browser evidence)
+
+Everything that can be verified without an authenticated browser session is
+verified. The two remaining gates require the owner, because Deployment
+Protection returns `302` to SSO for every anonymous request:
+
+```
+https://my-portofolio-6mvk8nc7u-qoidrifat.vercel.app/   -> 302 (SSO)
+```
+
+A `302` is not evidence of application headers and is not counted as a pass.
+
+### What to capture
+
+Open the deployment signed in, then DevTools:
+
+**A. Network → Document → Response Headers.** Expect all eight:
+
+| Header | Expected |
+|---|---|
+| `Content-Security-Policy` | exactly the value in `vercel.json` |
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | 15 capabilities disabled |
+| `Strict-Transport-Security` | `max-age=63072000` (no `includeSubDomains`, no `preload`) |
+| `Cross-Origin-Opener-Policy` | `same-origin` |
+| `Cross-Origin-Resource-Policy` | `same-origin` |
+
+**B. Resource headers.** `/sw.js`, `/manifest.webmanifest`, and one hashed
+`/assets/*.js` — the asset must carry
+`Cache-Control: public, max-age=31536000, immutable`.
+
+**C. Console.** No CSP violations, no framer-motion SVG errors, no new JS
+exceptions. HTTP 422 from `api.github.com/search/issues` is expected under
+anonymous rate limiting and is not a defect.
+
+### Helper
+
+`.security-audit/preview-acceptance-console.js` can be pasted into the DevTools
+Console on that page. It prints sections A–E (headers, resource headers, PWA
+state, responsive measurement using `scrollWidth` vs `clientWidth`, runtime
+signals) and copies the result to the clipboard. It sends nothing anywhere and
+reads no cookies or tokens.
+
+### Why this cannot be automated here
+
+No protection-bypass token was created and Deployment Protection was not
+disabled, per the phase rules. `vercel curl` generates a bypass token but fails
+in this environment with `curl: (3) URL rejected`.
