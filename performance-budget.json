@@ -23,9 +23,9 @@
     },
     {
       "resource": "total-js",
-      "budget": 2400000,
+      "budget": 2700000,
       "unit": "bytes",
-      "description": "All JS emitted to dist/assets, lazy chunks included. Raised from 790000 (2026-11-25) to admit the NARA 3D runtime (~797 KB measured), which loads only after the page is interactive. Every emitted chunk is still counted; nothing is hidden from this gate."
+      "description": "All JS emitted to dist/assets, lazy chunks included. Raised 2026-11-25 (second pass) to 2700000 after wiring the Draco decoder: draco_decoder.js adds ~719 KB as its own lazy chunk, fetched only when the GLB is parsed. Every chunk is still counted; nothing is hidden from this gate."
     },
     {
       "resource": "total-css",
