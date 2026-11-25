@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-25T02:00:16.539Z",
+  "generatedAt": "2026-11-25T12:11:44.245Z",
   "buildTime": "< 10s",
   "bundles": [
     {
       "name": "index.js",
-      "size": 202742,
-      "sizeLabel": "198.0 KB",
+      "size": 202823,
+      "sizeLabel": "198.1 KB",
       "type": "js"
     },
     {
@@ -22,8 +22,8 @@
     },
     {
       "name": "index.css",
-      "size": 89423,
-      "sizeLabel": "87.3 KB",
+      "size": 92186,
+      "sizeLabel": "90.0 KB",
       "type": "css"
     },
     {
@@ -45,9 +45,15 @@
       "type": "js"
     },
     {
+      "name": "NaraWidget.js",
+      "size": 31261,
+      "sizeLabel": "30.5 KB",
+      "type": "js"
+    },
+    {
       "name": "ProjectSection.js",
-      "size": 25845,
-      "sizeLabel": "25.2 KB",
+      "size": 25858,
+      "sizeLabel": "25.3 KB",
       "type": "js"
     },
     {
@@ -106,16 +112,16 @@
     }
   ],
   "summary": {
-    "totalJsSize": 789655,
-    "totalJsSizeLabel": "771.1 KB",
-    "totalCssSize": 89423,
-    "totalCssSizeLabel": "87.3 KB",
-    "totalPageSize": 888367,
-    "totalPageSizeLabel": "867.5 KB",
-    "totalBundles": 17,
-    "totalSourceFiles": 59,
-    "totalLinesOfCode": 12275,
-    "jsxComponents": 47
+    "totalJsSize": 821010,
+    "totalJsSizeLabel": "801.8 KB",
+    "totalCssSize": 92186,
+    "totalCssSizeLabel": "90.0 KB",
+    "totalPageSize": 922485,
+    "totalPageSizeLabel": "900.9 KB",
+    "totalBundles": 18,
+    "totalSourceFiles": 67,
+    "totalLinesOfCode": 13413,
+    "jsxComponents": 50
   },
   "scoresEstimated": {
     "performance": 78,
