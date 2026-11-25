@@ -69,8 +69,8 @@ export function limits() {
     globalDaily: Number(process.env.NARA_LIMIT_GLOBAL_DAILY ?? 25),
     globalMonthly: Number(process.env.NARA_LIMIT_GLOBAL_MONTHLY ?? 400),
     monthlyBudgetUSD: Number(process.env.NARA_BUDGET_USD ?? 0.10),
-    maxInputTokens: Number(process.env.NARA_MAX_INPUT_TOKENS ?? 1000),
-    maxOutputTokens: Number(process.env.NARA_MAX_OUTPUT_TOKENS ?? 160),
+    maxInputTokens: Number(process.env.NARA_MAX_INPUT_TOKENS ?? 1200),
+    maxOutputTokens: Number(process.env.NARA_MAX_OUTPUT_TOKENS ?? 800),
     // Published Deploy GLM-5.3-Flash rates (verified by smoke test GATE 3-A).
     inputPer1M: 0.05,
     outputPer1M: 0.17,

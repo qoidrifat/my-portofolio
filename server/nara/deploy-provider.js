@@ -48,7 +48,11 @@ export async function chatCompletion(req) {
       body: JSON.stringify({
         model: MODEL_ID,
         messages,
-        max_completion_tokens: Number(process.env.NARA_MAX_OUTPUT_TOKENS ?? 160),
+        // GLM-5.3-Flash is a reasoning model: reasoning_tokens consume the
+        // completion budget BEFORE any visible content. Verified live:
+        // 160 tokens produced finish_reason=length with empty content; 800
+        // produced finish_reason=stop with a grounded 332-char answer.
+        max_completion_tokens: Number(process.env.NARA_MAX_OUTPUT_TOKENS ?? 800),
         temperature: 0.3,
         stream: false,
       }),
