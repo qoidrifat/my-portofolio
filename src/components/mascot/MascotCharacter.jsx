@@ -46,10 +46,15 @@ export default function MascotCharacter({
   const isSleepy = expression === MASCOT_EXPRESSIONS.SLEEPY;
   const isGuide = expression === MASCOT_EXPRESSIONS.GUIDE;
 
-  const bL1 = isCurious ? 68 : isSurprised ? 66 : isThinking ? 75 : 73;
-  const bL2 = isCurious ? 71 : isSurprised ? 67 : isThinking ? 71 : 73;
-  const bR1 = isCurious ? 75 : isSurprised ? 67 : isThinking ? 71 : 73;
-  const bR2 = isCurious ? 77 : isSurprised ? 66 : isThinking ? 75 : 73;
+  // Neutral eyebrow geometry. Expression changes now move the eyebrows with a
+  // transform offset instead of rewriting the y1/y2 length attributes.
+  const BROW_NEUTRAL = 73;
+  const bL1 = BROW_NEUTRAL;
+  const bL2 = BROW_NEUTRAL;
+  const bR1 = BROW_NEUTRAL;
+  const bR2 = BROW_NEUTRAL;
+  const eyebrowShiftL = isCurious ? -5 : isSurprised ? -7 : isThinking ? 2 : 0;
+  const eyebrowShiftR = isCurious ? 2 : isSurprised ? -6 : isThinking ? -2 : 0;
 
   const gazeX = isThinking ? 3.5 : isCurious ? 3 : isGuide ? 4 : 0;
   const gazeY = isThinking ? -3.5 : isCurious ? -1 : isGuide ? 1 : isSleepy ? 2 : 0;
@@ -156,9 +161,14 @@ export default function MascotCharacter({
           <rect x="81" y="63" width="78" height="54" rx="16" fill="url(#cVisor)" stroke="hsl(var(--accent-web))" strokeWidth="1.2" strokeOpacity="0.45" />
           <path d="M 87 67 Q 120 62 153 67" stroke="rgba(255,255,255,0.28)" strokeWidth="2" strokeLinecap="round" fill="none" />
 
-          {/* Eyebrows */}
-          <motion.line x1="93" y1={bL1} x2="107" y2={bL2} stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round" animate={{ y1: bL1, y2: bL2 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} />
-          <motion.line x1="133" y1={bR1} x2="147" y2={bR2} stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round" animate={{ y1: bR1, y2: bR2 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} />
+          {/* Eyebrows.
+              Animated with `y` (a CSS transform) rather than the y1/y2
+              attributes. Springing an SVG length attribute makes framer-motion
+              write `y1="undefined"` mid-interpolation, which the browser logs as
+              "<line> attribute y1: Expected length, \"undefined\"". Transforming a
+              static line produces the same visual motion with no invalid writes. */}
+          <motion.line x1="93" y1={bL1} x2="107" y2={bL2} stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round" animate={{ y: eyebrowShiftL }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} />
+          <motion.line x1="133" y1={bR1} x2="147" y2={bR2} stroke="rgba(255,255,255,0.7)" strokeWidth="2.2" strokeLinecap="round" animate={{ y: eyebrowShiftR }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} />
 
           {/* Eyes with Parallax Gaze */}
           <motion.g style={{ x: lookX || 0, y: lookY || 0 }}>
