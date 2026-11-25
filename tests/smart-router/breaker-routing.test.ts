@@ -100,12 +100,15 @@ describe("circuit breaker → routing eligibility (closed-loop)", () => {
   it("half_open = cooldown elapsed → probe permitted (available), then success → closed → eligible", async () => {
     const probeRoot = mkdtempSync(join(tmpdir(), "sr-v21-probe-"))
     try {
-      const PROBE = { failureThreshold: 3, cooldownMs: 30 }
+      // The cooldown has to outlive three file writes, not three in-memory calls.
+      // At 30 ms the three recordFailure() calls occasionally ate the whole window
+      // on CI, so the breaker was already half_open at the first assertion.
+      const PROBE = { failureThreshold: 3, cooldownMs: 200 }
       recordFailure(probeRoot, GLM, "simulated failure 1", PROBE)
       recordFailure(probeRoot, GLM, "simulated failure 2", PROBE)
       recordFailure(probeRoot, GLM, "simulated failure 3", PROBE)
       expect(breakerStatus(probeRoot, GLM).state).toBe("open")
-      await new Promise((r) => setTimeout(r, 50))
+      await new Promise((r) => setTimeout(r, 250))
       expect(breakerStatus(probeRoot, GLM).state).toBe("half_open")
       const r = route("security-review", probeRoot)
       expect(r.model).toBe(GLM) // probe permitted
