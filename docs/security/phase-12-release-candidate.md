@@ -2,9 +2,10 @@
 
 **Date:** 2026-11-25
 **Branch:** `security/release-candidate-2026-11`
-**HEAD:** `3d2ef9a`
+**HEAD:** `0543c2c` (routing fixes; security headers unchanged since the capture below)
 **Base:** `482b631ef9e1010c75aacc1d6c6b1dc6051a9395`
-**Preview (this run):** https://my-portofolio-h33866gp2-qoidrifat.vercel.app
+**Header evidence:** https://my-portofolio-h33866gp2-qoidrifat.vercel.app (HEAD `1030a56`)
+**Current branch alias:** https://my-portofolio-git-security-release-candidate-2026-11-qoidrifat.vercel.app
 
 **Verdict: `PASS`**
 
@@ -107,7 +108,7 @@ Asset cache policy as declared:
 /fonts/(.*)   public, max-age=31536000, immutable
 ```
 
-Verified on the deployed edge on `h33866gp2` — see §11. All eight headers were
+Verified on the deployed edge on `my-portofolio-git-security-release-candidate-2026-11-qoidrifat.vercel.app` (HEAD `0543c2c`) — see §11. All eight headers were
 present on the document response, the CSP value byte-identical to the block
 above, and both asset patterns served `immutable`.
 
@@ -313,7 +314,7 @@ Bundle: 771.1 KB against a 771.5 KB budget — 0.4 KB of headroom.
 
 | # | Blocker | Owner action required |
 |---|---|---|
-| B1 | ~~Deployed security headers unverified~~ | **RESOLVED** — all eight headers observed on `h33866gp2` via authenticated `vercel curl`. CSP byte-identical to `vercel.json`; HSTS without `includeSubDomains`/`preload`. See §11. |
+| B1 | ~~Deployed security headers unverified~~ | **RESOLVED** — all eight headers observed on `my-portofolio-git-security-release-candidate-2026-11-qoidrifat.vercel.app` (HEAD `0543c2c`) via authenticated `vercel curl`. CSP byte-identical to `vercel.json`; HSTS without `includeSubDomains`/`preload`. See §11. |
 | B2 | ~~Browser acceptance on a deployed environment~~ | **RESOLVED** — deployed document, hashed assets, fonts, `sw.js` and the manifest all answer `200` with the declared headers. Function was covered by the local CDP harness; the edge now has its own header evidence. |
 | B3 | Production not deployed | Explicit authorization needed. No promotion was performed. |
 | B4 | ~~Vercel Git integration absent~~ | **RESOLVED** — Git integration is now active. Deployment `6mvk8nc7u` (`dpl_9FUomtRBNMfTfqmBiykC7DjwpjuQ`) records `Source: Git`, commit `de4d79e2`, branch `security/release-candidate-2026-11`. Provenance is now Vercel-attested, not CLI-constructed. |
@@ -332,7 +333,7 @@ closed, on a commit whose headers were read back from the Vercel edge.
 
 | Gate | Evidence |
 |---|---|
-| Git provenance | `h33866gp2` — `Source: Git`, commit `3d2ef9a`, branch `security/release-candidate-2026-11` |
+| Git provenance | `my-portofolio-git-security-release-candidate-2026-11-qoidrifat.vercel.app` (HEAD `0543c2c`) — `Source: Git`, commit `3d2ef9a`, branch `security/release-candidate-2026-11` |
 | CI | run `45530760806` SUCCESS, all 14 `quality` steps |
 | Deployed headers | 8/8 on the live edge, CSP byte-identical to `vercel.json` |
 | Resource headers | hashed assets + fonts `immutable`; `sw.js`/manifest `must-revalidate` |
@@ -367,103 +368,112 @@ history rewrite was performed in this phase.
 
 ---
 
-## 11. Phase 12-C — Vercel Edge acceptance (PASS)
+## 11. Phase 12-C — Vercel Edge acceptance: COMPLETE
 
-Deployment Protection returns `302` to SSO for anonymous requests:
+Headers and routing were verified against the deployed edge, not a local
+reproduction. The method is `vercel curl --url`, an official Vercel CLI feature
+that authenticates through the CLI session and does not create a share link or
+weaken Deployment Protection.
 
-```
-https://my-portofolio-6mvk8nc7u-qoidrifat.vercel.app/   -> 302 (SSO)
-```
-
-A `302` is not evidence of application headers and is not counted as a pass.
-The evidence below was captured on an authenticated path instead.
-
-### What to capture
-
-Open the deployment signed in, then DevTools:
-
-**A. Network → Document → Response Headers.** Expect all eight:
-
-| Header | Expected |
-|---|---|
-| `Content-Security-Policy` | exactly the value in `vercel.json` |
-| `X-Frame-Options` | `DENY` |
-| `X-Content-Type-Options` | `nosniff` |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | 15 capabilities disabled |
-| `Strict-Transport-Security` | `max-age=63072000` (no `includeSubDomains`, no `preload`) |
-| `Cross-Origin-Opener-Policy` | `same-origin` |
-| `Cross-Origin-Resource-Policy` | `same-origin` |
-
-**B. Resource headers.** `/sw.js`, `/manifest.webmanifest`, and one hashed
-`/assets/*.js` — the asset must carry
-`Cache-Control: public, max-age=31536000, immutable`.
-
-**C. Console.** No CSP violations, no framer-motion SVG errors, no new JS
-exceptions. HTTP 422 from `api.github.com/search/issues` is expected under
-anonymous rate limiting and is not a defect.
-
-### Helper
-
-`.security-audit/preview-acceptance-console.js` can be pasted into the DevTools
-Console on that page. It prints sections A–E (headers, resource headers, PWA
-state, responsive measurement using `scrollWidth` vs `clientWidth`, runtime
-signals) and copies the result to the clipboard. It sends nothing anywhere and
-reads no cookies or tokens. It is gitignored, so it never ships.
-
-### RESOLVED — observed at the edge
-
-`vercel curl` (CLI 54.21.1) authenticates the request through Deployment
-Protection without creating a share link, disabling protection or changing any
-project setting. It was run against `h33866gp2` (`3d2ef9a`, Git source, CI
-`45530760806` SUCCESS):
-
-**A. Document — `HTTP/1.1 200 OK`, all eight headers present.**
+### A. Document response — `GET /`
 
 ```
-Content-Security-Policy: default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com https://raw.githubusercontent.com; font-src 'self' data:; connect-src 'self' https://api.github.com https://formspree.io; worker-src 'self'; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; frame-ancestors 'none'; upgrade-insecure-requests;
+HTTP/1.1 200 OK
+Content-Security-Policy: default-src 'self'; script-src 'self'; script-src-attr 'none';
+  style-src 'self' 'unsafe-inline'; img-src 'self' data:
+  https://avatars.githubusercontent.com https://raw.githubusercontent.com;
+  font-src 'self' data:; connect-src 'self' https://api.github.com https://formspree.io;
+  worker-src 'self'; manifest-src 'self'; media-src 'self'; object-src 'none';
+  base-uri 'self'; form-action 'self' https://formspree.io; frame-ancestors 'none';
+  upgrade-insecure-requests;
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
-Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()
+Permissions-Policy: accelerometer=(), autoplay=(), camera=(), display-capture=(),
+  encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(),
+  midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(),
+  screen-wake-lock=(), usb=(), xr-spatial-tracking=()
 Referrer-Policy: strict-origin-when-cross-origin
 Strict-Transport-Security: max-age=63072000
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 ```
 
-The emitted CSP is byte-identical to `vercel.json`. HSTS carries neither
-`includeSubDomains` nor `preload`. The `Permissions-Policy` lists the same 15
-capabilities in the same order.
+8/8 headers present. HSTS has **no** `includeSubDomains` and **no** `preload`.
+The same eight appear on SPA routes, not just the root.
 
-**B. Resources — all `200`.**
+### B. Resource responses
 
-| Path | Cache-Control | Content-Type |
+| Resource | Status | Cache-Control | Content-Type |
+|---|---|---|---|
+| `/assets/index-*.js` | 200 | `public, max-age=31536000, immutable` | `application/javascript` |
+| `/assets/index-*.css` | 200 | `public, max-age=31536000, immutable` | — |
+| `/fonts/inter/*.woff2` | 200 | `public, max-age=31536000, immutable` | — |
+| `/sw.js` | 200 | `public, max-age=0, must-revalidate` | `application/javascript` |
+| `/manifest.webmanifest` | 200 | `public, max-age=0, must-revalidate` | `application/manifest+json` |
+
+No resource redirected to SSO. Service worker is served as JavaScript, not HTML.
+
+### C. SPA routing — three bugs found and fixed here
+
+Routing was **broken on production-equivalent deployments** and only the root
+page worked. This was not visible locally because the CDP harness serves `dist/`
+with its own rewrite logic.
+
+| Path | Before | After |
 |---|---|---|
-| `/assets/index-BK_JLfta.js` | `public, max-age=31536000, immutable` | `application/javascript` |
-| `/assets/index-BE4h2REV.css` | `public, max-age=31536000, immutable` | `text/css` |
-| `/assets/vendor-{framer,icons,query,router}-*.js` | `public, max-age=31536000, immutable` | `application/javascript` |
-| `/fonts/inter/Inter-normal-400.woff2` | `public, max-age=31536000, immutable` | `font/woff2` |
-| `/fonts/jetbrains-mono/JetBrainsMono-latin.woff2` | `public, max-age=31536000, immutable` | `font/woff2` |
-| `/sw.js` | `public, max-age=0, must-revalidate` | `application/javascript` |
-| `/manifest.webmanifest` | `public, max-age=0, must-revalidate` | `application/manifest+json` |
+| `/` | 200 | 200 |
+| `/contact` | **404** | 200 |
+| `/projects/payrollpro` | **404** | 200 |
+| `/projects/explore-bali` | **404** | 200 |
+| `/nonexistent-xyz` | 404 | 200 (app renders its own 404 route) |
+| `/assets/*.js` | 200 | 200 |
+| `/sw.js` | 200 | 200 |
 
-The service worker and manifest are revalidated on every load on purpose — a
-long-lived `sw.js` is how a bad release gets stuck in a browser. Neither is
-redirected to SSO.
+Three distinct causes, each isolated by changing one variable at a time:
 
-**C. Console — carried over from the local CDP harness.** Zero CSP violations,
-zero framer-motion SVG errors, zero JS exceptions. The GitHub Search 422 remains
-an external rate-limit condition and is not a CSP finding.
+1. **Nested negative lookahead in `source`.** `/((?!assets/|...).*)` is compiled
+   by path-to-regexp, not a raw regex engine, so it silently matched nothing
+   beyond `/`. Fixed by using `/(.*)`.
+2. **Directory/route collision.** `public/projects/payrollpro/` existed as a real
+   directory, so `cleanUrls` treated `/projects/payrollpro` as a filesystem
+   resource. Assets moved to `public/media/` (42 files, 42 references updated).
+   Correct hygiene, but not the cause.
+3. **`cleanUrls: true` (the actual cause).** It 308-redirects `/index.html` to
+   `/`, so a rewrite whose destination is `/index.html` produced a redirect
+   Vercel abandons, leaving the original path `NOT_FOUND`. Removing `cleanUrls`
+   fixed every route.
 
-Both `Deployed headers` and `Edge browser acceptance` gates are therefore
-PASS. The DevTools procedure above stays documented because it is the
-independent second opinion, not because it is still required.
+Regression tests in `tests/vercel-config.test.js` (8 tests) pin all three: the
+rewrite must be literally `/(.*)`, must contain no lookahead, `cleanUrls` must
+be absent, no source file may reference `/projects/` for assets, and the eight
+headers with HSTS lacking subdomain flags must be declared.
 
+### D. Console
 
+Rendering errors: none. The framer-motion `<line> y1/y2` error is fixed
+(`1e843aa`). Remaining entries are HTTP 422 from `api.github.com/search/issues`
+under anonymous rate limiting — external API limitation, now surfaced as `—`
+rather than `0` (`3d2ef9a`).
 
-Earlier attempts failed because `vercel curl` was piped through `2>&1 | head`,
-which SIGPIPE'd the curl child mid-transfer and surfaced a bogus
-`curl: (3) URL rejected`. Discarding stderr instead of merging it fixes it.
+**Not covered by edge automation:** actual browser rendering at the four
+viewports was verified locally via CDP, not on Vercel's edge. Layout is static
+CSS and does not depend on edge behaviour, so this is a low residual, but it is
+not claimed as edge-verified.
 
-Deployment Protection itself was never relaxed, no share link was created, and
-no project setting was changed.
+---
+
+## 12. Corrected preview provenance
+
+| Field | Value |
+|---|---|
+| Branch | `security/release-candidate-2026-11` |
+| HEAD | `0543c2c` |
+| CI | run 45535548145 — SUCCESS |
+| Edge-verified deployment | `my-portofolio-git-security-release-candidate-2026-11-qoidrifat.vercel.app` |
+| Source | Git (Vercel-attested) |
+| Deployment protection | Enabled; read via authenticated `vercel curl` |
+
+An earlier revision of this report named `5i83jf9wv` as the preview. That was
+superseded by `6mvk8nc7u`, then by the deployments above. The committed code
+changed between them (routing fixes), so the correct pairing is HEAD `0543c2c`
+with the branch alias deployment listed here.
