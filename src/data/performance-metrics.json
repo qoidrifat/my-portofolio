@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T22:25:01.742Z",
+  "generatedAt": "2026-11-25T02:00:16.539Z",
   "buildTime": "< 10s",
   "bundles": [
     {
@@ -40,7 +40,7 @@
     },
     {
       "name": "GitHubSection.js",
-      "size": 36127,
+      "size": 36139,
       "sizeLabel": "35.3 KB",
       "type": "js"
     },
@@ -58,7 +58,7 @@
     },
     {
       "name": "PortfolioMascot.js",
-      "size": 21026,
+      "size": 20991,
       "sizeLabel": "20.5 KB",
       "type": "js"
     },
@@ -106,15 +106,15 @@
     }
   ],
   "summary": {
-    "totalJsSize": 789678,
-    "totalJsSizeLabel": "771.2 KB",
+    "totalJsSize": 789655,
+    "totalJsSizeLabel": "771.1 KB",
     "totalCssSize": 89423,
     "totalCssSizeLabel": "87.3 KB",
-    "totalPageSize": 888390,
-    "totalPageSizeLabel": "867.6 KB",
+    "totalPageSize": 888367,
+    "totalPageSizeLabel": "867.5 KB",
     "totalBundles": 17,
     "totalSourceFiles": 59,
-    "totalLinesOfCode": 12264,
+    "totalLinesOfCode": 12275,
     "jsxComponents": 47
   },
   "scoresEstimated": {

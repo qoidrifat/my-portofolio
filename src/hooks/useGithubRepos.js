@@ -101,9 +101,10 @@ async function fetchSearchCount(query) {
   const res = await fetch(
     `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&per_page=1`
   );
-  if (!res.ok) return 0;
+  // null, not 0: a failed lookup must render as "unavailable", not a real count.
+  if (!res.ok) return null;
   const data = await res.json();
-  return data.total_count ?? 0;
+  return data.total_count ?? null;
 }
 
 // ── Fetch PR count ──────────────────────────────────────────────────────────
@@ -121,9 +122,9 @@ async function fetchEvents() {
   const res = await fetch(
     `https://api.github.com/users/${GITHUB_USERNAME}/events?per_page=100`
   );
-  if (!res.ok) return 0;
+  if (!res.ok) return null;
   const data = await res.json();
-  if (!Array.isArray(data)) return 0;
+  if (!Array.isArray(data)) return null;
   return data.filter(e => e.type === 'PushEvent').length;
 }
 
