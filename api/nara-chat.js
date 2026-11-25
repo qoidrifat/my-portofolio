@@ -55,10 +55,13 @@ export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   const language = req.headers['x-nara-lang'] === 'id' ? 'id' : 'en';
 
-  // Same-origin protection (SR-003). The known portfolio origins only.
+  // Same-origin protection (SR-003). Allowed: the production domain, this
+  // project's own *.vercel.app preview aliases (Vercel guarantees subdomains
+  // can only be created by the project owner), and localhost for dev.
   const allowed = ['https://qoidlab.my.id', 'https://my-portofolio-qoidrifat.vercel.app'];
+  const isVercelAlias = /^https:\/\/[a-z0-9-]+(-qoidrifat)?\.vercel\.app$/.test(origin);
   const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-  if (origin && !allowed.includes(origin) && !isLocal) {
+  if (origin && !allowed.includes(origin) && !isVercelAlias && !isLocal) {
     return res.status(403).json({ ok: false, status: 'forbidden' });
   }
 
