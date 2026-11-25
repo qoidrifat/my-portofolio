@@ -4,7 +4,7 @@ on:
   push:
     # main plus release-candidate branches. A branch push must produce a run,
     # otherwise CI looks green simply because it never started.
-    branches: [main, 'security/release-candidate-*']
+    branches: [main, 'security/release-candidate-*', 'feat/nara-*']
   pull_request:
     branches: [main]
   workflow_dispatch:
