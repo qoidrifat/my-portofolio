@@ -86,7 +86,7 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
     setThinkingSeconds(0);
     const stepId = setInterval(() => {
       setThinkingStep((prev) => Math.min(prev + 1, (t.thinkingSteps?.length ?? 1) - 1));
-    }, 1600);
+    }, 2400);
     const secId = setInterval(() => setThinkingSeconds((prev) => prev + 1), 1000);
     return () => { clearInterval(stepId); clearInterval(secId); };
   }, [busy, t]);
@@ -242,35 +242,45 @@ export default function NaraChatPanel({ open, onClose, onStateChange }) {
             ))}
 
             {busy && (
-              <div className="flex justify-start">
+              <div className="flex items-start gap-2.5">
+                {/* NARA avatar di samping thinking bubble — jelas siapa yang berpikir */}
+                <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))] p-[2px]" aria-hidden="true">
+                  <div className="h-full w-full overflow-hidden rounded-full bg-zinc-100">
+                    <NaraAvatar className="h-full w-full" />
+                  </div>
+                </div>
                 <div
-                  className="max-w-[85%] rounded-xl border border-accent-web/25 bg-accent-web/[0.07] px-3 py-2.5 text-[13px]"
+                  className="max-w-[80%] rounded-2xl rounded-tl-md border border-white/15 bg-zinc-800/95 px-4 py-3 shadow-lg"
                   role="status"
                   aria-live="polite"
                 >
-                  <span className="flex items-center gap-2 text-accent-web">
-                    <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-web opacity-60" />
-                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-web" />
+                  <span className="flex items-center gap-2.5">
+                    {/* pulsing dot — kontras tinggi, selalu terlihat */}
+                    <span className="relative flex h-3 w-3 shrink-0" aria-hidden="true">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
                     </span>
-                    <span className="font-medium">
+                    {/* step text: zinc-100 di bg-zinc-800 → kontras ~11:1, AMOLED-safe */}
+                    <span className="text-[13.5px] font-semibold leading-snug text-zinc-100">
                       {t.thinkingSteps?.[thinkingStep] ?? t.thinking}
                     </span>
-                    <span className="ml-auto text-[11px] tabular-nums text-zinc-500">
+                  </span>
+                  {/* progress bar + elapsed */}
+                  <span className="mt-2.5 flex items-center gap-2.5" aria-hidden="true">
+                    <span className="flex flex-1 gap-1">
+                      {(t.thinkingSteps ?? []).map((_, i) => (
+                        <span
+                          key={i}
+                          className={
+                            'h-1.5 flex-1 rounded-full transition-all duration-500 ' +
+                            (i < thinkingStep ? 'bg-emerald-400' : i === thinkingStep ? 'bg-emerald-400/60' : 'bg-zinc-600')
+                          }
+                        />
+                      ))}
+                    </span>
+                    <span className="text-[11px] font-medium tabular-nums text-zinc-400">
                       {t.thinkingElapsed(thinkingSeconds)}
                     </span>
-                  </span>
-                  {/* progress dots — one per remaining step */}
-                  <span className="mt-1.5 flex gap-1" aria-hidden="true">
-                    {(t.thinkingSteps ?? []).map((_, i) => (
-                      <span
-                        key={i}
-                        className={
-                          'h-1 flex-1 rounded-full transition-colors duration-500 ' +
-                          (i <= thinkingStep ? 'bg-accent-web' : 'bg-zinc-700')
-                        }
-                      />
-                    ))}
                   </span>
                 </div>
               </div>
