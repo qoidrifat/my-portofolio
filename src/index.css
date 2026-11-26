@@ -160,10 +160,9 @@
     box-shadow: 0 0 40px -10px rgb(var(--glow-ai) / 0.3);
   }
 
-  /* ── Odometer text (NARA thinking timer) ──
-     Slot-based rolling digits. Each character sits in a fixed-height window;
-     the inner track slides on Y inside a soft mask so digits dissolve at the
-     edges instead of clipping. Ported from the reference component. */
+  /* Odometer slots for the NARA timer. Each character sits in a fixed-height
+     window; the track slides on Y inside a soft mask, so digits dissolve at
+     the edges instead of clipping. */
   .rl {
     display: inline-flex;
     vertical-align: top;
@@ -171,8 +170,8 @@
     height: 1.2em;
     line-height: 1.2em;
     font-feature-settings: "tnum", "cv11", "ss01";
-    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 .07em, #000 1.13em, transparent 1.2em);
-    mask-image: linear-gradient(180deg, transparent 0, #000 .07em, #000 1.13em, transparent 1.2em);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 .07em, #000 1.13em, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 .07em, #000 1.13em, transparent);
   }
 
   .rc {
@@ -187,7 +186,6 @@
     height: 1.2em;
     line-height: 1.2em;
     font-weight: inherit;
-    text-align: center;
   }
 }
 
@@ -213,16 +211,6 @@ img {
   transform: translateY(0);
   transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
               transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* ── Animated counter shimmer when value changes ── */
-@keyframes counterPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-.counter-pop {
-  animation: counterPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -472,9 +460,8 @@ img {
 }
 
 /* ── NARA reveal + thinking (compositor-driven) ──
-   Same visuals as the reference chat component, but implemented as CSS
-   animations instead of a per-frame redraw: an 800-character reply re-rendered
-   every frame measured p99 = 126 ms under 4x CPU throttle. */
+   Same visuals as the reference, as CSS animations instead of a per-frame
+   redraw: 800 characters re-rendered per frame measured p99 = 126 ms. */
 
 @keyframes naraWordIn {
   from { opacity: 0; transform: translateY(3px); }
@@ -483,12 +470,10 @@ img {
 
 @keyframes naraChFade {
   from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 @keyframes naraCaretBreath {
-  0%, 100% { opacity: 0.15; }
-  50%      { opacity: 1; }
+  50% { opacity: 1; }
 }
 
 @keyframes naraShimmer {
@@ -498,20 +483,17 @@ img {
 
 @keyframes naraStageIn {
   from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes naraThinkPulse {
-  0%, 100% { box-shadow: 0 0 4px rgba(var(--nara-accent-rgb, 16, 185, 129), .22); }
-  50%      { box-shadow: 0 0 11px rgba(var(--nara-accent-rgb, 16, 185, 129), .45); }
+  50% { box-shadow: 0 0 11px rgba(var(--nara-accent-rgb, 16, 185, 129), .45); }
 }
 
 @keyframes naraThinkDot {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.85; }
+  50% { opacity: 0.85; }
 }
 
-/* Words animate opacity + a 3px rise: one compositor layer per word. */
+/* Words: opacity + 3px rise, one layer per word. */
 .nara-word {
   display: inline-block;
   white-space: pre;
@@ -519,8 +501,8 @@ img {
   animation-delay: var(--d, 0s);
 }
 
-/* Characters fade only. A transform on each of ~800 inline spans promotes
-   ~800 layers and measured p99 = 113 ms; the rise is animated per word. */
+/* Characters fade only: a transform on ~800 inline spans promotes as many
+   layers (p99 113 ms); the rise is animated per word instead. */
 .nara-ch {
   display: inline;
   opacity: 0;
@@ -534,14 +516,7 @@ img {
 }
 
 .nara-shimmer {
-  background-image: linear-gradient(
-    100deg,
-    #76767e 0%,
-    #76767e 38%,
-    #f0eee6 50%,
-    #76767e 62%,
-    #76767e 100%
-  );
+  background-image: linear-gradient(100deg, #76767e 38%, #f0eee6 50%, #76767e 62%);
   background-size: 260% 100%;
   background-repeat: no-repeat;
   -webkit-background-clip: text;
@@ -578,7 +553,7 @@ img {
   animation: naraThinkDot 1.6s ease-in-out infinite;
 }
 
-/* Reduced motion: show the finished state immediately. */
+/* Reduced motion: finished state immediately. */
 @media (prefers-reduced-motion: reduce) {
   .nara-word,
   .nara-ch,

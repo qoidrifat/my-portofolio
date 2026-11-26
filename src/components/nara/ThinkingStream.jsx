@@ -16,8 +16,9 @@
 // them off the main thread — while React only re-renders when a discrete value
 // changes (a whole second, one step). The rendered result is identical.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ACCENT_RGB } from './theme.js';
+import { spring, smooth, clamp } from '@/lib/motion/curves';
 
 /**
  * CSS custom properties are not part of React's CSSProperties type. Casting in
@@ -159,6 +160,59 @@ export function StreamingText({ text, accent, animate = true }) {
 }
 
 /**
+ * Rolling digits, ported from the reference `roll2()`.
+ *
+ * Only the second counter uses this (1-2 digits), so the cost is a few elements
+ * — nothing like the 800-span answer reveal.
+ *
+ * Digits roll the short way (9 -> 0 is one step) and are staggered from the
+ * right, matching the reference.
+ *
+ * @param {{ from: string, to: string, elapsed: number, duration?: number, stagger?: number }} props
+ */
+function Roll({ from, to, elapsed, duration = 0.5, stagger = 0.035 }) {
+  const n = Math.max(from.length, to.length);
+  const a = from.padStart(n, ' ');
+  const b = to.padStart(n, ' ');
+
+  return (
+    <span className="rl">
+      {Array.from({ length: n }, (_, i) => {
+        const ca = a[i];
+        const cb = b[i];
+        const p = spring(clamp((elapsed - (n - 1 - i) * stagger) / duration));
+
+        if (/\d/.test(ca) && /\d/.test(cb)) {
+          let d = (((Number(cb) - Number(ca)) % 10) + 10) % 10;
+          if (d > 5) d -= 10;
+          const pos = Number(ca) + d * p + 10;
+          return (
+            <span className="rc" key={i}>
+              <span style={{ display: 'block', transform: `translateY(${(-pos * 1.2).toFixed(3)}em)` }}>
+                {Array.from({ length: 30 }, (_, j) => (
+                  <b key={j}>{j % 10}</b>
+                ))}
+              </span>
+            </span>
+          );
+        }
+        if (ca === cb) return ca === ' ' ? null : <span className="rc" key={i}>{ca}</span>;
+        const pe = smooth(clamp((elapsed - (n - 1 - i) * stagger) / (duration * 0.7)));
+        const w = ca === ' ' ? pe : cb === ' ' ? 1 - pe : 1;
+        return (
+          <span className="rc" key={i} style={{ maxWidth: `${(w * 0.72).toFixed(3)}em` }}>
+            <span style={{ display: 'block', transform: `translateY(${(-pe * 1.2).toFixed(3)}em)` }}>
+              <b style={{ opacity: 1 - pe }}>{ca === ' ' ? '\u00a0' : ca}</b>
+              <b style={{ opacity: pe }}>{cb === ' ' ? '\u00a0' : cb}</b>
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+/**
  * Live thinking block.
  *
  * The shimmer is a moving linear-gradient clipped to the text
@@ -181,6 +235,30 @@ export function ThinkingBlock({ label, steps, seconds, accent }) {
   const stepIdx = Math.min(steps.length - 1, Math.floor(seconds / 1.8));
   const stage = steps[stepIdx] ?? steps[0] ?? '';
 
+  // Odometer driver: the reference rolls each new second with a spring, so the
+  // timer animates rather than snapping. Only runs for ~0.5 s per tick.
+  const prevSeconds = useRef(seconds);
+  const [rollElapsed, setRollElapsed] = useState(1);
+  const [rollFrom, setRollFrom] = useState(seconds);
+
+  useEffect(() => {
+    if (seconds === prevSeconds.current) return undefined;
+    const from = prevSeconds.current;
+    prevSeconds.current = seconds;
+    setRollFrom(from);
+    setRollElapsed(0);
+
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now) => {
+      const e = (now - start) / 1000;
+      setRollElapsed(e);
+      if (e < 0.6) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [seconds]);
+
   return (
     <div className="flex items-start gap-2.5">
       {/* Mark: accent tile that breathes while the model works. */}
@@ -192,7 +270,8 @@ export function ThinkingBlock({ label, steps, seconds, accent }) {
         <div className="flex items-baseline gap-1.5 text-[12.5px] font-medium leading-[1.35]">
           <span className="nara-shimmer">{label}</span>
           <span className="tabular-nums" style={{ color: accent }}>
-            {seconds}s
+            <Roll from={String(rollFrom)} to={String(seconds)} elapsed={rollElapsed} />
+            s
           </span>
         </div>
         <div key={stage} className="nara-stage mt-1 text-[12px] font-medium leading-[16px]">
