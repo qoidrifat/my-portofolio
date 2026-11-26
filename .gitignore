@@ -135,3 +135,6 @@ audit-tmp.json
 /MIGRATION_AUDIT_OPENCODE_TO_PI.md
 /RESEARCH_PI_OMP_9ROUTER_MIGRATION.md
 /AUDIT-REPORT.md
+
+# e2e framework artifacts (recordings, traces, report.json)
+.e2e/

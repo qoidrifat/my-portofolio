@@ -242,7 +242,8 @@ export default function NaraWidget({ activeSection = 'hero' }) {
             animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }}
             transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-            role="status"
+            role="complementary"
+            aria-label="NARA suggestion"
             className={
               'fixed bottom-[6.5rem] right-4 z-[55] w-[min(19rem,calc(100vw-2rem))] ' +
               'rounded-2xl border border-white/10 bg-zinc-900/95 px-4 py-3 shadow-2xl backdrop-blur-md ' +
@@ -288,11 +289,11 @@ export default function NaraWidget({ activeSection = 'hero' }) {
         )}
       </AnimatePresence>
 
-      {/* Avatar button — NARA's face, always clearly visible (F-07) */}
-      <motion.div
-        animate={bob}
-        className="fixed bottom-5 right-4 z-[55] flex items-center gap-2 sm:bottom-6 sm:right-6"
-      >
+      {/* Avatar button — NARA's face, always clearly visible (F-07).
+          The container stays put: a continuously bobbing button never holds
+          still, which makes it a moving target for visitors and unclickable
+          for Playwright ("element is not stable"). The motion moved inside. */}
+      <div className="fixed bottom-5 right-4 z-[55] flex items-center gap-2 sm:bottom-6 sm:right-6">
         {/* Name hint — tells the visitor what the face is before they tap. */}
         <AnimatePresence>
           {showHint && (
@@ -311,9 +312,8 @@ export default function NaraWidget({ activeSection = 'hero' }) {
         <motion.button
           type="button"
           onClick={openChat}
-          whileHover={reduced ? undefined : { scale: 1.07 }}
-          whileTap={reduced ? undefined : { scale: 0.94 }}
           transition={{ type: 'spring', damping: 18, stiffness: 320 }}
+          data-testid="nara-launcher"
           aria-label={t.chatTitle + ' — ' + t.chatSubtitle}
           aria-expanded={chatOpen}
           initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.5 }}
@@ -328,11 +328,14 @@ export default function NaraWidget({ activeSection = 'hero' }) {
             className="pointer-events-none absolute -inset-1.5 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))]/40 to-[hsl(var(--accent-ai))]/40 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
             aria-hidden="true"
           />
-          {/* Gradient ring — the approved NARA face sits inside, fully visible */}
-          <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))]" aria-hidden="true" />
-          <span className="absolute inset-[3px] overflow-hidden rounded-full bg-[#134e4a]">
-            <NaraAvatar className="h-full w-full" />
-          </span>
+          {/* The face breathes; the button around it stays still so the
+              click target never moves under the pointer. */}
+          <motion.span animate={bob} className="absolute inset-0 block rounded-full">
+            <span className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))]" aria-hidden="true" />
+            <span className="absolute inset-[3px] overflow-hidden rounded-full bg-[#134e4a]">
+              <NaraAvatar className="h-full w-full" />
+            </span>
+          </motion.span>
 
           {/* Thinking — a sweeping arc plus the corner pulse reads as "working". */}
           {isThinking && (
@@ -349,7 +352,7 @@ export default function NaraWidget({ activeSection = 'hero' }) {
             </>
           )}
         </motion.button>
-      </motion.div>
+      </div>
 
       <NaraChatPanel
         open={chatOpen}

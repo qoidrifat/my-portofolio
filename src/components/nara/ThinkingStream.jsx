@@ -176,7 +176,7 @@ function Roll({ from, to, elapsed, duration = 0.5, stagger = 0.035 }) {
   const b = to.padStart(n, ' ');
 
   return (
-    <span className="rl">
+    <span className="rl" aria-hidden="true">
       {Array.from({ length: n }, (_, i) => {
         const ca = a[i];
         const cb = b[i];
@@ -269,9 +269,13 @@ export function ThinkingBlock({ label, steps, seconds, accent }) {
       <div className="min-w-0">
         <div className="flex items-baseline gap-1.5 text-[12.5px] font-medium leading-[1.35]">
           <span className="nara-shimmer">{label}</span>
-          <span className="tabular-nums" style={{ color: accent }}>
-            <Roll from={String(rollFrom)} to={String(seconds)} elapsed={rollElapsed} />
-            s
+          <span className="tabular-nums" style={{ color: accent }} data-testid="nara-timer">
+            {/* The odometer is 30 stacked glyphs; assistive tech gets one
+                plain value instead of a stream of digits. */}
+            <span className="sr-only">{seconds}s</span>
+            <span aria-hidden="true">
+              <Roll from={String(rollFrom)} to={String(seconds)} elapsed={rollElapsed} />s
+            </span>
           </span>
         </div>
         <div key={stage} className="nara-stage mt-1 text-[12px] font-medium leading-[16px]">
