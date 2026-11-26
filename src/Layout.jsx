@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 
 import { navLinks, socials, profile } from '@/lib/data';
 import OptimizedImage from '@/components/OptimizedImage';
 import CommandPalette from '@/components/CommandPalette';
+import SegmentedNav from '@/components/SegmentedNav';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 const TerminalEasterEgg = lazy(() => import('@/components/TerminalEasterEgg'));
 const NaraWidget = lazy(() => import('@/components/nara/NaraWidget'));
@@ -143,31 +144,16 @@ export default function Layout({ children }) {
             {/* Desktop Navigation — lg+ only: below 1024px the full pill bar +
                 Search + CTA cannot fit and clips off-screen (768–1023px), so
                 tablets use the mobile menu instead */}
-            <div className="hidden lg:flex items-center gap-1 bg-white/5 border border-border-soft-strong p-1 rounded-2xl backdrop-blur-md">
-              {navLinks.map((link) => (
-                <motion.a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => { e.preventDefault(); scrollToSection(link.href); }}
-                  className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    activeSection === link.href.replace('#', '')
-                      ? 'text-white'
-                      : 'text-text-muted hover:text-white'
-                  }`}
-                  whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-                >
-                  {activeSection === link.href.replace('#', '') && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 bg-accent-web/20 border border-accent-web/20 rounded-xl z-[-1]"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  {NAV_TRANSLATIONS[lang]?.[link.name] || link.name}
-                </motion.a>
-              ))}
-            </div>
+            <SegmentedNav
+              className="hidden lg:block"
+              items={navLinks.map((link) => ({
+                name: link.name,
+                label: NAV_TRANSLATIONS[lang]?.[link.name] || link.name,
+                href: link.href,
+                active: activeSection === link.href.replace('#', ''),
+              }))}
+              onSelect={scrollToSection}
+            />
 
             {/* Search + Language + CTA */}
             <div className="hidden lg:flex items-center gap-2">

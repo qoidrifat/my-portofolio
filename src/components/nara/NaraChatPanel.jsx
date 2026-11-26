@@ -10,14 +10,15 @@
 // - The model output is rendered as text only (SR-006) — never as HTML.
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { copyFor } from '@/lib/nara/nara-copy';
 import { sendChat } from '@/lib/nara/chat-client';
 import { logError } from '@/lib/errors';
 import NaraAvatar from './NaraAvatar.jsx';
-import WordReveal from './WordReveal.jsx';
+import { ThinkingBlock, StreamingText, ThoughtFor } from './ThinkingStream.jsx';
+import { ACCENT_HEX, SURFACE } from './theme.js';
 
 /** @typedef {{ role: 'user'|'assistant', content: string, kind?: 'normal'|'rate_limited'|'budget'|'error'|'out_of_scope' }} Msg */
 
@@ -37,8 +38,6 @@ const SUGGESTIONS = Object.freeze({
 });
 
 /** Real-time thinking steps — advance while the provider works. */
-const THINKING_INTERVAL_MS = 2400;
-
 /**
  * @param {{
  *   open: boolean,
@@ -57,9 +56,11 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
   const [messages, setMessages] = useState(/** @type {Msg[]} */ ([]));
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState('');
-  // Real-time thinking feedback: steps advance on a timer while the provider works.
-  const [thinkingStep, setThinkingStep] = useState(0);
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
+  /** Duration of the most recent thinker, shown as "Thought for Ns". */
+  const [lastThoughtSeconds, setLastThoughtSeconds] = useState(0);
+  /** Real reasoning tokens reported by the provider for the current question. */
+  const [reasoningTokens, setReasoningTokens] = useState(0);
   const listRef = useRef(/** @type {HTMLDivElement|null} */ (null));
   const inputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
@@ -82,22 +83,18 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Real-time thinking progression — advances every 2.4 s with a live counter.
-  // Cleared whenever busy flips false, so nothing ticks in the background.
+  // Elapsed seconds for the thinking timer. The reasoning count itself comes
+  // from the provider, so the indicator never invents progress.
   useEffect(() => {
     if (!busy) {
-      setThinkingStep(0);
       setThinkingSeconds(0);
       return undefined;
     }
-    setThinkingStep(0);
     setThinkingSeconds(0);
-    const stepId = setInterval(() => {
-      setThinkingStep((prev) => Math.min(prev + 1, (t.thinkingSteps?.length ?? 1) - 1));
-    }, THINKING_INTERVAL_MS);
+    setReasoningTokens(0);
     const secId = setInterval(() => setThinkingSeconds((prev) => prev + 1), 1000);
-    return () => { clearInterval(stepId); clearInterval(secId); };
-  }, [busy, t]);
+    return () => clearInterval(secId);
+  }, [busy]);
 
   // Keep the newest message visible.
   useEffect(() => {
@@ -116,6 +113,7 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
     setInput('');
     setBusy(true);
     reportState('thinking');
+    const thinkingStartedAt = performance.now();
 
     /** @type {Msg[]} */
     const history = [...messages, { role: 'user', content: value }];
@@ -124,6 +122,8 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
     try {
       const result = await sendChat(value, /** @type {'en'|'id'} */ (langT), history.slice(0, -1));
       reportState(result.status);
+      setReasoningTokens(result.reasoningTokens ?? 0);
+      setLastThoughtSeconds(Math.max(1, Math.round((performance.now() - thinkingStartedAt) / 1000)));
 
       /** @type {Msg} */
       let reply;
@@ -237,81 +237,71 @@ export default function NaraChatPanel({ open, onClose, onStateChange, seed = nul
             )}
 
             {messages.map((m, i) => {
-              // Only the newest assistant reply animates. Older messages are
+              // Only the newest assistant reply streams. Older messages are
               // already read; replaying the reveal on every re-render would
-              // re-run the whole stagger whenever the parent state changed.
+              // restart the typewriter whenever parent state changed.
               const isFresh = m.role === 'assistant' && i === messages.length - 1 && m.kind === 'normal';
-              return (
-              <div key={i} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
-                <div
-                  className={
-                    'max-w-[85%] rounded-xl px-3 py-2 text-[13px] leading-relaxed ' +
-                    (m.role === 'user'
-                      ? 'bg-accent-web/15 text-white'
-                      : m.kind === 'rate_limited' || m.kind === 'budget'
-                        ? 'border border-amber-500/30 bg-amber-500/10 text-amber-200'
-                        : m.kind === 'error'
-                          ? 'border border-red-500/30 bg-red-500/10 text-red-200'
-                          : m.kind === 'out_of_scope'
-                            ? 'border border-white/10 bg-white/[0.04] text-zinc-400'
-                            : 'border border-white/10 bg-white/[0.05] text-zinc-200')
-                  }
-                >
-                  {/* The bubble itself fades in as it grows, so the answer never
-                      waits inside a fully-painted empty box. */}
-                  {isFresh ? (
-                    <motion.div
-                      initial={{ opacity: 0.4, scale: 0.985 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.24, ease: 'easeOut' }}
+              const isUser = m.role === 'user';
+              const isNotice = m.kind === 'rate_limited' || m.kind === 'budget' || m.kind === 'error' || m.kind === 'out_of_scope';
+
+              // Surfaces and type from the reference: right-aligned #1C1C20 pill
+              // for the prompt, plain #F2F2F4 text for the answer (no card).
+              if (isUser) {
+                return (
+                  <div key={i} className="flex justify-end">
+                    <div
+                      className="max-w-[85%] rounded-[10px] rounded-br-[4px] px-2.5 py-1.5 text-[12px] font-medium leading-[1.4]"
+                      style={{ background: SURFACE.userBubble, color: SURFACE.userBubbleText }}
                     >
-                      <WordReveal text={m.content} />
-                    </motion.div>
-                  ) : m.content}
+                      {m.content}
+                    </div>
+                  </div>
+                );
+              }
+
+              if (isNotice) {
+                return (
+                  <div key={i} className="flex justify-start">
+                    <div className="max-w-[88%] border-l-2 border-amber-500/40 pl-2.5 text-[12px] leading-[1.45] text-[#C9C9CE]">
+                      {m.content}
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={i} className="flex justify-start">
+                  <div
+                    className="max-w-[92%] text-[12.5px] font-medium leading-[1.45]"
+                    style={{ color: SURFACE.answerText }}
+                  >
+                    {isFresh && (
+                      <ThoughtFor
+                        seconds={lastThoughtSeconds}
+                        reasoningTokens={reasoningTokens}
+                        accent={ACCENT_HEX}
+                        reduced={reduced}
+                      />
+                    )}
+                    {isFresh ? (
+                      <StreamingText text={m.content} accent={ACCENT_HEX} animate={!reduced} />
+                    ) : (
+                      <span style={{ whiteSpace: 'pre-wrap' }}>{m.content}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
               );
             })}
 
-            {/* Real-time thinking — high-contrast, avatar visible, live progress */}
+            {/* Thinking — shimmered label, rolling seconds, reasoning lines rising. */}
             {busy && (
-              <div className="flex items-start gap-2.5">
-                <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-[hsl(var(--accent-web))] to-[hsl(var(--accent-ai))] p-[2px]" aria-hidden="true">
-                  <div className="h-full w-full overflow-hidden rounded-full bg-zinc-100">
-                    <NaraAvatar className="h-full w-full" />
-                  </div>
-                </div>
-                <div
-                  className="max-w-[80%] rounded-2xl rounded-tl-md border border-white/15 bg-zinc-800/95 px-4 py-3 shadow-lg"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="relative flex h-3 w-3 shrink-0" aria-hidden="true">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
-                    </span>
-                    <span className="text-[13.5px] font-semibold leading-snug text-zinc-100">
-                      {t.thinkingSteps?.[thinkingStep] ?? t.thinking}
-                    </span>
-                  </span>
-                  <span className="mt-2.5 flex items-center gap-2.5" aria-hidden="true">
-                    <span className="flex flex-1 gap-1">
-                      {(t.thinkingSteps ?? []).map((_, i) => (
-                        <span
-                          key={i}
-                          className={
-                            'h-1.5 flex-1 rounded-full transition-all duration-500 ' +
-                            (i < thinkingStep ? 'bg-emerald-400' : i === thinkingStep ? 'bg-emerald-400/60' : 'bg-zinc-600')
-                          }
-                        />
-                      ))}
-                    </span>
-                    <span className="text-[11px] font-medium tabular-nums text-zinc-400">
-                      {t.thinkingElapsed(thinkingSeconds)}
-                    </span>
-                  </span>
-                </div>
+              <div role="status" aria-live="polite">
+                <ThinkingBlock
+                  label={t.thinkingWord ?? 'Thinking'}
+                  steps={t.thinkingSteps ?? []}
+                  seconds={thinkingSeconds}
+                  accent={ACCENT_HEX}
+                />
               </div>
             )}
           </div>

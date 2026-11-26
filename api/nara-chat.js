@@ -167,7 +167,12 @@ export default async function handler(req, res) {
       status: validated.status,
       scope: 'portfolio',
       message: validated.message,
-      usage: { remainingSessionMessages: gateResult.remaining ?? null },
+      usage: {
+        remainingSessionMessages: gateResult.remaining ?? null,
+        // Real provider reasoning count — the client uses it to drive the
+        // thinking indicator with actual data, never a fabricated timer.
+        reasoningTokens: provider.usage.reasoningTokens ?? 0,
+      },
     });
   } catch (e) {
     // Release the reservation: the request failed mid-flight.

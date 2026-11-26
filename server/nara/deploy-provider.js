@@ -15,7 +15,7 @@ function key() {
 /**
  * @typedef {object} ProviderResult
  * @property {string} content
- * @property {{ promptTokens: number, completionTokens: number }} usage
+ * @property {{ promptTokens: number, completionTokens: number, reasoningTokens: number }} usage
  */
 
 /**
@@ -86,6 +86,10 @@ export async function chatCompletion(req) {
     usage: {
       promptTokens: Number(body?.usage?.prompt_tokens ?? 0),
       completionTokens: Number(body?.usage?.completion_tokens ?? 0),
+      // Real reasoning accounting from the provider. Surfaced to the client so
+      // the thinking indicator reports what the model actually did instead of
+      // animating a fake timer.
+      reasoningTokens: Number(body?.usage?.completion_tokens_details?.reasoning_tokens ?? 0),
     },
   };
 }

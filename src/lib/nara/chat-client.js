@@ -28,6 +28,7 @@ function getSessionId() {
  * @property {'success'|'out_of_scope'|'rate_limited'|'budget_exhausted'|'error'} status
  * @property {string} message
  * @property {number} [remainingSessionMessages]
+ * @property {number} [reasoningTokens] Real reasoning tokens reported by the provider.
  */
 
 /**
@@ -89,5 +90,6 @@ export async function sendChat(message, language = 'en', conversation = [], sign
     status: data.scope === 'portfolio' ? 'success' : data.status === 'out_of_scope' ? 'out_of_scope' : 'success',
     message: typeof data.message === 'string' ? data.message : '',
     remainingSessionMessages: data.usage?.remainingSessionMessages,
+    reasoningTokens: Number(data.usage?.reasoningTokens ?? 0),
   };
 }

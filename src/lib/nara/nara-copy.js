@@ -43,6 +43,7 @@ export const COPY = Object.freeze({
     close: 'Close NARA chat',
     suggestionsHeading: 'Try asking',
     thinking: 'NARA is thinking…',
+    thinkingWord: 'Thinking',
     thinkingSteps: [
       'Reading your question…',
       'Checking the portfolio facts…',
@@ -94,6 +95,7 @@ export const COPY = Object.freeze({
     close: 'Tutup obrolan NARA',
     suggestionsHeading: 'Coba tanyakan',
     thinking: 'NARA sedang berpikir…',
+    thinkingWord: 'Thinking',
     thinkingSteps: [
       'Membaca pertanyaan kamu…',
       'Memeriksa fakta portfolio…',

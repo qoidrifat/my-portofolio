@@ -100,7 +100,6 @@
   }
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -159,6 +158,36 @@
 
   .shadow-glow-emerald {
     box-shadow: 0 0 40px -10px rgb(var(--glow-ai) / 0.3);
+  }
+
+  /* ── Odometer text (NARA thinking timer) ──
+     Slot-based rolling digits. Each character sits in a fixed-height window;
+     the inner track slides on Y inside a soft mask so digits dissolve at the
+     edges instead of clipping. Ported from the reference component. */
+  .rl {
+    display: inline-flex;
+    vertical-align: top;
+    overflow: hidden;
+    height: 1.2em;
+    line-height: 1.2em;
+    font-feature-settings: "tnum", "cv11", "ss01";
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 .07em, #000 1.13em, transparent 1.2em);
+    mask-image: linear-gradient(180deg, transparent 0, #000 .07em, #000 1.13em, transparent 1.2em);
+  }
+
+  .rc {
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .rc b {
+    display: block;
+    height: 1.2em;
+    line-height: 1.2em;
+    font-weight: inherit;
+    text-align: center;
   }
 }
 
@@ -291,11 +320,6 @@ img {
 }
 
 /* Glow pulse behind logo */
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50%      { opacity: 0.7; transform: scale(1.1); }
-}
-
 /* Slow floating particles */
 @keyframes particleFloat {
   0% {
@@ -333,26 +357,6 @@ img {
 }
 
 /* SUCCESS badge entrance — premium pop with glow */
-@keyframes successBadgeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.85);
-    filter: blur(4px);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-    filter: blur(0px);
-  }
-  75% {
-    transform: scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0px);
-  }
-}
 
 /* ── macOS Terminal (PortfolioTerminal.jsx) ── */
 
@@ -465,4 +469,130 @@ img {
 @keyframes terminalScanline {
   0%   { transform: translateY(0); }
   100% { transform: translateY(50%); }
+}
+
+/* ── NARA reveal + thinking (compositor-driven) ──
+   Same visuals as the reference chat component, but implemented as CSS
+   animations instead of a per-frame redraw: an 800-character reply re-rendered
+   every frame measured p99 = 126 ms under 4x CPU throttle. */
+
+@keyframes naraWordIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes naraChFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes naraCaretBreath {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 1; }
+}
+
+@keyframes naraShimmer {
+  0%   { background-position: -140% 0; }
+  100% { background-position: 240% 0; }
+}
+
+@keyframes naraStageIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes naraThinkPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(var(--nara-accent-rgb, 16, 185, 129), .22); }
+  50%      { box-shadow: 0 0 11px rgba(var(--nara-accent-rgb, 16, 185, 129), .45); }
+}
+
+@keyframes naraThinkDot {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
+}
+
+/* Words animate opacity + a 3px rise: one compositor layer per word. */
+.nara-word {
+  display: inline-block;
+  white-space: pre;
+  animation: naraWordIn var(--f, 0.14s) ease-out both;
+  animation-delay: var(--d, 0s);
+}
+
+/* Characters fade only. A transform on each of ~800 inline spans promotes
+   ~800 layers and measured p99 = 113 ms; the rise is animated per word. */
+.nara-ch {
+  display: inline;
+  opacity: 0;
+  animation: naraChFade var(--f, 0.14s) ease-out both;
+  animation-delay: var(--d, 0s);
+}
+
+.nara-caret {
+  display: inline-block;
+  animation: naraCaretBreath 1.1s ease-in-out infinite;
+}
+
+.nara-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    #76767e 0%,
+    #76767e 38%,
+    #f0eee6 50%,
+    #76767e 62%,
+    #76767e 100%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: naraShimmer 2.1s linear infinite;
+}
+
+.nara-stage {
+  color: #a9a9b0;
+  animation: naraStageIn 320ms ease-out both;
+}
+
+.nara-think-mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  width: 26px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: 8px;
+  background: rgba(var(--nara-accent-rgb, 16, 185, 129), 0.12);
+  animation: naraThinkPulse 2.4s ease-in-out infinite;
+}
+
+.nara-think-dot {
+  display: block;
+  height: 7px;
+  width: 7px;
+  border-radius: 9999px;
+  background: var(--accent, #10b981);
+  animation: naraThinkDot 1.6s ease-in-out infinite;
+}
+
+/* Reduced motion: show the finished state immediately. */
+@media (prefers-reduced-motion: reduce) {
+  .nara-word,
+  .nara-ch,
+  .nara-stage,
+  .nara-think-mark,
+  .nara-think-dot {
+    animation: none !important;
+  }
+  .nara-ch { opacity: 1; }
+  .nara-caret { animation: none; opacity: 0.6; }
+  .nara-shimmer {
+    animation: none;
+    background: none;
+    color: #8e8e93;
+    -webkit-text-fill-color: currentColor;
+  }
 }
